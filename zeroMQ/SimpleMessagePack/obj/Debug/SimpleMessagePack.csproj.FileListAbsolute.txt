@@ -1,0 +1,11 @@
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\obj\Debug\SimpleMessagePack.csprojAssemblyReference.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\obj\Debug\SimpleMessagePack.csproj.CoreCompileInputs.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\SimpleMessagePack.exe.config
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\SimpleMessagePack.exe
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\SimpleMessagePack.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\Castle.Core.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\SimpleMsgPack.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\bin\Debug\Castle.Core.xml
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\obj\Debug\SimpleMessagePack.csproj.CopyComplete
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\obj\Debug\SimpleMessagePack.exe
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\SimpleMessagePack\obj\Debug\SimpleMessagePack.pdb

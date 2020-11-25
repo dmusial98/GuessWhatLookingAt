@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zeroMQClient", "zeroMQClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PupilRequestClient", "PupilRequestClient\PupilRequestClient.csproj", "{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMessagePack", "SimpleMessagePack\SimpleMessagePack.csproj", "{81929563-A114-4C9E-81B7-4B7EC617D5AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
