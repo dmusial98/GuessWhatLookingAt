@@ -13,13 +13,13 @@ namespace SimpleMsgPackTester
         static void Test1()
         {
             MsgPack msgpack = new MsgPack();
-            //msgpack.ForcePathObject("p.name").AsString = "DupaDupaDupa no i dupa";
-            //msgpack.ForcePathObject("p.age").AsInteger = 1321274125;
-            //msgpack.ForcePathObject("p.datas").AsArray.Add(90);
-            //msgpack.ForcePathObject("p.datas").AsArray.Add(80);
-            //msgpack.ForcePathObject("p.datas").AsArray.Add("Jakiś dziwny string :D");
-            //msgpack.ForcePathObject("p.datas").AsArray.Add(3.1415926);
-            //msgpack.ForcePathObject("Game.iGameID").AsInteger = 1;
+            msgpack.ForcePathObject("p.name").AsString = "DupaDupaDupa no i dupa";
+            msgpack.ForcePathObject("p.age").AsInteger = 1321274125;
+            msgpack.ForcePathObject("p.datas").AsArray.Add(90);
+            msgpack.ForcePathObject("p.datas").AsArray.Add(80);
+            msgpack.ForcePathObject("p.datas").AsArray.Add("Jakiś dziwny string :D");
+            msgpack.ForcePathObject("p.datas").AsArray.Add(3.1415926);
+            msgpack.ForcePathObject("Game.iGameID").AsInteger = 1;
 
             // 可以直接打包文件数据
             // msgpack.ForcePathObject("p.filedata").LoadFileAsBytes("C:\\a.png");

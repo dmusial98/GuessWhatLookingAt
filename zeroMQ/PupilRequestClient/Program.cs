@@ -32,25 +32,7 @@ namespace PupilRequestClient
                 {
                     //connect to zmq subscriber port and getting gaze data
                     subscriber.Connect("tcp://127.0.0.1:" + subPort);
-                    subscriber.Subscribe("gaze.");
-
-                    //decimal[] norm_pos = { 0.1295810100458894m, 0.3207013110574589m };
-                    //var ellipse = new PupilGaze3d.Ellipse
-                    //{
-                    //    angle = -18.24879778134816m
-                    //};
-
-                    //var serializeContent = new PupilGaze3d
-                    //{
-                    //    id = 0,
-                    //    topic = "pupil.0.3d",
-                    //    method = "3d c++",
-                    //    norm_pos = norm_pos,
-                    //    diameter = 52.36177621161693m,
-                    //    timestamp = 114229.990821m,
-                    //    confidence = 0.9989116277448433m,
-                    //    ellipse = ellipse,
-                    //};
+                    //subscriber.Subscribe("gaze.");
 
                     try
                     {
@@ -59,47 +41,130 @@ namespace PupilRequestClient
 
                         //for (int i = 0; i < 10; i++)
                         //{
-                        var msg = subscriber.ReceiveFrameString();
-                        var gaze = subscriber.ReceiveFrameBytes();
+                        //var msg = subscriber.ReceiveFrameString();
+                        //var gaze = subscriber.ReceiveFrameBytes();
 
-                        sw.WriteLine("Data length: {0}", gaze.Length);
-                        sw.WriteLine("Text: {0}", msg);
+                        //sw.WriteLine("Data length: {0}", gaze.Length);
+                        //sw.WriteLine("Text: {0}", msg);
 
-                        Console.WriteLine("Data length: {0}", gaze.Length);
-                        Console.WriteLine("Text: {0}", msg);
+                        //Console.WriteLine("Data length: {0}", gaze.Length);
+                        //Console.WriteLine("Text: {0}", msg);
 
-                        foreach (var element in gaze)
-                        {
-                            sw.Write("{0} ", element.ToString("X"));
-                            Console.WriteLine("0x{0} ", element.ToString("X"));
-                        }
-
-                        sw.WriteLine();
-
-                        MsgPack unpackMsgPack = new MsgPack();
-                        unpackMsgPack.DecodeFromBytes(gaze);
-
-                        var baseData = unpackMsgPack.ForcePathObject("base_data").AsArray;
-
-                        Console.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
-                        Console.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
-                        //Console.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("method").AsString);
-                        Console.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
-                        Console.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
-                        Console.WriteLine("theta: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
-
-                        sw.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
-                        sw.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
-                        //Console.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("method").AsString);
-                        sw.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
-                        sw.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
-                        sw.WriteLine("theta: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
-
-                        Console.ReadKey();
+                        //foreach (var element in gaze)
+                        //{
+                        //    sw.Write("{0} ", element.ToString("X"));
+                        //    Console.WriteLine("0x{0} ", element.ToString("X"));
                         //}
 
-                        //Close the file
+                        //sw.WriteLine();
+
+                        //MsgPack unpackMsgPack = new MsgPack();
+                        //unpackMsgPack.DecodeFromBytes(gaze);
+
+                        //var baseData = unpackMsgPack.ForcePathObject("base_data").AsArray;
+
+                        //Console.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
+                        //Console.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
+                        //Console.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
+                        //Console.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
+                        //Console.WriteLine("theta: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
+
+                        //sw.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
+                        //sw.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
+                        //sw.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
+                        //sw.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
+                        //sw.WriteLine("theta: {0}\n", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
+
+                        subscriber.Subscribe("frame.");
+
+          
+                        var msgpackPackNotify = new MsgPack();
+                        msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
+                        msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
+                        var byteArrayNotify = msgpackPackNotify.Encode2Bytes();
+
+                        foreach(byte element in byteArrayNotify)
+                        {
+                            sw.Write("{0} ", element.ToString("X"));
+                        }
+
+                        sw.WriteLine("\n");
+
+                        client.SendMoreFrame("topic.frame_publishing.set_format")
+                            .SendFrame(byteArrayNotify);
+
+                        Console.WriteLine();
+                        Console.WriteLine("{0}", client.ReceiveFrameString());
+
+
+                        string topic = subscriber.ReceiveFrameString(); //nazwa kamery
+                        var payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
+
+                        var msgpackFrameDecode = new MsgPack();
+                        msgpackFrameDecode.DecodeFromBytes(payload);
+
+                        long height = msgpackFrameDecode.ForcePathObject("height").AsInteger;
+                        long width = msgpackFrameDecode.ForcePathObject("width").AsInteger;
+                        var rawData = msgpackFrameDecode.ForcePathObject("__raw_data__").AsArray;
+
+
+                        sw.WriteLine(topic);
+                        Console.WriteLine(topic);
+
+                        foreach(byte element in payload)
+                        {
+                            sw.Write("{0} ", element.ToString("X"));
+                        }
+
+                        sw.WriteLine("\n");
+
+                        payload = subscriber.ReceiveFrameBytes();
+
+                        var msgpackFrameDecode2 = new MsgPack();
+                        msgpackFrameDecode2.DecodeFromBytes(payload);
+                        height = msgpackFrameDecode2.ForcePathObject("height").AsInteger;
+                        width = msgpackFrameDecode2.ForcePathObject("width").AsInteger;
+                        rawData = msgpackFrameDecode2.ForcePathObject("__raw_data__").AsArray;
+
+                        foreach (byte element in payload)
+                        {
+                            sw.Write("{0} ", element.ToString("X"));
+                        }
+
+                        sw.WriteLine("\n");
+
+                        topic = subscriber.ReceiveFrameString();
+
+                        payload = subscriber.ReceiveFrameBytes();
+
+                        //foreach (byte element in payload)
+                        //{
+                        //    sw.Write("{0} ", element.ToString("X"));
+                        //}
+
+                        sw.WriteLine(topic);
+
+                        sw.WriteLine("\n");
+                        //}
+
+                        foreach (byte element in payload)
+                        {
+                            sw.Write("{0} ", element.ToString("X"));
+                        }
+
+                        sw.WriteLine("\n");
+
+                        payload = subscriber.ReceiveFrameBytes();
+
+                        foreach (byte element in payload)
+                        {
+                            sw.Write("{0} ", element.ToString("X"));
+                        }
+
                         sw.Close();
+                        Console.ReadKey();
+
+
                     }
                     catch (Exception e)
                     {
@@ -114,5 +179,7 @@ namespace PupilRequestClient
                 }
             }
         }
+
+
     }
 }

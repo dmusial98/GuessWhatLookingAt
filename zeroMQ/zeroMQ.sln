@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PupilRequestClient", "Pupil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMessagePack", "SimpleMessagePack\SimpleMessagePack.csproj", "{81929563-A114-4C9E-81B7-4B7EC617D5AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmguCV", "EmguCV\EmguCV.csproj", "{22E5D017-2637-420A-BE85-C83AC31F1BC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81929563-A114-4C9E-81B7-4B7EC617D5AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
