@@ -7,6 +7,10 @@ using NetMQ.Sockets;
 using NetMQ;
 using SimpleMsgPack;
 using System.IO;
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using System.Runtime.InteropServices;
 
 namespace PupilRequestClient
 {
@@ -32,49 +36,11 @@ namespace PupilRequestClient
                 {
                     //connect to zmq subscriber port and getting gaze data
                     subscriber.Connect("tcp://127.0.0.1:" + subPort);
-                    //subscriber.Subscribe("gaze.");
-
+                   
                     try
                     {
                         //open file for saving data
                         StreamWriter sw = new StreamWriter("C:\\Users\\dmusi\\source\\repos\\GuessWhatLookingAt\\zeroMQ\\PupilRequestClient\\Gaze_Pupil.txt");
-
-                        //for (int i = 0; i < 10; i++)
-                        //{
-                        //var msg = subscriber.ReceiveFrameString();
-                        //var gaze = subscriber.ReceiveFrameBytes();
-
-                        //sw.WriteLine("Data length: {0}", gaze.Length);
-                        //sw.WriteLine("Text: {0}", msg);
-
-                        //Console.WriteLine("Data length: {0}", gaze.Length);
-                        //Console.WriteLine("Text: {0}", msg);
-
-                        //foreach (var element in gaze)
-                        //{
-                        //    sw.Write("{0} ", element.ToString("X"));
-                        //    Console.WriteLine("0x{0} ", element.ToString("X"));
-                        //}
-
-                        //sw.WriteLine();
-
-                        //MsgPack unpackMsgPack = new MsgPack();
-                        //unpackMsgPack.DecodeFromBytes(gaze);
-
-                        //var baseData = unpackMsgPack.ForcePathObject("base_data").AsArray;
-
-                        //Console.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
-                        //Console.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
-                        //Console.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
-                        //Console.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
-                        //Console.WriteLine("theta: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
-
-                        //sw.WriteLine("method: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
-                        //sw.WriteLine("topic: {0}", unpackMsgPack.ForcePathObject("topic").AsString);
-                        //sw.WriteLine("confidence: {0}", unpackMsgPack.ForcePathObject("confidence").AsFloat);
-                        //sw.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
-                        //sw.WriteLine("theta: {0}\n", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
-
 
                         //ustawienie subskrbcji na odbieranie obrazu
                         subscriber.Subscribe("frame.");
@@ -98,17 +64,29 @@ namespace PupilRequestClient
 
                         Console.WriteLine();
                         Console.WriteLine("{0}", client.ReceiveFrameString());
-                        
-                        //odebranie nazwy i parametrow obrazu 
-                        string topic = subscriber.ReceiveFrameString(); //nazwa kamery
-                        var payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
 
-                        var msgpackFrameDecode = new MsgPack();
-                        msgpackFrameDecode.DecodeFromBytes(payload);
+                        bool IsMainCamera = false;
+                        string topic = "";
+                        byte[] payload = new byte[1];
+                        long height;
+                        long width;
+                        MsgPack msgpackFrameDecode = new MsgPack();
+
+                        while (!IsMainCamera)
+                        {
+                            //odebranie nazwy i parametrow obrazu 
+                            topic = subscriber.ReceiveFrameString(); //nazwa kamery
+                            payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
+                            msgpackFrameDecode.DecodeFromBytes(payload);
+
+                            if (msgpackFrameDecode.ForcePathObject("topic").AsString == "frame.world")
+                                IsMainCamera = true;
+                        }
+                        
 
                         //odczytanie parametrow obrazu
-                        long height = msgpackFrameDecode.ForcePathObject("height").AsInteger;
-                        long width = msgpackFrameDecode.ForcePathObject("width").AsInteger;
+                        height = msgpackFrameDecode.ForcePathObject("height").AsInteger;
+                        width = msgpackFrameDecode.ForcePathObject("width").AsInteger;
 
                         sw.WriteLine(topic);
                         Console.WriteLine(topic);
@@ -122,43 +100,24 @@ namespace PupilRequestClient
 
 
                         //odebranie obrazu w formacie bgr
-                        payload = subscriber.ReceiveFrameBytes();
+                        var data = subscriber.ReceiveFrameBytes();
 
-                        Console.WriteLine("size of payload: {0}", payload.Length);
 
-                        foreach (byte element in payload)
-                        {
-                            sw.Write("{0} ", element.ToString("X"));
-                        }
+                        String PupilWindow = "Pupil Window"; //The name of the window
+                        CvInvoke.NamedWindow(PupilWindow); //Create the window using the specific name
 
-                        sw.WriteLine("\n");
+                        //Mat image = new Mat(Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3);
+                        GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+                        IntPtr pointer = pinnedArray.AddrOfPinnedObject();  
+                        Mat Image2 = new Mat( Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3, pointer, Convert.ToInt32(width) * 3);
+                        pinnedArray.Free();
 
-                        topic = subscriber.ReceiveFrameString();
+                        CvInvoke.Imshow(PupilWindow, Image2); //Show the image
+                        CvInvoke.WaitKey(0);  //Wait for the key pressing event
+                        CvInvoke.DestroyWindow(PupilWindow); //Destroy the window if key is pressed
 
-                        payload = subscriber.ReceiveFrameBytes();
 
-                        sw.WriteLine(topic);
-
-                        sw.WriteLine("\n");
-                        //}
-
-                        foreach (byte element in payload)
-                        {
-                            sw.Write("{0} ", element.ToString("X"));
-                        }
-
-                        sw.WriteLine("\n");
-
-                        payload = subscriber.ReceiveFrameBytes();
-
-                        foreach (byte element in payload)
-                        {
-                            sw.Write("{0} ", element.ToString("X"));
-                        }
-
-                        sw.Close();
-                        Console.ReadKey();
-
+                      
 
                     }
                     catch (Exception e)

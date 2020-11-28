@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zeroMQ", "zeroMQ\zeroMQ.csproj", "{8830DD34-8B40-4F3B-9E70-055D507EEA40}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zeroMQClient", "zeroMQClient\zeroMQClient.csproj", "{E71FBA96-28A7-476E-BE61-060EFBC9C1BB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PupilRequestClient", "PupilRequestClient\PupilRequestClient.csproj", "{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMessagePack", "SimpleMessagePack\SimpleMessagePack.csproj", "{81929563-A114-4C9E-81B7-4B7EC617D5AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmguCV", "EmguCV\EmguCV.csproj", "{22E5D017-2637-420A-BE85-C83AC31F1BC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReshapeArrayC", "ReshapeArrayC\ReshapeArrayC.csproj", "{91E17461-3FC7-4BEC-AFE1-3CDD7D7050BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8830DD34-8B40-4F3B-9E70-055D507EEA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8830DD34-8B40-4F3B-9E70-055D507EEA40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8830DD34-8B40-4F3B-9E70-055D507EEA40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8830DD34-8B40-4F3B-9E70-055D507EEA40}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E71FBA96-28A7-476E-BE61-060EFBC9C1BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E71FBA96-28A7-476E-BE61-060EFBC9C1BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E71FBA96-28A7-476E-BE61-060EFBC9C1BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E71FBA96-28A7-476E-BE61-060EFBC9C1BB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA972446-56A1-4B9F-8B8A-FE8EB4C66879}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +29,10 @@ Global
 		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22E5D017-2637-420A-BE85-C83AC31F1BC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91E17461-3FC7-4BEC-AFE1-3CDD7D7050BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91E17461-3FC7-4BEC-AFE1-3CDD7D7050BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91E17461-3FC7-4BEC-AFE1-3CDD7D7050BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91E17461-3FC7-4BEC-AFE1-3CDD7D7050BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
