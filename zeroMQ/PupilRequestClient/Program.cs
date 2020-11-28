@@ -75,9 +75,11 @@ namespace PupilRequestClient
                         //sw.WriteLine("phi: {0}", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
                         //sw.WriteLine("theta: {0}\n", unpackMsgPack.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
 
+
+                        //ustawienie subskrbcji na odbieranie obrazu
                         subscriber.Subscribe("frame.");
 
-          
+                        //przygotowanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
                         var msgpackPackNotify = new MsgPack();
                         msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
                         msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
@@ -90,23 +92,23 @@ namespace PupilRequestClient
 
                         sw.WriteLine("\n");
 
+                        //wysylanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
                         client.SendMoreFrame("topic.frame_publishing.set_format")
                             .SendFrame(byteArrayNotify);
 
                         Console.WriteLine();
                         Console.WriteLine("{0}", client.ReceiveFrameString());
-
-
+                        
+                        //odebranie nazwy i parametrow obrazu 
                         string topic = subscriber.ReceiveFrameString(); //nazwa kamery
                         var payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
 
                         var msgpackFrameDecode = new MsgPack();
                         msgpackFrameDecode.DecodeFromBytes(payload);
 
+                        //odczytanie parametrow obrazu
                         long height = msgpackFrameDecode.ForcePathObject("height").AsInteger;
                         long width = msgpackFrameDecode.ForcePathObject("width").AsInteger;
-                        var rawData = msgpackFrameDecode.ForcePathObject("__raw_data__").AsArray;
-
 
                         sw.WriteLine(topic);
                         Console.WriteLine(topic);
@@ -118,13 +120,11 @@ namespace PupilRequestClient
 
                         sw.WriteLine("\n");
 
+
+                        //odebranie obrazu w formacie bgr
                         payload = subscriber.ReceiveFrameBytes();
 
-                        var msgpackFrameDecode2 = new MsgPack();
-                        msgpackFrameDecode2.DecodeFromBytes(payload);
-                        height = msgpackFrameDecode2.ForcePathObject("height").AsInteger;
-                        width = msgpackFrameDecode2.ForcePathObject("width").AsInteger;
-                        rawData = msgpackFrameDecode2.ForcePathObject("__raw_data__").AsArray;
+                        Console.WriteLine("size of payload: {0}", payload.Length);
 
                         foreach (byte element in payload)
                         {
@@ -136,11 +136,6 @@ namespace PupilRequestClient
                         topic = subscriber.ReceiveFrameString();
 
                         payload = subscriber.ReceiveFrameBytes();
-
-                        //foreach (byte element in payload)
-                        //{
-                        //    sw.Write("{0} ", element.ToString("X"));
-                        //}
 
                         sw.WriteLine(topic);
 

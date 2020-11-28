@@ -17,7 +17,7 @@ namespace EmguCV
             CvInvoke.NamedWindow(win1); //Create the window using the specific name
             Mat img = new Mat(200, 400, DepthType.Cv8U, 3); //Create a 3 channel image of 400x200
             img.SetTo(new Bgr(255, 0, 0).MCvScalar); // set it to Blue color
-
+            
             //Draw "Hello, world." on the image using the specific font
             CvInvoke.PutText(
                img,
