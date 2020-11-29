@@ -22,7 +22,6 @@ namespace PupilRequestClient
             {
                 client.Connect("tcp://127.0.0.1:50020");
 
-
                 //getting subscriber and publisher port
                 client.SendFrame("SUB_PORT");
                 var subPort = client.ReceiveFrameString();
@@ -42,9 +41,6 @@ namespace PupilRequestClient
 
                     try
                     {
-                        //open file for saving data
-                        //StreamWriter sw = new StreamWriter("C:\\Users\\dmusi\\source\\repos\\GuessWhatLookingAt\\zeroMQ\\PupilRequestClient\\Gaze_Pupil.txt");
-
                         //ustawienie subskrbcji na odbieranie obrazu
                         subscriber.Subscribe("frame.world");
 
@@ -60,7 +56,6 @@ namespace PupilRequestClient
 
                         Console.WriteLine("{0}", client.ReceiveFrameString());
 
-                        bool IsMainCamera = false;
                         string topic = "";
                         byte[] payload = new byte[1];
                         long height = 100;
@@ -71,41 +66,28 @@ namespace PupilRequestClient
 
                         while (true)
                         {
-                            while (!IsMainCamera)
-                            {
-                                //odebranie nazwy i parametrow obrazu 
-                                topic = subscriber.ReceiveFrameString(); //nazwa kamery
-                                payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
+                            //odebranie nazwy i parametrow obrazu 
+                            topic = subscriber.ReceiveFrameString(); //nazwa kamery
+                            payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
 
-                                MsgPack msgpackFrameDecode = new MsgPack();
-                                msgpackFrameDecode.DecodeFromBytes(payload);
-
-                                if (msgpackFrameDecode.ForcePathObject("topic").AsString == "frame.world")
-                                    IsMainCamera = true;
-
-                                height = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
-                                width = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
-
-                                //odebranie obrazu w formacie bgr
-                                data = subscriber.ReceiveFrameBytes();
-                            }
+                            MsgPack msgpackFrameDecode = new MsgPack();
+                            msgpackFrameDecode.DecodeFromBytes(payload);
 
                             //odczytanie parametrow obrazu
 
+                            height = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
+                            width = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
 
-
-                            //data = subscriber.ReceiveFrameBytes();
-
-                            //Mat image = new Mat(Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3);
+                            //odebranie obrazu w formacie bgr
+                            data = subscriber.ReceiveFrameBytes();
+                           
                             GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
                             IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-                            Mat Image2 = new Mat(Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3, pointer, Convert.ToInt32(width) * 3);
+                            Mat image = new Mat(Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3, pointer, Convert.ToInt32(width) * 3);
                             pinnedArray.Free();
 
-                            CvInvoke.Imshow(PupilWindow, Image2); //Show the image
+                            CvInvoke.Imshow(PupilWindow, image); //Show the image
                             CvInvoke.WaitKey(1);  //Wait for the key pressing event
-                            IsMainCamera = false;
-                            //CvInvoke.WaitKey(0);  //Wait for the key pressing event
                         }
                     }
                     catch (Exception e)
@@ -121,7 +103,5 @@ namespace PupilRequestClient
                 }
             }
         }
-
-
     }
 }
