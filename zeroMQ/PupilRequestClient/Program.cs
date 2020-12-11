@@ -31,75 +31,94 @@ namespace PupilRequestClient
                 var pubPort = client.ReceiveFrameString();
                 Console.WriteLine("PUB_PORT: {0}", pubPort);
 
-                using (var subscriber = new SubscriberSocket())
+                using (var frameSubscriber = new SubscriberSocket())
                 {
-                    //connect to zmq subscriber port and getting gaze data
-                    subscriber.Connect("tcp://127.0.0.1:" + subPort);
-
-                    String PupilWindow = "Pupil Window"; //The name of the window
-                    CvInvoke.NamedWindow(PupilWindow); //Create the window using the specific name
-
-                    try
+                    using (var gazeSubscriber = new SubscriberSocket())
                     {
-                        //ustawienie subskrbcji na odbieranie obrazu
-                        subscriber.Subscribe("frame.world");
+                        //connect to zmq subscriber port and getting frame data
+                        frameSubscriber.Connect("tcp://127.0.0.1:" + subPort);
+                        gazeSubscriber.Connect("tcp://127.0.0.1:" + subPort);
 
-                        //przygotowanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
-                        var msgpackPackNotify = new MsgPack();
-                        msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
-                        msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
-                        var byteArrayNotify = msgpackPackNotify.Encode2Bytes();
+                        String PupilWindow = "Pupil Window"; //The name of the window
+                        CvInvoke.NamedWindow(PupilWindow); //Create the window using the specific name
 
-                        //wysylanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
-                        client.SendMoreFrame("topic.frame_publishing.set_format")
-                            .SendFrame(byteArrayNotify);
-
-                        Console.WriteLine("{0}", client.ReceiveFrameString());
-
-                        string topic = "";
-                        byte[] payload = new byte[1];
-                        long height = 100;
-                        long width = 100;
-                        byte[] data = new byte[1];
-
-
-
-                        while (true)
+                        try
                         {
-                            //odebranie nazwy i parametrow obrazu 
-                            topic = subscriber.ReceiveFrameString(); //nazwa kamery
-                            payload = subscriber.ReceiveFrameBytes();  //json z opisem danych
+                            //ustawienie subskrbcji na odbieranie obrazu
+                            frameSubscriber.Subscribe("frame.world");
+                            gazeSubscriber.Subscribe("gaze.");
 
-                            MsgPack msgpackFrameDecode = new MsgPack();
-                            msgpackFrameDecode.DecodeFromBytes(payload);
+                            //przygotowanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
+                            var msgpackPackNotify = new MsgPack();
+                            msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
+                            msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
+                            var byteArrayNotify = msgpackPackNotify.Encode2Bytes();
 
-                            //odczytanie parametrow obrazu
+                            //wysylanie informacji o pozadanym formacie odbieranych danych dotyczacych obrazu
+                            client.SendMoreFrame("topic.frame_publishing.set_format")
+                                .SendFrame(byteArrayNotify);
 
-                            height = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
-                            width = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+                            Console.WriteLine("{0}", client.ReceiveFrameString());
 
-                            //odebranie obrazu w formacie bgr
-                            data = subscriber.ReceiveFrameBytes();
-                           
-                            GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
-                            IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-                            Mat image = new Mat(Convert.ToInt32(height), Convert.ToInt32(width), DepthType.Cv8U, 3, pointer, Convert.ToInt32(width) * 3);
-                            pinnedArray.Free();
+                            string frameTopic = "";
+                            byte[] framePpayload = new byte[1];
+                            long frameHeight = 100;
+                            long frameWidth = 100;
+                            byte[] frameData = new byte[1];
 
-                            CvInvoke.Imshow(PupilWindow, image); //Show the image
-                            CvInvoke.WaitKey(1);  //Wait for the key pressing event
+                            string gazeMsg;
+                            byte[] gazeData;
+
+                            while (true)
+                            {
+                                //odebranie nazwy i parametrow obrazu 
+                                frameTopic = frameSubscriber.ReceiveFrameString(); //nazwa kamery
+                                framePpayload = frameSubscriber.ReceiveFrameBytes();  //json z opisem danych
+
+                                MsgPack msgpackFrameDecode = new MsgPack();
+                                msgpackFrameDecode.DecodeFromBytes(framePpayload);
+
+                                //odczytanie parametrow obrazu
+
+                                frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
+                                frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+
+                                //odebranie obrazu w formacie bgr
+                                frameData = frameSubscriber.ReceiveFrameBytes();
+
+                                GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
+                                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+                                Mat image = new Mat(Convert.ToInt32(frameHeight), Convert.ToInt32(frameWidth), DepthType.Cv8U, 3, pointer, Convert.ToInt32(frameWidth) * 3);
+                                pinnedArray.Free();
+
+                                CvInvoke.Imshow(PupilWindow, image); //Show the image
+                                CvInvoke.WaitKey(1);  //Wait for the key pressing event
+
+                                gazeMsg = gazeSubscriber.ReceiveFrameString();
+                                gazeData = gazeSubscriber.ReceiveFrameBytes();
+
+                                var msgpackGazeDecode = new MsgPack();
+                                msgpackGazeDecode.DecodeFromBytes(gazeData);
+
+                                Console.WriteLine("method: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
+                                Console.WriteLine("topic: {0}", msgpackGazeDecode.ForcePathObject("topic").AsString);
+                                Console.WriteLine("norm_pos: [{0}, {1}]", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat);
+                                Console.WriteLine("confidence: {0}", msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
+                                Console.WriteLine("phi: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
+                                Console.WriteLine("theta: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Exception: " + e.Message);
-                    }
-                    finally
-                    {
-                        CvInvoke.DestroyWindow(PupilWindow); //Destroy the window if key is pressed
-                    }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Exception: " + e.Message);
+                        }
+                        finally
+                        {
+                            CvInvoke.DestroyWindow(PupilWindow); //Destroy the window if key is pressed
+                        }
 
-                    Console.ReadKey();
+                        Console.ReadKey();
+                    }
                 }
             }
         }
