@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace GuessWhatLookingAt
 {
@@ -25,15 +26,16 @@ namespace GuessWhatLookingAt
 
         string frameTopic = "";
         byte[] framePpayload = new byte[1];
-        long frameHeight = 100;
-        long frameWidth = 100;
+        int frameHeight = 100;
+        int frameWidth = 100;
         byte[] frameData = new byte[1];
 
         string gazeMsg;
         byte[] gazeData;
 
+        public PupilImage image { get; set; } = new PupilImage();
 
-        Image image = new Image();
+        public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
         public bool ConnectWithPupil()
         {
@@ -69,7 +71,7 @@ namespace GuessWhatLookingAt
                 requestClient.SendMoreFrame("topic.frame_publishing.set_format")
                     .SendFrame(byteArrayNotify);
 
-                Console.WriteLine("{0}", requestClient.ReceiveFrameString()); //potwierdzenie odebrania komunikatu dotyczacego formatu obrazu
+               requestClient.ReceiveFrameString(); //potwierdzenie odebrania komunikatu dotyczacego formatu obrazu
             }
             catch (Exception e)
             {
@@ -84,7 +86,7 @@ namespace GuessWhatLookingAt
 
         public void ReceiveData()
         {
-            while (true)
+            while (isConnected)
             {
                 //odebranie nazwy i parametrow obrazu 
                 frameTopic = frameSubscriber.ReceiveFrameString(); //nazwa kamery
@@ -100,27 +102,44 @@ namespace GuessWhatLookingAt
                 //odebranie obrazu w formacie bgr
                 frameData = frameSubscriber.ReceiveFrameBytes();
 
-                GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
-                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-                Mat image = new Mat(Convert.ToInt32(frameHeight), Convert.ToInt32(frameWidth), DepthType.Cv8U, 3, pointer, Convert.ToInt32(frameWidth) * 3);
-                pinnedArray.Free();
-
                 gazeMsg = gazeSubscriber.ReceiveFrameString();
                 gazeData = gazeSubscriber.ReceiveFrameBytes();
 
                 var msgpackGazeDecode = new MsgPack();
                 msgpackGazeDecode.DecodeFromBytes(gazeData);
 
-                Console.WriteLine("norm_pos: [{0}, {1}]", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat);
-            
                 //poinformowanie eventem o odebraniu obrazu i wspolrzednych punku obserwacji
-                /////
-                ///
-                ///
-                ////
-                ///
+                var args = new PupilReceivedDataEventArgs();
 
+                GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
+                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
+                image.SetSourceImageFromRawBytes(pointer, frameWidth, frameHeight);
+
+                args.pupilImage = image;
+                pinnedArray.Free();
+
+                args.xGaze = msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat;
+                args.yGaze = msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat;
+
+                OnPupilReceivedData(args);
             }
+        }
+
+        protected virtual void OnPupilReceivedData(PupilReceivedDataEventArgs args)
+        {
+            EventHandler<PupilReceivedDataEventArgs> handler = PupilDataReceivedEvent;
+            if(handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        public class PupilReceivedDataEventArgs: EventArgs
+        {
+            public PupilImage pupilImage { get; set; }
+
+            public double xGaze { get; set; }
+            public double yGaze { get; set; }
         }
     }
 }

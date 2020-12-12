@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static GuessWhatLookingAt.Pupil;
 
 namespace GuessWhatLookingAt
 {
@@ -34,6 +35,7 @@ namespace GuessWhatLookingAt
         {
             InitializeComponent();
             DataContext = this;
+            pupil.PupilDataReceivedEvent += e_PupilDataReached;
         }
 
         private void ConnectPupilButtonClicked(object sender, RoutedEventArgs e)
@@ -41,22 +43,39 @@ namespace GuessWhatLookingAt
             ConnectPupilResultString = "Button clicked";
 
             pupil.ConnectWithPupil();
-            
-            if(pupilThread == null)
+
+            if (pupilThread == null)
             {
                 pupilThread = new Thread(pupil.ReceiveData);
+                pupilThread.Start();
             }
 
-            //Notify Label about chenged property
+            //Notify Label about changed property
             NotifyPropertyChanged("ConnectPupilResultString");
         }
 
         private void NotifyPropertyChanged(string propertyName)
         {
-            if(PropertyChanged != null)
+            if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+
+        }
+
+        public void LoadImageFromPupil(ImageSource image)
+        {
+            image.Freeze();
+
+            PupilImageXAML.Dispatcher.Invoke(() => PupilImageXAML.Source = image);
+            //DataContext = this;
+
+
+        }
+
+        void e_PupilDataReached(object sender, PupilReceivedDataEventArgs args)
+        {
+            LoadImageFromPupil(args.pupilImage.pupilBitmapImage);
         }
     }
 }
