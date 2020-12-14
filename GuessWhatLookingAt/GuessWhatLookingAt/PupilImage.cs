@@ -19,23 +19,20 @@ namespace GuessWhatLookingAt
         public ImageSource pupilBitmapImage { get; private set; }
         public Mat Matrix {get; private set; }
 
-        public PupilImage(IntPtr dataPointer, int frameWidth, int frameHeight)
-        {
-            Matrix = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3,  dataPointer, frameWidth * 3);
-            var bmp = Matrix.ToBitmap();
-            ConvertBitmap(bmp);
-        }
-
-        public PupilImage()
-        {
-
-        }
-
         public void SetSourceImageFromRawBytes(IntPtr dataPointer, int frameWidth, int frameHeight)
         {
-            Matrix = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
-            var bmp = Matrix.ToBitmap();
-            ConvertBitmap(bmp);
+            try
+            {
+                Matrix = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
+                var bmp = Matrix.ToBitmap();
+                ConvertBitmap(bmp);
+                bmp.Dispose();
+                Matrix.Dispose();
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         public void ConvertBitmap(Bitmap bitmap)
@@ -47,12 +44,11 @@ namespace GuessWhatLookingAt
                 {
                     handle = bitmap.GetHbitmap();
                     pupilBitmapImage = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-                    //Marshal.FreeHGlobal(handle);
+                    bitmap.Dispose();
                 }
                 catch (Exception ex)
                 {
-                    Marshal.FreeHGlobal(handle);
+                    
                 }
             }
             else

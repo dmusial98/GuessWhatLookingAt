@@ -1,0 +1,18 @@
+﻿<Window x:Class="GuessWhatLookingAt.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GuessWhatLookingAt"
+        mc:Ignorable="d"
+        Title="GuessWhatLookingAt" WindowState="Maximized">
+    <Canvas Name="WindowContentXAML" ClipToBounds="True" >
+
+        <Button Name="ConnectPupilButton" Background="PaleGreen" Width="60" Height="20" 
+                Canvas.Left="20" Canvas.Top="20" Content="Connect" 
+                Click="ConnectPupilButtonClicked"/>
+        <Label Name="ConnectPupilResultLabel" Canvas.Left="100" Canvas.Top="20" FontSize="12"  
+               Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}"/>
+        <Image Name="PupilImageXAML" Canvas.Left="20" Canvas.Top="60"/>
+    </Canvas>
+</Window>

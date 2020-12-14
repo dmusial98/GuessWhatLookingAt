@@ -1,20 +1,9 @@
-﻿using Emgu.CV;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
+
 using static GuessWhatLookingAt.Pupil;
 
 namespace GuessWhatLookingAt
@@ -42,15 +31,12 @@ namespace GuessWhatLookingAt
         {
             ConnectPupilResultString = "Button clicked";
 
-            pupil.ConnectWithPupil();
-
             if (pupilThread == null)
             {
-                pupilThread = new Thread(pupil.ReceiveData);
+                pupilThread = new Thread(pupil.ConnectAndReceiveFromPupil);
                 pupilThread.Start();
             }
 
-            //Notify Label about changed property
             NotifyPropertyChanged("ConnectPupilResultString");
         }
 
@@ -67,10 +53,11 @@ namespace GuessWhatLookingAt
         {
             image.Freeze();
 
-            PupilImageXAML.Dispatcher.Invoke(() => PupilImageXAML.Source = image);
-            //DataContext = this;
-
-
+            PupilImageXAML.Dispatcher.Invoke(() =>
+            { 
+                PupilImageXAML.Source = image;
+                
+            });
         }
 
         void e_PupilDataReached(object sender, PupilReceivedDataEventArgs args)
