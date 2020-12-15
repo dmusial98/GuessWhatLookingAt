@@ -3,7 +3,8 @@ using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
 using System.Runtime.InteropServices;
-
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace GuessWhatLookingAt
 {
@@ -22,8 +23,6 @@ namespace GuessWhatLookingAt
 
         string gazeMsg;
         byte[] gazeData;
-
-        public PupilImage image { get; set; } = new PupilImage();
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
@@ -92,15 +91,9 @@ namespace GuessWhatLookingAt
                             //new event for inform about video data
                             var args = new PupilReceivedDataEventArgs();
 
-                            GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
-                            IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-                            image.SetSourceImageFromRawBytes(pointer, frameWidth, frameHeight);
 
-                            args.pupilImage = image;
-                            pinnedArray.Free();
 
-                            args.xGaze = msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat;
-                            args.yGaze = msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat;
+                            args.image = BitmapSource.Create(frameWidth, frameHeight, 96, 96, PixelFormats.Bgr24, null, frameData, frameWidth * 3);
 
                             OnPupilReceivedData(args);
                         }
@@ -120,10 +113,7 @@ namespace GuessWhatLookingAt
 
         public class PupilReceivedDataEventArgs : EventArgs
         {
-            public PupilImage pupilImage { get; set; }
-
-            public double xGaze { get; set; }
-            public double yGaze { get; set; }
+            public BitmapSource image { get; set; }
         }
     }
 }

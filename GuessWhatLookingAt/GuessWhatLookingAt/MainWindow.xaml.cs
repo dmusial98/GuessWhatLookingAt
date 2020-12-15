@@ -3,22 +3,19 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 
-
-using static GuessWhatLookingAt.Pupil;
-
 namespace GuessWhatLookingAt
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
         Pupil pupil = new Pupil();
         Thread pupilThread;
 
         public string ConnectPupilResultString { get; set; } = "Not connected";
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
         public MainWindow()
         {
@@ -37,32 +34,34 @@ namespace GuessWhatLookingAt
                 pupilThread.Start();
             }
 
-            NotifyPropertyChanged("ConnectPupilResultString");
+            //NotifyPropertyChanged("ConnectPupilResultString");
         }
 
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+        //private void NotifyPropertyChanged(string propertyName)
+        //{
+        //    if (PropertyChanged != null)
+        //    {
+        //        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        //    }
 
-        }
+        //}
 
         public void LoadImageFromPupil(ImageSource image)
         {
             image.Freeze();
 
+            ImageSource imSource = image;
             PupilImageXAML.Dispatcher.Invoke(() =>
-            { 
-                PupilImageXAML.Source = image;
+            {
                 
+                PupilImageXAML.Source = imSource;
+
             });
         }
 
-        void e_PupilDataReached(object sender, PupilReceivedDataEventArgs args)
+        void e_PupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
         {
-            LoadImageFromPupil(args.pupilImage.pupilBitmapImage);
+            LoadImageFromPupil(args.image);
         }
     }
 }

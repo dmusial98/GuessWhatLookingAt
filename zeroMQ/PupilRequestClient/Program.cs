@@ -43,7 +43,6 @@ namespace PupilRequestClient
                         String PupilWindow = "Pupil Window"; //The name of the window
                         CvInvoke.NamedWindow(PupilWindow); //Create the window using the specific name
 
-                    
                         frameSubscriber.Subscribe("frame.world");
                         gazeSubscriber.Subscribe("gaze.");
 
