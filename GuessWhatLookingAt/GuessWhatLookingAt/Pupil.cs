@@ -26,6 +26,8 @@ namespace GuessWhatLookingAt
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
+        PupilImage pupilImage;
+
         public void ConnectAndReceiveFromPupil()
         {
             isConnected = true;
@@ -91,9 +93,16 @@ namespace GuessWhatLookingAt
                             //new event for inform about video data
                             var args = new PupilReceivedDataEventArgs();
 
+                            GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
+                            IntPtr pointer = pinnedArray.AddrOfPinnedObject();
 
+                            pupilImage = new PupilImage();
+                            pupilImage.SetMat(pointer, frameWidth, frameHeight);
+                            pinnedArray.Free();
 
-                            args.image = BitmapSource.Create(frameWidth, frameHeight, 96, 96, PixelFormats.Bgr24, null, frameData, frameWidth * 3);
+                            pupilImage.DrawCircle(msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat);
+
+                            args.image = pupilImage.GetBitmapSourceFromMat();
 
                             OnPupilReceivedData(args);
                         }

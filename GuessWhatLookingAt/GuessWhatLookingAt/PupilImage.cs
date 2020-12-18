@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,48 +18,17 @@ namespace GuessWhatLookingAt
     public class PupilImage
     {
         public ImageSource pupilBitmapImage { get; private set; }
-        public Mat Matrix {get; private set; }
+        public Mat mat {get; private set; }
 
-        public BitmapSource SetSourceImageFromRawBytes(IntPtr dataPointer, int frameWidth, int frameHeight)
+        public void SetMat(IntPtr dataPointer, int frameWidth, int frameHeight)
         {
             try
             {
-                var matrix = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
-                var bmp = matrix.ToBitmap();
-                var bmpRes = ConvertBitmap(bmp);
-                bmp.Dispose();
-                matrix.Dispose();
-                return bmpRes;
+                mat = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
             }
             catch(Exception ex)
             {
-                return null;
-            }
-        }
-
-        public BitmapSource ConvertBitmap(Bitmap bitmap)
-        {
-
-            BitmapSource pupilBitmapImage = null;
-
-            if (bitmap != null)
-            {
-                IntPtr handle = IntPtr.Zero;
-                try
-                {
-                    handle = bitmap.GetHbitmap();
-                    pupilBitmapImage = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    bitmap.Dispose();
-                    return pupilBitmapImage;
-                }
-                catch (Exception ex)
-                {
-                    return pupilBitmapImage;
-                }
-            }
-            else
-            {
-                throw new ArgumentNullException("bitmap");
+                
             }
         }
 
@@ -67,42 +37,16 @@ namespace GuessWhatLookingAt
             return Int32.Parse(System.Windows.Media.Color.FromRgb(r, g, b).ToString().Trim('#'), System.Globalization.NumberStyles.HexNumber);
         }
 
-        public BitmapSource DrawImage(Int32[] pixels, int height, int width)
+ 
+        public void DrawCircle(double xGaze, double yGaze)
         {
-            WriteableBitmap writableImg = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgr32, null);
-
-            //lock the buffer
-            writableImg.Lock();
-
-            for (int i = 0; i < width; i++)
-            {
-                for (int j = 0; j < height; j++)
-                {
-                    IntPtr backbuffer = writableImg.BackBuffer;
-                    //the buffer is a monodimensionnal array...
-                    backbuffer += j * writableImg.BackBufferStride;
-                    backbuffer += i * 4;
-                    System.Runtime.InteropServices.Marshal.WriteInt32(backbuffer, pixels[j * width + i]);
-                }
-            }
-
-            //specify the area to update
-            writableImg.AddDirtyRect(new Int32Rect(0, 0, width, height));
-            //release the buffer and show the image
-            writableImg.Unlock();
-
-            return writableImg;
+            CvInvoke.Circle(mat, new System.Drawing.Point( Convert.ToInt32(xGaze * mat.Width), Convert.ToInt32(yGaze * mat.Height)), 15, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
         }
 
-        public Int32[] GetColorFrame(byte[] bytes)
+        public BitmapSource GetBitmapSourceFromMat()
         {
-            List<Int32> ColorFrame = new List<Int32>();
-            for (int i = 0; i < bytes.Length; i += 3)
-            {
-                ColorFrame.Add(GetColor(bytes[i], bytes[i + 1], bytes[i + 2]));
-            }
-
-            return ColorFrame.ToArray();
+            var byteArray = mat.GetRawData(new int[] { });
+            return BitmapSource.Create(mat.Width, mat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, mat.Width * 3);
         }
     }
 }

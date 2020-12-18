@@ -8,14 +8,14 @@ namespace GuessWhatLookingAt
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         Pupil pupil = new Pupil();
         Thread pupilThread;
 
         public string ConnectPupilResultString { get; set; } = "Not connected";
 
-        //public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public MainWindow()
         {
@@ -34,17 +34,17 @@ namespace GuessWhatLookingAt
                 pupilThread.Start();
             }
 
-            //NotifyPropertyChanged("ConnectPupilResultString");
+            NotifyPropertyChanged("ConnectPupilResultString");
         }
 
-        //private void NotifyPropertyChanged(string propertyName)
-        //{
-        //    if (PropertyChanged != null)
-        //    {
-        //        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        //    }
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
 
-        //}
+        }
 
         public void LoadImageFromPupil(ImageSource image)
         {
@@ -53,9 +53,7 @@ namespace GuessWhatLookingAt
             ImageSource imSource = image;
             PupilImageXAML.Dispatcher.Invoke(() =>
             {
-                
                 PupilImageXAML.Source = imSource;
-
             });
         }
 
