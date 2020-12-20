@@ -20,6 +20,8 @@ namespace GuessWhatLookingAt
         public ImageSource pupilBitmapImage { get; private set; }
         public Mat mat {get; private set; }
 
+        VideoWriter videoWriter = null;
+
         public void SetMat(IntPtr dataPointer, int frameWidth, int frameHeight)
         {
             try
@@ -31,12 +33,6 @@ namespace GuessWhatLookingAt
                 
             }
         }
-
-        public Int32 GetColor(byte b, byte g, byte r)
-        {
-            return Int32.Parse(System.Windows.Media.Color.FromRgb(r, g, b).ToString().Trim('#'), System.Globalization.NumberStyles.HexNumber);
-        }
-
  
         public void DrawCircle(double xGaze, double yGaze)
         {
@@ -55,6 +51,30 @@ namespace GuessWhatLookingAt
         {
             var byteArray = mat.GetRawData(new int[] { });
             return BitmapSource.Create(mat.Width, mat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, mat.Width * 3);
+        }
+
+        public void StartRecord()
+        {
+            if(videoWriter == null)
+            {
+                videoWriter = new VideoWriter("pupilVideo.mp4", VideoWriter.Fourcc('M','P','4','V'), 30, new System.Drawing.Size(mat.Width, mat.Height), true);
+            }
+        }
+
+        public void AddFrameToVideo()
+        {
+            if(videoWriter.IsOpened)
+            {
+                videoWriter.Write(mat);
+            }
+        }
+
+        public void StopRecord()
+        {
+            if(videoWriter != null)
+            {
+                videoWriter.Dispose();
+            }
         }
     }
 }

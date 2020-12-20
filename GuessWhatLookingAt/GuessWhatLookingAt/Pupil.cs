@@ -1,4 +1,5 @@
-﻿using NetMQ;
+﻿using Emgu.CV;
+using NetMQ;
 using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
@@ -28,8 +29,12 @@ namespace GuessWhatLookingAt
 
         PupilImage pupilImage;
 
+        int frameNumber = 0;
+        int thresholdFrameNumber = 900;
+
         public void ConnectAndReceiveFromPupil()
         {
+            pupilImage = new PupilImage();
             isConnected = true;
             while (isConnected)
             {
@@ -96,7 +101,6 @@ namespace GuessWhatLookingAt
                             GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
                             IntPtr pointer = pinnedArray.AddrOfPinnedObject();
 
-                            pupilImage = new PupilImage();
                             pupilImage.SetMat(pointer, frameWidth, frameHeight);
                             pinnedArray.Free();
 
@@ -104,12 +108,24 @@ namespace GuessWhatLookingAt
                             pupilImage.PutConfidenceText(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("confidence").AsFloat);
                             args.image = pupilImage.GetBitmapSourceFromMat();
 
+                            if (frameNumber == 0)
+                                pupilImage.StartRecord();
+                            if (frameNumber < thresholdFrameNumber)
+                                pupilImage.AddFrameToVideo();
+                            if (frameNumber >= thresholdFrameNumber)
+                                pupilImage.StopRecord();
+
+                            if (frameNumber >= 0 && frameNumber < thresholdFrameNumber)
+                                frameNumber++;
+
                             OnPupilReceivedData(args);
                         }
                     }
                 }
             }
         }
+
+
 
         protected virtual void OnPupilReceivedData(PupilReceivedDataEventArgs args)
         {
