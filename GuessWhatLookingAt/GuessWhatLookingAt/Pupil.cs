@@ -100,8 +100,8 @@ namespace GuessWhatLookingAt
                             pupilImage.SetMat(pointer, frameWidth, frameHeight);
                             pinnedArray.Free();
 
-                            pupilImage.DrawCircle(msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat);
-
+                            pupilImage.DrawCircle(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[1].AsFloat);
+                            pupilImage.PutConfidenceText(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("confidence").AsFloat);
                             args.image = pupilImage.GetBitmapSourceFromMat();
 
                             OnPupilReceivedData(args);

@@ -43,6 +43,14 @@ namespace GuessWhatLookingAt
             CvInvoke.Circle(mat, new System.Drawing.Point( Convert.ToInt32(xGaze * mat.Width), Convert.ToInt32(yGaze * mat.Height)), 15, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
         }
 
+        public void PutConfidenceText(double confidence)
+        {
+            string confidenceString = "Confidence: " + Math.Round(confidence, 3).ToString();
+            MCvScalar color = new MCvScalar(20, 255 * confidence, 1 - 255 * confidence);
+
+            CvInvoke.PutText(mat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color );
+        }
+
         public BitmapSource GetBitmapSourceFromMat()
         {
             var byteArray = mat.GetRawData(new int[] { });
