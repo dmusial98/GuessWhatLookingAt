@@ -28,13 +28,15 @@ namespace GuessWhatLookingAt
         {
             ConnectPupilResultString = "Button clicked";
 
-            if (pupilThread == null)
+            if (!pupil.isConnected)
             {
-                pupilThread = new Thread(pupil.ConnectAndReceiveFromPupil);
-                pupilThread.Start();
-            }
+                pupil.Connect();
 
-            NotifyPropertyChanged("ConnectPupilResultString");
+                pupilThread = new Thread(pupil.ReceiveData);
+                pupilThread.Start();
+
+                NotifyPropertyChanged("ConnectPupilResultString");
+            }
         }
 
         private void NotifyPropertyChanged(string propertyName)
@@ -60,6 +62,17 @@ namespace GuessWhatLookingAt
         void e_PupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
         {
             LoadImageFromPupil(args.image);
+        }
+
+        private void DisconnectPupilButtonClick(object sender, RoutedEventArgs e)
+        {
+            pupil.Disconnect();
+            if (pupilThread != null)
+                pupilThread.Abort();
+
+            ConnectPupilResultString = "Disconnected";
+
+            NotifyPropertyChanged("ConnectPupilResultString");
         }
     }
 }
