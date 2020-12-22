@@ -3,6 +3,7 @@ using NetMQ;
 using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -28,6 +29,7 @@ namespace GuessWhatLookingAt
 
         string gazeMsg;
         byte[] gazeData;
+        public Point gazePoint { get; private set; } = new Point(0, 0);
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
@@ -39,7 +41,7 @@ namespace GuessWhatLookingAt
         public void Connect()
         {
             //if (requestClient == null)
-                requestClient = new RequestSocket();
+            requestClient = new RequestSocket();
 
             requestClient.Connect("tcp://127.0.0.1:50020");
 
@@ -50,10 +52,10 @@ namespace GuessWhatLookingAt
             pubPort = requestClient.ReceiveFrameString();
 
             //if (frameSubscriber == null)
-                frameSubscriber = new SubscriberSocket();
+            frameSubscriber = new SubscriberSocket();
 
             //if (gazeSubscriber == null)
-                gazeSubscriber = new SubscriberSocket();
+            gazeSubscriber = new SubscriberSocket();
 
             //connect to zmq subscriber port and getting frame data
             frameSubscriber.Connect("tcp://127.0.0.1:" + subPort);
@@ -90,10 +92,9 @@ namespace GuessWhatLookingAt
                 MsgPack msgpackFrameDecode = new MsgPack();
                 msgpackFrameDecode.DecodeFromBytes(framePayload);
 
-                //read video parameters
+                //read height and width parameters
                 frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
                 frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
-
 
                 //receive video frame in bgr
                 frameData = frameSubscriber.ReceiveFrameBytes();
@@ -114,8 +115,11 @@ namespace GuessWhatLookingAt
                 pupilImage.SetMat(pointer, frameWidth, frameHeight);
                 pinnedArray.Free();
 
-                pupilImage.DrawCircle(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[1].AsFloat);
-                pupilImage.PutConfidenceText(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("confidence").AsFloat);
+                gazePoint = new Point(Convert.ToInt32(msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth), 
+                    Convert.ToInt32(msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight));
+
+                pupilImage.DrawCircle(gazePoint.X, gazePoint.Y);
+                pupilImage.PutConfidenceText(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
                 args.image = pupilImage.GetBitmapSourceFromMat();
 
                 OnPupilReceivedData(args);
@@ -131,103 +135,6 @@ namespace GuessWhatLookingAt
             frameSubscriber.Dispose();
             gazeSubscriber.Dispose();
         }
-
-        public void ConnectAndReceiveFromPupil()
-        {
-            pupilImage = new PupilImage();
-            isConnected = true;
-            while (isConnected)
-            {
-                using (var requestClient = new RequestSocket())
-                {
-                    using (var frameSubscriber = new SubscriberSocket())
-                    {
-                        using (var gazeSubscriber = new SubscriberSocket())
-                        {
-                            requestClient.Connect("tcp://127.0.0.1:50020");
-
-                            //getting subscriber and publisher port
-                            requestClient.SendFrame("SUB_PORT");
-                            subPort = requestClient.ReceiveFrameString();
-                            requestClient.SendFrame("PUB_PORT");
-                            pubPort = requestClient.ReceiveFrameString();
-
-                            //connect to zmq subscriber port and getting frame data
-                            frameSubscriber.Connect("tcp://127.0.0.1:" + subPort);
-                            gazeSubscriber.Connect("tcp://127.0.0.1:" + subPort);
-
-
-                            //set up subscription on video receive
-                            frameSubscriber.Subscribe("frame.world");
-                            gazeSubscriber.Subscribe("gaze.");
-
-                            //preparing information about desired format video data
-                            var msgpackPackNotify = new MsgPack();
-                            msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
-                            msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
-                            var byteArrayNotify = msgpackPackNotify.Encode2Bytes();
-
-                            //sending information
-                            requestClient.SendMoreFrame("topic.frame_publishing.set_format")
-                                .SendFrame(byteArrayNotify);
-
-                            requestClient.ReceiveFrameString(); //confirm receive data
-
-                            //receive name and parameters of video 
-                            frameTopic = frameSubscriber.ReceiveFrameString(); //camera name
-                            framePayload = frameSubscriber.ReceiveFrameBytes();  //json with data describe
-
-                            MsgPack msgpackFrameDecode = new MsgPack();
-                            msgpackFrameDecode.DecodeFromBytes(framePayload);
-
-                            //read video parameters
-                            frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
-                            frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
-
-
-                            //receive video frame in bgr
-                            frameData = frameSubscriber.ReceiveFrameBytes();
-
-                            //receive gaze information
-                            gazeMsg = gazeSubscriber.ReceiveFrameString();
-                            gazeData = gazeSubscriber.ReceiveFrameBytes();
-
-                            var msgpackGazeDecode = new MsgPack();
-                            msgpackGazeDecode.DecodeFromBytes(gazeData);
-
-                            //new event for inform about video data
-                            var args = new PupilReceivedDataEventArgs();
-
-                            GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
-                            IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-
-                            pupilImage.SetMat(pointer, frameWidth, frameHeight);
-                            pinnedArray.Free();
-
-                            pupilImage.DrawCircle(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("norm_pos").AsArray[1].AsFloat);
-                            pupilImage.PutConfidenceText(msgpackGazeDecode./*ForcePathObject("base_data").AsArray[0].*/ForcePathObject("confidence").AsFloat);
-                            args.image = pupilImage.GetBitmapSourceFromMat();
-
-                            //if (frameNumber == 0)
-                            //    pupilImage.StartRecord();
-                            //if (frameNumber < thresholdFrameNumber)
-                            //    pupilImage.AddFrameToVideo();
-                            //if (frameNumber >= thresholdFrameNumber)
-                            //    pupilImage.StopRecord();
-
-                            //if (frameNumber >= 0 && frameNumber < thresholdFrameNumber)
-                            //    frameNumber++;
-
-                            OnPupilReceivedData(args);
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-
 
         protected virtual void OnPupilReceivedData(PupilReceivedDataEventArgs args)
         {

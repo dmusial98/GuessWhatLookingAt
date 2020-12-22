@@ -34,9 +34,9 @@ namespace GuessWhatLookingAt
             }
         }
  
-        public void DrawCircle(double xGaze, double yGaze)
+        public void DrawCircle(int xGaze, int yGaze)
         {
-            CvInvoke.Circle(mat, new System.Drawing.Point( Convert.ToInt32(xGaze * mat.Width), Convert.ToInt32(yGaze * mat.Height)), 15, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+            CvInvoke.Circle(mat, new System.Drawing.Point(xGaze, yGaze), 15, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
         }
 
         public void PutConfidenceText(double confidence)

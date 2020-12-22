@@ -11,8 +11,10 @@
         <Button Name="ConnectPupilButton" Background="PaleGreen" Width="60" Height="20" 
                 Canvas.Left="20" Canvas.Top="20" Content="Connect" 
                 Click="ConnectPupilButtonClicked"/>
+        <Button Name="DisconnectPupilButton" Width="auto" Height="auto" Canvas.Left="300"
+                Canvas.Top="20" Content="Disconnect" Click="DisconnectPupilButtonClick" />
         <Label Name="ConnectPupilResultLabel" Canvas.Left="100" Canvas.Top="20" FontSize="12"  
-               Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}"/>
+               Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}" />
         <Image Name="PupilImageXAML" Canvas.Left="20" Canvas.Top="60"/>
     </Canvas>
 </Window>
