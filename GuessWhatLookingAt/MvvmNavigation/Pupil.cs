@@ -3,8 +3,8 @@ using NetMQ;
 using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -115,8 +115,9 @@ namespace GuessWhatLookingAt
                 pupilImage.SetMat(pointer, frameWidth, frameHeight);
                 pinnedArray.Free();
 
-                gazePoint = new Point(Convert.ToInt32(msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth), 
-                    Convert.ToInt32(msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight));
+                gazePoint = new Point(
+                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth, 
+                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight);
 
                 pupilImage.DrawCircle(gazePoint.X, gazePoint.Y);
                 pupilImage.PutConfidenceText(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);

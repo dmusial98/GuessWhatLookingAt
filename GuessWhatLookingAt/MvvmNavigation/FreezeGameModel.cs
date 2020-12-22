@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 
 namespace GuessWhatLookingAt
 {
@@ -22,6 +23,7 @@ namespace GuessWhatLookingAt
         {
             if (!pupil.isConnected)
             {
+                hasPhoto = false;
                 pupil.Connect();
 
                 pupilThread = new Thread(pupil.ReceiveData);
@@ -42,28 +44,38 @@ namespace GuessWhatLookingAt
         {
             if (pupil.isConnected)
             {
-                for (int i = 0; i < timerSeconds; i++)
-                {
-                    photoTimer = new System.Timers.Timer(1000);
-                    photoTimer.Elapsed += OnTakePhotoTimerEvent;
-                    photoTimer.Enabled = true;
-                }
+                //for (int i = 0; i < timerSeconds; i++)
+                //{
+                //    photoTimer = new System.Timers.Timer(1000);
+                //    photoTimer.Elapsed += OnTakePhotoTimerEvent;
+                //    photoTimer.Enabled = true;
+                //}
+
+                photoTimer = new System.Timers.Timer(1000);
+                photoTimer.Elapsed += OnTakePhotoTimerEvent;
+                photoTimer.Enabled = true;
+                photoTimer.AutoReset = false;
             }
         }
 
+        public double CountPointsDifference(Point p1)
+        {
+            return Point.Subtract(pupil.gazePoint, p1).Length;
+        }
 
         private void OnTakePhotoTimerEvent(Object source, ElapsedEventArgs e)
         {
-            if (tempTimerSeconds != 0)
-            {
-                tempTimerSeconds--;
-            }
-            else
-            {
+            //if (tempTimerSeconds != 0)
+            //{
+            //    tempTimerSeconds--;
+            //}
+            //else
+            //{
                 pupil.Disconnect();
+                pupilThread?.Abort();
                 hasPhoto = true;
                 tempTimerSeconds = timerSeconds;
-            }
+            //}
         }
     }
 }

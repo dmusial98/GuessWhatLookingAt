@@ -15,18 +15,18 @@
         <Canvas Name="WindowContentXAML" ClipToBounds="True" Grid.ColumnSpan="2" Margin="0,0,-1900,-1060">
             <Button Content="Go to View 2" Canvas.Left="1800" Canvas.Top="20" Command="{Binding GoTo2}"
             Width="auto" Height="auto" />
-            <Button Name="ConnectPupilButton" Background="PaleGreen" Width="60" Height="20" 
-                Canvas.Left="20" Canvas.Top="20" Content="Connect" Command="{Binding ConnectWithPupil}"/>
+            <Button Name="ConnectPupilButton" Width="60" Height="20" 
+                Canvas.Left="20" Canvas.Top="800" Content="Connect" Command="{Binding ConnectWithPupil}"/>
             <Button Name="DisconnectPupilButton" Width="auto" Height="auto" Canvas.Left="300" 
-                    Canvas.Top="20" Content="Disconnect" Command="{Binding DisconnectPupil}" />
-            <Label Name="ConnectPupilResultLabel" Canvas.Left="100" Canvas.Top="20" FontSize="12"  
+                    Canvas.Top="800" Content="Disconnect" Command="{Binding DisconnectPupil}" />
+            <Label Name="ConnectPupilResultLabel" Canvas.Left="100" Canvas.Top="800" FontSize="12"  
                    Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}" />
-            <Image Name="PupilImageXAML" Canvas.Left="20" Canvas.Top="60" Source="{Binding Path=imageFromPupil, 
+            <Image Name="PupilImageXAML" Canvas.Left="0" Canvas.Top="0" Source="{Binding Path=imageFromPupil, 
                 UpdateSourceTrigger=PropertyChanged}" />
             <Button Name="TakeAPhoto" Width="auto" Height="auto" Canvas.Left="950" Canvas.Top="800" 
-                    Content="Take a photo"/>
+                    Content="Take a photo" Command="{Binding TakePhoto}"/>
 
-            <Label Name="CoordinatesLabel" Width="auto" Height="auto" FontSize="12" Canvas.Left="900" Canvas.Top="830"
+            <Label Name="CoordinatesLabel" Width="auto" Height="auto" FontSize="50" Canvas.Left="900" Canvas.Top="830"
                    Content="{Binding Path=CoordinatesMouseString, UpdateSourceTrigger=PropertyChanged}" />
         </Canvas>
     </Grid>
