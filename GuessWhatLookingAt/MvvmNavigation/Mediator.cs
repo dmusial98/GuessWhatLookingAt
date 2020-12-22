@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MvvmNavigation
+namespace GuessWhatLookingAt
 {
     public static class Mediator
     {

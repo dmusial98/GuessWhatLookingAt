@@ -1,0 +1,14 @@
+﻿<Application x:Class="GuessWhatLookingAt.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:GuessWhatLookingAt">
+    <!--StartupUri="MainWindow.xaml">-->
+    <Application.Resources>
+        <DataTemplate DataType="{x:Type local:FreezeGameViewModel}">
+            <local:UserControl1 />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type local:UserControl2ViewModel}">
+            <local:UserControl2 />
+        </DataTemplate>
+    </Application.Resources>
+</Application>

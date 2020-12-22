@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace MvvmNavigation
+namespace GuessWhatLookingAt
 {
     public class RelayCommand<T> : ICommand
     {

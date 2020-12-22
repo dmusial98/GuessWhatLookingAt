@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace MvvmNavigation
+namespace GuessWhatLookingAt
 {
     public class MainWindowViewModel : BaseViewModel
     {
@@ -54,7 +54,7 @@ namespace MvvmNavigation
         public MainWindowViewModel()
         {
             // Add available pages and set page
-            PageViewModels.Add(new UserControl1ViewModel());
+            PageViewModels.Add(new FreezeGameViewModel());
             PageViewModels.Add(new UserControl2ViewModel());
 
             CurrentPageViewModel = PageViewModels[0];

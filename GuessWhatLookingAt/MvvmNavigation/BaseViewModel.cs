@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace MvvmNavigation
+namespace GuessWhatLookingAt
 {
     public abstract class BaseViewModel : INotifyPropertyChanged
     {

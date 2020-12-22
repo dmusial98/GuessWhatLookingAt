@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace MvvmNavigation
+namespace GuessWhatLookingAt
 {
     public class UserControl2ViewModel : BaseViewModel, IPageViewModel
     {
