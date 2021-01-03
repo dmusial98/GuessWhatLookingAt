@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="GuessWhatLookingAt.UserControl1"
+﻿<UserControl x:Class="GuessWhatLookingAt.FreezeGameUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -13,7 +13,7 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Canvas Name="WindowContentXAML" ClipToBounds="True" Grid.ColumnSpan="2" Margin="0,0,-1900,-1060">
-            <Button Content="Go to View 2" Canvas.Left="1800" Canvas.Top="20" Command="{Binding GoTo2}"
+            <Button Content="Go to View 2" Canvas.Left="1800" Canvas.Top="20" Command="{Binding GoToMainMenu}"
             Width="auto" Height="auto" />
             <Button Name="ConnectPupilButton" Width="60" Height="20" 
                 Canvas.Left="20" Canvas.Top="800" Content="Connect" Command="{Binding ConnectWithPupil}"/>

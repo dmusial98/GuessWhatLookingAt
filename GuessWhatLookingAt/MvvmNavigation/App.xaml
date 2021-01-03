@@ -5,10 +5,10 @@
     <!--StartupUri="MainWindow.xaml">-->
     <Application.Resources>
         <DataTemplate DataType="{x:Type local:FreezeGameViewModel}">
-            <local:UserControl1 />
+            <local:FreezeGameUserControl />
         </DataTemplate>
-        <DataTemplate DataType="{x:Type local:UserControl2ViewModel}">
-            <local:UserControl2 />
+        <DataTemplate DataType="{x:Type local:MainMenuViewModel}">
+            <local:MainMenuUserControl />
         </DataTemplate>
     </Application.Resources>
 </Application>

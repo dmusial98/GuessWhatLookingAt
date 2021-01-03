@@ -30,15 +30,15 @@ namespace GuessWhatLookingAt
         #region Commands
 
         #region Go To second screen
-        private ICommand _goTo2;
+        private ICommand _goToMainMenu;
 
-        public ICommand GoTo2
+        public ICommand GoToMainMenu
         {
             get
             {
-                return _goTo2 ?? (_goTo2 = new RelayCommand(x =>
+                return _goToMainMenu ?? (_goToMainMenu = new RelayCommand(x =>
                 {
-                    Mediator.Notify("GoTo2Screen", "");
+                    Mediator.Notify("GoToMainMenu", "");
                 }));
             }
         }
@@ -79,25 +79,23 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Take a photo
-        //private ICommand _TakePhoto;
+        private ICommand _TakePhoto;
 
-        //public ICommand TakePhoto
-        //{
-        //    get
-        //    {
-        //        return _TakePhoto ?? (_TakePhoto = new RelayCommand(
-        //            x =>
-        //            {
-        //                App.Current.MainWindow.MouseDown += OnLeftMouseButtonDown;
-        //                model.TakePhoto();
-        //            }));
-        //    }
-        //}
+        public ICommand TakePhoto
+        {
+            get
+            {
+                return _TakePhoto ?? (_TakePhoto = new RelayCommand(
+                    x =>
+                    {
+                        App.Current.MainWindow.MouseDown += OnLeftMouseButtonDown;
+                        model.TakePhoto();
+                    }));
+            }
+        }
         #endregion
 
         #endregion
-
-
 
         #region Events services
         void e_PupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
@@ -122,14 +120,14 @@ namespace GuessWhatLookingAt
 
             #endregion
 
-            #region Actualise XAML
-            public void LoadImageFromPupil(ImageSource image)
-            {
-                image.Freeze();
-                imageFromPupil = image;
+        #region Actualise XAML
+        public void LoadImageFromPupil(ImageSource image)
+        {
+             image.Freeze();
+             imageFromPupil = image;
 
-                OnPropertyChanged("imageFromPupil");
-            }
-            #endregion
+             OnPropertyChanged("imageFromPupil");
         }
+        #endregion
     }
+}

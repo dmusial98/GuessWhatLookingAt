@@ -18,9 +18,9 @@ namespace GuessWhatLookingAt
     /// <summary>
     /// Interaction logic for UserControl2.xaml
     /// </summary>
-    public partial class UserControl2 : UserControl
+    public partial class MainMenuUserControl : UserControl
     {
-        public UserControl2()
+        public MainMenuUserControl()
         {
             InitializeComponent();
         }

@@ -41,12 +41,12 @@ namespace GuessWhatLookingAt
                 .FirstOrDefault(vm => vm == viewModel);
         }
 
-        private void OnGo1Screen(object obj)
+        private void OnGoToMainMenu(object obj)
         {
             ChangeViewModel(PageViewModels[0]);
         }
 
-        private void OnGo2Screen(object obj)
+        private void OnGoToFreezeGame(object obj)
         {
             ChangeViewModel(PageViewModels[1]);
         }
@@ -54,13 +54,14 @@ namespace GuessWhatLookingAt
         public MainWindowViewModel()
         {
             // Add available pages and set page
+            PageViewModels.Add(new MainMenuViewModel());
             PageViewModels.Add(new FreezeGameViewModel());
-            PageViewModels.Add(new UserControl2ViewModel());
+            
 
             CurrentPageViewModel = PageViewModels[0];
 
-            Mediator.Subscribe("GoTo1Screen", OnGo1Screen);
-            Mediator.Subscribe("GoTo2Screen", OnGo2Screen);
+            Mediator.Subscribe("GoToMainMenu", OnGoToMainMenu);
+            Mediator.Subscribe("GoToFreezeGame", OnGoToFreezeGame);
         }
     }
 }
