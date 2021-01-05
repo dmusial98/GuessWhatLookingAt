@@ -18,18 +18,21 @@ namespace GuessWhatLookingAt
         public string ConnectPupilResultString { get; set; } = "Disconnected";
 
         public string CoordinatesMouseString { get; set; } = "Coordinates: ";
+
+        public string RemainingPhotoTimeString { get; set; } = "";
         #endregion
 
         #region Constructors
         public FreezeGameViewModel()
         {
             model.pupil.PupilDataReceivedEvent += e_PupilDataReached;
+            model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
         }
         #endregion
 
         #region Commands
 
-        #region Go To second screen
+        #region Go to main menu
         private ICommand _goToMainMenu;
 
         public ICommand GoToMainMenu
@@ -118,7 +121,30 @@ namespace GuessWhatLookingAt
             }
         }
 
-            #endregion
+        private void OnPhotoTimeChanged(object sender, FreezeGameModel.PhotoTimeChangedEventArgs args)
+        {
+            if(args.Time != 0)
+            {
+                if (args.Time != 1)
+                {
+                    RemainingPhotoTimeString = "Take photo in " + args.Time + " seconds";
+                    OnPropertyChanged("RemainingPhotoTimeString");
+                }
+                else
+                {
+                    RemainingPhotoTimeString = "Take photo in 1 second";
+                    OnPropertyChanged("RemainingPhotoTimeString");
+                }
+            }
+            else
+            {
+                RemainingPhotoTimeString = "";
+                OnPropertyChanged("RemainingPhotoTimeString");
+            }
+        }
+
+
+        #endregion
 
         #region Actualise XAML
         public void LoadImageFromPupil(ImageSource image)

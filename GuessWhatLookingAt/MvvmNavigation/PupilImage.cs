@@ -36,7 +36,7 @@ namespace GuessWhatLookingAt
  
         public void DrawCircle(double xGaze, double yGaze)
         {
-            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(xGaze), Convert.ToInt32(yGaze)), 15, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(xGaze), Convert.ToInt32(yGaze)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
         }
 
         public void PutConfidenceText(double confidence)
@@ -47,10 +47,18 @@ namespace GuessWhatLookingAt
             CvInvoke.PutText(mat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color );
         }
 
-        public BitmapSource GetBitmapSourceFromMat()
+        public BitmapSource GetBitmapSourceFromMat(bool fullScreen)
         {
+            
             var byteArray = mat.GetRawData(new int[] { });
-            return BitmapSource.Create(mat.Width, mat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, mat.Width * 3);
+            var bmpSource = BitmapSource.Create(mat.Width, mat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, mat.Width * 3);
+            if (fullScreen)
+            {
+                var resizedBitmap = new TransformedBitmap(bmpSource, new ScaleTransform(1920.0 / mat.Width, 1080.0 / mat.Height));
+                return resizedBitmap;
+            }
+            else
+                return bmpSource;
         }
 
         public void StartRecord()

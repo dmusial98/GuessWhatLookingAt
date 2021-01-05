@@ -4,7 +4,6 @@ namespace GuessWhatLookingAt
 {
     public class MainMenuViewModel : BaseViewModel, IPageViewModel
     {
-
         #region GoToFreezeGame
 
         private ICommand _goToFreezeGame;

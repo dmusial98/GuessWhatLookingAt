@@ -15,9 +15,11 @@ namespace GuessWhatLookingAt
         public Pupil pupil { get; private set; } = new Pupil();
 
         System.Timers.Timer photoTimer;
-        const int timerSeconds = 3;
-        public int tempTimerSeconds { get; private set; } = timerSeconds;
+        const int _timerSeconds = 3;
+        public int PhotoRemainingTime { get; private set; } = _timerSeconds;
         public bool hasPhoto { get; private set; } = false;
+
+        public event EventHandler<PhotoTimeChangedEventArgs> PhotoTimeChangedEvent;
 
         public void ConnectWithPupil()
         {
@@ -26,7 +28,7 @@ namespace GuessWhatLookingAt
                 hasPhoto = false;
                 pupil.Connect();
 
-                pupilThread = new Thread(pupil.ReceiveData);
+                pupilThread = new Thread(pupil.ReceiveFrame);
                 pupilThread.Start();
             }
         }
@@ -44,17 +46,13 @@ namespace GuessWhatLookingAt
         {
             if (pupil.isConnected)
             {
-                //for (int i = 0; i < timerSeconds; i++)
-                //{
-                //    photoTimer = new System.Timers.Timer(1000);
-                //    photoTimer.Elapsed += OnTakePhotoTimerEvent;
-                //    photoTimer.Enabled = true;
-                //}
-
                 photoTimer = new System.Timers.Timer(1000);
                 photoTimer.Elapsed += OnTakePhotoTimerEvent;
-                photoTimer.Enabled = true;
                 photoTimer.AutoReset = false;
+
+                OnPhotoTimeEvent();
+
+                photoTimer.Enabled = true;
             }
         }
 
@@ -65,17 +63,45 @@ namespace GuessWhatLookingAt
 
         private void OnTakePhotoTimerEvent(Object source, ElapsedEventArgs e)
         {
-            //if (tempTimerSeconds != 0)
-            //{
-            //    tempTimerSeconds--;
-            //}
-            //else
-            //{
+            if (PhotoRemainingTime != 0)
+            {
+                PhotoRemainingTime--;
+                photoTimer.Enabled = true;
+
+                OnPhotoTimeEvent();
+            }
+            else
+            {
                 pupil.Disconnect();
                 pupilThread?.Abort();
                 hasPhoto = true;
-                tempTimerSeconds = timerSeconds;
-            //}
+
+                OnPhotoTimeEvent();
+
+                PhotoRemainingTime = _timerSeconds;
+
+                
+            }
+        }
+
+        private void OnPhotoTimeEvent()
+        {
+            PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(PhotoRemainingTime);
+            EventHandler<PhotoTimeChangedEventArgs> handler = PhotoTimeChangedEvent;
+            if (handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
+        public class PhotoTimeChangedEventArgs : EventArgs
+        {
+            public PhotoTimeChangedEventArgs(int time)
+            { 
+                Time = time; 
+            }
+
+            public int Time { get; set; }
         }
     }
 }

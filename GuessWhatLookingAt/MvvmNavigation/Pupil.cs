@@ -80,7 +80,7 @@ namespace GuessWhatLookingAt
             isConnected = true;
         }
 
-        public void ReceiveData()
+        public void ReceiveFrame()
         {
             pupilImage = new PupilImage();
 
@@ -116,17 +116,25 @@ namespace GuessWhatLookingAt
                 pinnedArray.Free();
 
                 gazePoint = new Point(
-                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth, 
+                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
                     msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight);
 
                 pupilImage.DrawCircle(gazePoint.X, gazePoint.Y);
                 pupilImage.PutConfidenceText(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
-                args.image = pupilImage.GetBitmapSourceFromMat();
+                args.image = pupilImage.GetBitmapSourceFromMat(fullScreen: true);
 
                 OnPupilReceivedData(args);
             }
-
         }
+
+        public void ReceiveGaze()
+        {
+            while(isConnected)
+            {
+
+            }
+        }
+
 
         public void Disconnect()
         {
