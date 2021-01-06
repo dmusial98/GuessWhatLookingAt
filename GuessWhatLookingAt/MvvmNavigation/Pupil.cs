@@ -99,7 +99,7 @@ namespace GuessWhatLookingAt
 
                 //new size of image and new scale for image
                 if (Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger) != frameHeight ||
-                    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameHeight)
+                    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameWidth)
                 {
                     //write height and width parameters
                     frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);

@@ -52,6 +52,9 @@
     <Reference Include="NetMQ, Version=4.0.1.6, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
       <HintPath>..\packages\NetMQ.4.0.1.6\lib\net47\NetMQ.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SimpleMsgPack, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SimpleMsgPack.1.0.0.0\lib\net40\SimpleMsgPack.dll</HintPath>
     </Reference>
@@ -113,7 +116,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseViewModel.cs" />
+    <Compile Include="EyeTribe.cs" />
     <Compile Include="FreezeGameModel.cs" />
+    <Compile Include="FreezeGameSettings.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="EventRaiser.cs" />
@@ -130,6 +135,7 @@
       <DependentUpon>MainMenuUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainMenuViewModel.cs" />
+    <Compile Include="FreezeGameViewSettings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

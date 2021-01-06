@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Threading;
 using System.Timers;
 using System.Windows;
@@ -8,8 +9,8 @@ namespace GuessWhatLookingAt
     class FreezeGameModel
     {
         #region Image size fields
-        static double _ImageWidth = 1632.0;
-        static double _ImageHeight = 918.0;
+        double _ImageWidth;
+        double _ImageHeight;
 
         double ImageXScale = 1.0;
         double ImageYScale = 1.0;
@@ -17,7 +18,12 @@ namespace GuessWhatLookingAt
 
         Thread pupilThread;
         public Pupil pupil { get; private set; } = new Pupil();
-        Point BegginingImagePoint = new Point(60.0, 70.0);
+        public EyeTribe eyeTribe = new EyeTribe();
+
+        Point _BegginingImagePoint = new Point(0.0, 0.0);
+
+        public bool IsPupilConnected { get; private set; } = false;
+        public bool IsEyeTribeConnected { get; private set; } = false;
 
         #region PhotoFields
         System.Timers.Timer photoTimer;
@@ -28,13 +34,21 @@ namespace GuessWhatLookingAt
         public event EventHandler<PhotoTimeChangedEventArgs> PhotoTimeChangedEvent;
         #endregion //PhotoFields
 
-        public FreezeGameModel()
+        public event EventHandler<EyeTribeGazePositionEventArgs> EyeTribeGazePointReached;
+
+        #region Constructors
+        public FreezeGameModel(double pupilImageWidth, double pupilImageHeight, Point begginingImagePoint)
         {
+            _ImageWidth = pupilImageWidth;
+            _ImageHeight = pupilImageHeight;
             pupil.ImageScaleChangedEvent += OnImageScaleChanged;
             pupil.ImageWidthToDisplay = _ImageWidth;
             pupil.ImageHeightToDisplay = _ImageHeight;
+            _BegginingImagePoint = begginingImagePoint;
+
+            eyeTribe.OnData += OnEyeTribeDataReached;
         }
-       
+        #endregion
 
         public void ConnectWithPupil()
         {
@@ -43,6 +57,7 @@ namespace GuessWhatLookingAt
                 hasPhoto = false;
                 pupil.Connect();
 
+                IsPupilConnected = true;
                 pupilThread = new Thread(pupil.ReceiveFrame);
                 pupilThread.Start();
             }
@@ -54,6 +69,17 @@ namespace GuessWhatLookingAt
             {
                 pupil.Disconnect();
                 pupilThread?.Abort();
+                IsPupilConnected = false;
+            }
+        }
+
+        public void ConnectWithEyeTribe()
+        {
+            if (!eyeTribe.isRunning)
+            {
+                eyeTribe.Connect("localhost", 6555);
+                IsEyeTribeConnected = true;
+
             }
         }
 
@@ -74,7 +100,7 @@ namespace GuessWhatLookingAt
         public double CountPointsDifference(Point p1)
         {
             var gazeResizedPoint = new Point(pupil.gazePoint.X * ImageXScale, pupil.gazePoint.Y * ImageYScale);
-            gazeResizedPoint.Offset(BegginingImagePoint.X, BegginingImagePoint.Y);
+            gazeResizedPoint.Offset(_BegginingImagePoint.X, _BegginingImagePoint.Y);
             return Point.Subtract(gazeResizedPoint, p1).Length;
         }
 
@@ -92,12 +118,12 @@ namespace GuessWhatLookingAt
                 pupil.Disconnect();
                 pupilThread?.Abort();
                 hasPhoto = true;
+                IsPupilConnected = false;
+
 
                 OnPhotoTimeEvent();
 
                 PhotoRemainingTime = _timerSeconds;
-
-                
             }
         }
 
@@ -114,8 +140,8 @@ namespace GuessWhatLookingAt
         public class PhotoTimeChangedEventArgs : EventArgs
         {
             public PhotoTimeChangedEventArgs(int time)
-            { 
-                Time = time; 
+            {
+                Time = time;
             }
 
             public int Time { get; set; }
@@ -126,5 +152,35 @@ namespace GuessWhatLookingAt
             ImageXScale = args.XScaleImage;
             ImageYScale = args.YScaleImage;
         }
+
+        void OnEyeTribeDataReached(object sender, EyeTribe.EyeTribeReceivedDataEventArgs e)
+        {
+            JObject values = JObject.Parse(e.data.values);
+            JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
+            double gazeX = (double)gaze.Property("x").Value;
+            double gazeY = (double)gaze.Property("y").Value;
+
+            var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
+            
+
+            OnEyeTribeGazePositionReached(args);
+        }
+
+        public class EyeTribeGazePositionEventArgs : EventArgs
+        {
+            public EyeTribeGazePositionEventArgs(double gazeX, double gazeY) => gazePoint = new Point(gazeX, gazeY);
+
+            public Point gazePoint { get; set; }
+        }
+
+        public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
+        {
+            var handler = EyeTribeGazePointReached;
+            if(handler != null)
+            {
+                handler(this, args);
+            }
+        }
+
     }
 }

@@ -9,24 +9,33 @@ namespace GuessWhatLookingAt
 {
     public class FreezeGameViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
     {
-        FreezeGameModel model = new FreezeGameModel();
+        FreezeGameModel model = new FreezeGameModel(_PupilImageSize.Width, _PupilImageSize.Height, ViewSettings.ImageFromPupilPosition);
 
         #region XAML Properties
         public ImageSource imageFromPupil { get; set; }
 
-        public string ConnectPupilResultString { get; set; } = "Disconnected";
+        public string ConnectPupilButtonContentString { get; set; } = "Connect with Pupil";
+
+        public string ConnectEyeTribeButtonContentString { get; set; } = "Connect with Eye Tribe";
 
         public string MouseDistanceToPupilGazePoint { get; set; } = "";
 
         public string RemainingPhotoTimeString { get; set; } = "";
+
+        public string EyeTribeCoordinatesString { get; set; } = "X: Y:";
+
+        public static FreezeGameViewSettings ViewSettings { get; set; } = new FreezeGameViewSettings();
+
         #endregion
 
-        
+        static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
 
         #region Constructors
         public FreezeGameViewModel()
         {
-            model.pupil.PupilDataReceivedEvent += e_PupilDataReached;
+            //TODO: dodać delegata i zrobić pupila prywatnego
+            model.pupil.PupilDataReceivedEvent += OnPupilDataReached;
+            model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
         }
         #endregion
@@ -49,36 +58,56 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Connect with Pupil 
-        private ICommand _ConnectWithPupil;
-        public ICommand ConnectWithPupil
+        private ICommand _ConnectDisconnectWithPupil;
+        public ICommand ConnectDisconnectWithPupil
         {
             get
             {
-                return _ConnectWithPupil ?? (_ConnectWithPupil = new RelayCommand(
+                return _ConnectDisconnectWithPupil ?? (_ConnectDisconnectWithPupil = new RelayCommand(
                     x =>
                     {
-                        model.ConnectWithPupil();
-                        ConnectPupilResultString = "Connected";
-                        MouseDistanceToPupilGazePoint = "";
-                        OnPropertyChanged("ConnectPupilResultString");
-                        OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                        if (!model.IsPupilConnected)
+                        {
+                            model.ConnectWithPupil();
+                            ConnectPupilButtonContentString = "Disconnect Pupil";
+                            MouseDistanceToPupilGazePoint = "";
+                            OnPropertyChanged("ConnectPupilButtonContentString");
+                            OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                        }
+                        else
+                        {
+                            model.DisconnectPupil();
+                            ConnectPupilButtonContentString = "Connect with Pupil";
+                            OnPropertyChanged("ConnectPupilButtonContentString");
+                        }
                     }));
             }
         }
         #endregion
 
-        #region Disconnect Pupil
-        private ICommand _DisconnectPupil;
-        public ICommand DisconnectPupil
+        #region Connect with Eye Tribe 
+        private ICommand _ConnectDisconnectWithEyeTribe;
+        public ICommand ConnectDisconnectWithEyeTribe
         {
             get
             {
-                return _DisconnectPupil ?? (_DisconnectPupil = new RelayCommand(
+                return _ConnectDisconnectWithEyeTribe ?? (_ConnectDisconnectWithEyeTribe = new RelayCommand(
                     x =>
                     {
-                        model.DisconnectPupil();
-                        ConnectPupilResultString = "Disconnected";
-                        OnPropertyChanged("ConnectPupilResultString");
+                        if (!model.IsEyeTribeConnected)
+                        {
+                            model.ConnectWithEyeTribe();
+                            //ConnectPupilButtonContentString = "Disconnect Pupil";
+                            //MouseDistanceToPupilGazePoint = "";
+                            //OnPropertyChanged("ConnectPupilButtonContentString");
+                            //OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                        }
+                        //else
+                        //{
+                        //    model.DisconnectPupil();
+                        //    ConnectPupilButtonContentString = "Connect with Pupil";
+                        //    OnPropertyChanged("ConnectPupilButtonContentString");
+                        //}
                     }));
             }
         }
@@ -104,7 +133,7 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
-        void e_PupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
+        void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
         {
             LoadImageFromPupil(args.image);
         }
@@ -115,18 +144,24 @@ namespace GuessWhatLookingAt
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Point mousePosition = /*Point.Subtract(*/Mouse.GetPosition(App.Current.MainWindow)/*, new Point(20,60))*/;
-                    var distance = model.CountPointsDifference(mousePosition);
-                    distance = Math.Round(distance, 2);
-                    MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
-                    OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                    Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
+                    Rect pupilImageRect = new Rect(ViewSettings.ImageFromPupilPosition, _PupilImageSize);
+
+                    if (pupilImageRect.Contains(mousePosition))
+                        {
+
+                        var distance = model.CountPointsDifference(mousePosition);
+                        distance = Math.Round(distance, 2);
+                        MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
+                        OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                    }
                 }
             }
         }
 
         private void OnPhotoTimeChanged(object sender, FreezeGameModel.PhotoTimeChangedEventArgs args)
         {
-            if(args.Time != 0)
+            if (args.Time != 0)
             {
                 if (args.Time != 1)
                 {
@@ -142,8 +177,16 @@ namespace GuessWhatLookingAt
             else
             {
                 RemainingPhotoTimeString = "";
+                ConnectPupilButtonContentString = "Connect with Pupil";
                 OnPropertyChanged("RemainingPhotoTimeString");
+                OnPropertyChanged("ConnectPupilButtonContentString");
             }
+        }
+
+        private void OnEyeTribeGazePointReached(object sender, FreezeGameModel.EyeTribeGazePositionEventArgs args)
+        {
+            EyeTribeCoordinatesString = "X: " + Math.Round(args.gazePoint.X, 0).ToString() + " Y: " + Math.Round(args.gazePoint.Y, 0).ToString();
+            OnPropertyChanged("EyeTribeCoordinatesString");
         }
 
 
@@ -152,10 +195,10 @@ namespace GuessWhatLookingAt
         #region Actualise XAML
         public void LoadImageFromPupil(ImageSource image)
         {
-             image.Freeze();
-             imageFromPupil = image;
+            image.Freeze();
+            imageFromPupil = image;
 
-             OnPropertyChanged("imageFromPupil");
+            OnPropertyChanged("imageFromPupil");
         }
         #endregion
     }

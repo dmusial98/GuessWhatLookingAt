@@ -9,7 +9,6 @@ namespace GuessWhatLookingAt
 {
     public class PupilImage
     {
-        public ImageSource pupilBitmapImage { get; private set; }
         public Mat mat { get; private set; }
 
         VideoWriter videoWriter = null;
