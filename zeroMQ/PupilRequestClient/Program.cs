@@ -44,7 +44,7 @@ namespace PupilRequestClient
                         CvInvoke.NamedWindow(PupilWindow); //Create the window using the specific name
 
                         frameSubscriber.Subscribe("frame.world");
-                        gazeSubscriber.Subscribe("gaze.");
+                        gazeSubscriber.Subscribe("gaze.3d.01.");
 
                         var msgpackPackNotify = new MsgPack();
                         msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
@@ -91,16 +91,20 @@ namespace PupilRequestClient
 
                             gazeMsg = gazeSubscriber.ReceiveFrameString();
                             gazeData = gazeSubscriber.ReceiveFrameBytes();
-
+                            
                             var msgpackGazeDecode = new MsgPack();
                             msgpackGazeDecode.DecodeFromBytes(gazeData);
 
+
+                            Console.WriteLine("video timestamp: {0}", msgpackFrameDecode.ForcePathObject("timestamp").AsFloat);
+                            Console.WriteLine("timestamp: {0}", msgpackGazeDecode.ForcePathObject("timestamp").AsFloat);
                             Console.WriteLine("method: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("method").AsString);
                             Console.WriteLine("topic: {0}", msgpackGazeDecode.ForcePathObject("topic").AsString);
                             Console.WriteLine("norm_pos: [{0}, {1}]", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[0].AsFloat, msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("norm_pos").AsArray[1].AsFloat);
                             Console.WriteLine("confidence: {0}", msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
                             Console.WriteLine("phi: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("phi").AsFloat);
                             Console.WriteLine("theta: {0}", msgpackGazeDecode.ForcePathObject("base_data").AsArray[0].ForcePathObject("theta").AsFloat);
+                            Console.WriteLine("\n");
                         }
                     }
                 }

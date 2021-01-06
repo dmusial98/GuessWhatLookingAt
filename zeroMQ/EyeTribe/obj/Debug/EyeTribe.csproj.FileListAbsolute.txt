@@ -1,0 +1,12 @@
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\EyeTribe.exe.config
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\EyeTribe.exe
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\EyeTribe.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\EyeTribe.ClientSdk.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\Newtonsoft.Json.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\Newtonsoft.Json.xml
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\obj\Debug\EyeTribe.csprojAssemblyReference.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\obj\Debug\EyeTribe.csproj.CoreCompileInputs.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\obj\Debug\EyeTribe.csproj.CopyComplete
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\obj\Debug\EyeTribe.exe
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\obj\Debug\EyeTribe.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\EyeTribe\bin\Debug\EyeTribe.Controls.dll

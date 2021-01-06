@@ -13,12 +13,12 @@ namespace EyeTribe
         static void Main(string[] args)
         {
             var eyeTribe = new EyeTribe();
-            eyeTribe.OnData += e_EyeTribeDataReached;
+            eyeTribe.OnData += OnEyeTribeDataReached;
 
             var connectResult = eyeTribe.Connect("localhost", 6555);
         }
 
-        static void e_EyeTribeDataReached(object sender, EyeTribeReceivedDataEventArgs e)
+        static void OnEyeTribeDataReached(object sender, EyeTribeReceivedDataEventArgs e)
         {
             JObject values = JObject.Parse(e.data.values);
             JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
