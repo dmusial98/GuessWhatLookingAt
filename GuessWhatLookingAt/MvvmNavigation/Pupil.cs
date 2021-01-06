@@ -14,7 +14,7 @@ namespace GuessWhatLookingAt
         SubscriberSocket frameSubscriber;
         SubscriberSocket gazeSubscriber;
 
-        public bool isConnected { get; private set; }
+        public bool isConnected { get; private set; } = false;
 
         string subPort;
         string pubPort;
@@ -29,13 +29,12 @@ namespace GuessWhatLookingAt
         byte[] gazeData;
 
         public Point gazePoint { get; private set; } = new Point(0, 0);
+        public double gazeConfidence = 0;
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
         public event EventHandler<ImageScaleChangedEventArgs> ImageScaleChangedEvent;
 
-        PupilImage pupilImage;
-        public double ImageWidthToDisplay { get; set; } = 0.0;
-        public double ImageHeightToDisplay { get; set; } = 0.0;
+        public Size ImageSizeToDisplay { get; set; }
 
         double _imageXScale = 1.0;
         double _imageYScale = 1.0;
@@ -87,7 +86,7 @@ namespace GuessWhatLookingAt
 
         public void ReceiveFrame()
         {
-            pupilImage = new PupilImage();
+            //pupilImage = new EmguCVImage();
 
             while (isConnected)
             {
@@ -105,8 +104,8 @@ namespace GuessWhatLookingAt
                     frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
                     frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
 
-                    _imageXScale = ImageWidthToDisplay / frameWidth;
-                    _imageYScale = ImageHeightToDisplay / frameHeight;
+                    _imageXScale = ImageSizeToDisplay.Width / frameWidth;
+                    _imageYScale = ImageSizeToDisplay.Height / frameHeight;
 
                     //notify about event occurence
                     var imageScaleArgs = new ImageScaleChangedEventArgs();
@@ -128,19 +127,15 @@ namespace GuessWhatLookingAt
                 //new event for inform about video data
                 var imageArgs = new PupilReceivedDataEventArgs();
 
-                GCHandle pinnedArray = GCHandle.Alloc(frameData, GCHandleType.Pinned);
-                IntPtr pointer = pinnedArray.AddrOfPinnedObject();
-
-                pupilImage.SetMat(pointer, frameWidth, frameHeight);
-                pinnedArray.Free();
-
-                gazePoint = new Point(
+                gazePoint = imageArgs.gazePoint = new Point(
                     msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
                     msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight);
+                gazeConfidence = imageArgs.gazeConfidence = msgpackGazeDecode.ForcePathObject("confidence").AsFloat;
 
-                pupilImage.DrawCircle(gazePoint.X, gazePoint.Y);
-                pupilImage.PutConfidenceText(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
-                imageArgs.image = pupilImage.GetBitmapSourceFromMat(_imageXScale, _imageYScale);
+                imageArgs.rawImageData = frameData;
+                imageArgs.imageSize = new Size(frameWidth, frameHeight);
+                imageArgs.imageXScale = _imageXScale;
+                imageArgs.imageYScale = _imageYScale;
 
                 OnPupilReceivedData(imageArgs);
             }
@@ -184,7 +179,12 @@ namespace GuessWhatLookingAt
 
         public class PupilReceivedDataEventArgs : EventArgs
         {
-            public BitmapSource image { get; set; }
+            public byte[] rawImageData { get; set; }
+            public Point gazePoint { get; set; }
+            public double gazeConfidence { get; set; }
+            public Size imageSize { get; set; }
+            public double imageXScale { get; set; }
+            public double imageYScale { get; set; }
         }
 
         public class ImageScaleChangedEventArgs : EventArgs

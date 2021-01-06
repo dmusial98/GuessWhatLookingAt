@@ -9,7 +9,7 @@ namespace GuessWhatLookingAt
 {
     public class FreezeGameViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
     {
-        FreezeGameModel model = new FreezeGameModel(_PupilImageSize.Width, _PupilImageSize.Height, ViewSettings.ImageFromPupilPosition);
+        FreezeGameModel model = new FreezeGameModel(_PupilImageSize, ViewSettings.ImageFromPupilPosition);
 
         #region XAML Properties
         public ImageSource imageFromPupil { get; set; }
@@ -33,8 +33,7 @@ namespace GuessWhatLookingAt
         #region Constructors
         public FreezeGameViewModel()
         {
-            //TODO: dodać delegata i zrobić pupila prywatnego
-            model.pupil.PupilDataReceivedEvent += OnPupilDataReached;
+            model.BitmapSourceReached += OnBitmapSourceReached;
             model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
         }
@@ -133,7 +132,7 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
-        void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs args)
+        void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
         {
             LoadImageFromPupil(args.image);
         }

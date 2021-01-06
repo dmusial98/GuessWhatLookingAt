@@ -2,12 +2,13 @@
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using System;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace GuessWhatLookingAt
 {
-    public class PupilImage
+    public class EmguCVImage
     {
         public Mat mat { get; private set; }
 
@@ -25,9 +26,14 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void DrawCircle(double xGaze, double yGaze)
+        public void DrawCircleForPupil(Point gazePoint)
         {
-            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(xGaze), Convert.ToInt32(yGaze)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+        }
+
+        public void DrawCircleForEyeTribe(Point gazePoint)
+        {
+            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
         }
 
         public void PutConfidenceText(double confidence)

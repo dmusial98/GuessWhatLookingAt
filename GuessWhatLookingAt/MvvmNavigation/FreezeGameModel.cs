@@ -1,26 +1,29 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
 using System.Windows;
+using System.Windows.Media;
 
 namespace GuessWhatLookingAt
 {
     class FreezeGameModel
     {
-        #region Image size fields
-        double _ImageWidth;
-        double _ImageHeight;
+        #region Image fields
+        public Size ImageSize { get; private set; }
 
-        double ImageXScale = 1.0;
-        double ImageYScale = 1.0;
+        double _ImageXScale = 1.0;
+        double _ImageYScale = 1.0;
+
+        Point _BegginingImagePoint = new Point(0.0, 0.0);
         #endregion
 
         Thread pupilThread;
-        public Pupil pupil { get; private set; } = new Pupil();
+        public Pupil pupil = new Pupil();
         public EyeTribe eyeTribe = new EyeTribe();
-
-        Point _BegginingImagePoint = new Point(0.0, 0.0);
+        EmguCVImage image = new EmguCVImage();
+        Point? EyeTribeGazePoint;
 
         public bool IsPupilConnected { get; private set; } = false;
         public bool IsEyeTribeConnected { get; private set; } = false;
@@ -35,21 +38,23 @@ namespace GuessWhatLookingAt
         #endregion //PhotoFields
 
         public event EventHandler<EyeTribeGazePositionEventArgs> EyeTribeGazePointReached;
+        public event EventHandler<BitmapSourceEventArgs> BitmapSourceReached;
 
         #region Constructors
-        public FreezeGameModel(double pupilImageWidth, double pupilImageHeight, Point begginingImagePoint)
+        public FreezeGameModel(Size imageSize, Point begginingImagePoint)
         {
-            _ImageWidth = pupilImageWidth;
-            _ImageHeight = pupilImageHeight;
+            ImageSize = imageSize;
             pupil.ImageScaleChangedEvent += OnImageScaleChanged;
-            pupil.ImageWidthToDisplay = _ImageWidth;
-            pupil.ImageHeightToDisplay = _ImageHeight;
+            pupil.ImageSizeToDisplay = ImageSize;
             _BegginingImagePoint = begginingImagePoint;
 
             eyeTribe.OnData += OnEyeTribeDataReached;
+            pupil.PupilDataReceivedEvent += OnPupilDataReached;
         }
         #endregion
 
+
+        #region Pupil
         public void ConnectWithPupil()
         {
             if (!pupil.isConnected)
@@ -62,7 +67,6 @@ namespace GuessWhatLookingAt
                 pupilThread.Start();
             }
         }
-
         public void DisconnectPupil()
         {
             if (pupil.isConnected)
@@ -72,17 +76,6 @@ namespace GuessWhatLookingAt
                 IsPupilConnected = false;
             }
         }
-
-        public void ConnectWithEyeTribe()
-        {
-            if (!eyeTribe.isRunning)
-            {
-                eyeTribe.Connect("localhost", 6555);
-                IsEyeTribeConnected = true;
-
-            }
-        }
-
         public void TakePhoto()
         {
             if (pupil.isConnected)
@@ -96,12 +89,60 @@ namespace GuessWhatLookingAt
                 photoTimer.Enabled = true;
             }
         }
+        #endregion
+
+        #region Eye Tribe
+        public void ConnectWithEyeTribe()
+        {
+            if (!eyeTribe.isRunning)
+            {
+                eyeTribe.Connect("localhost", 6555);
+                IsEyeTribeConnected = true;
+            }
+        }
+        #endregion
 
         public double CountPointsDifference(Point p1)
         {
-            var gazeResizedPoint = new Point(pupil.gazePoint.X * ImageXScale, pupil.gazePoint.Y * ImageYScale);
+            var gazeResizedPoint = new Point(pupil.gazePoint.X * _ImageXScale, pupil.gazePoint.Y * _ImageYScale);
             gazeResizedPoint.Offset(_BegginingImagePoint.X, _BegginingImagePoint.Y);
             return Point.Subtract(gazeResizedPoint, p1).Length;
+        }
+
+        void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs pupilArgs)
+        {
+            GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.rawImageData, GCHandleType.Pinned);
+            IntPtr pointer = pinnedarray.AddrOfPinnedObject();
+
+            image.SetMat(pointer, Convert.ToInt32(pupilArgs.imageSize.Width), Convert.ToInt32(pupilArgs.imageSize.Height));
+            pinnedarray.Free();
+            
+            image.DrawCircleForPupil(pupilArgs.gazePoint);
+            if (EyeTribeGazePoint != null)
+                image.DrawCircleForEyeTribe(EyeTribeGazePoint.GetValueOrDefault());
+            image.PutConfidenceText(pupilArgs.gazeConfidence);
+            var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.imageXScale, pupilArgs.imageYScale));
+
+            
+
+
+            OnImageSourceReached(imageSourceArgs);
+        }
+
+        public class BitmapSourceEventArgs : EventArgs
+        {
+            public BitmapSourceEventArgs(ImageSource im) => image = im;
+
+            public ImageSource image { get; set; }
+        }
+
+        private void OnImageSourceReached(BitmapSourceEventArgs args)
+        {
+            var handler = BitmapSourceReached;
+            if(handler != null)
+            {
+                handler(this, args);
+            }
         }
 
         private void OnTakePhotoTimerEvent(Object source, ElapsedEventArgs e)
@@ -149,8 +190,8 @@ namespace GuessWhatLookingAt
 
         private void OnImageScaleChanged(object sender, Pupil.ImageScaleChangedEventArgs args)
         {
-            ImageXScale = args.XScaleImage;
-            ImageYScale = args.YScaleImage;
+            _ImageXScale = args.XScaleImage;
+            _ImageYScale = args.YScaleImage;
         }
 
         void OnEyeTribeDataReached(object sender, EyeTribe.EyeTribeReceivedDataEventArgs e)
@@ -159,6 +200,19 @@ namespace GuessWhatLookingAt
             JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
             double gazeX = (double)gaze.Property("x").Value;
             double gazeY = (double)gaze.Property("y").Value;
+
+            //TODO: Draw Circle dla Eye Tribe'a
+            var eyeTribePoint = new Point(gazeX, gazeY);
+            var imageRect = new Rect(_BegginingImagePoint, ImageSize);
+            if (imageRect.Contains(eyeTribePoint))
+            {
+                eyeTribePoint.Offset(-_BegginingImagePoint.X, -_BegginingImagePoint.Y);
+                EyeTribeGazePoint = new Point(eyeTribePoint.X / _ImageXScale, eyeTribePoint.Y / _ImageYScale);
+            }
+            else
+            {
+                EyeTribeGazePoint = null;
+            }
 
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             
