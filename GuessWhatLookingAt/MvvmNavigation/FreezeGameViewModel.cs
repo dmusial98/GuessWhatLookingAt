@@ -1,10 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
+
 
 namespace GuessWhatLookingAt
 {
@@ -17,10 +16,12 @@ namespace GuessWhatLookingAt
 
         public string ConnectPupilResultString { get; set; } = "Disconnected";
 
-        public string CoordinatesMouseString { get; set; } = "Coordinates: ";
+        public string MouseDistanceToPupilGazePoint { get; set; } = "";
 
         public string RemainingPhotoTimeString { get; set; } = "";
         #endregion
+
+        
 
         #region Constructors
         public FreezeGameViewModel()
@@ -58,7 +59,9 @@ namespace GuessWhatLookingAt
                     {
                         model.ConnectWithPupil();
                         ConnectPupilResultString = "Connected";
+                        MouseDistanceToPupilGazePoint = "";
                         OnPropertyChanged("ConnectPupilResultString");
+                        OnPropertyChanged("MouseDistanceToPupilGazePoint");
                     }));
             }
         }
@@ -115,8 +118,8 @@ namespace GuessWhatLookingAt
                     Point mousePosition = /*Point.Subtract(*/Mouse.GetPosition(App.Current.MainWindow)/*, new Point(20,60))*/;
                     var distance = model.CountPointsDifference(mousePosition);
                     distance = Math.Round(distance, 2);
-                    CoordinatesMouseString = "Distance: " + distance.ToString();
-                    OnPropertyChanged("CoordinatesMouseString");
+                    MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
+                    OnPropertyChanged("MouseDistanceToPupilGazePoint");
                 }
             }
         }

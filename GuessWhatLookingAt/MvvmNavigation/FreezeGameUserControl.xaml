@@ -13,21 +13,21 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Canvas Name="WindowContentXAML" ClipToBounds="True" Grid.ColumnSpan="2" Margin="0,0,-1900,-1060">
-            <Image Name="PupilImageXAML" Canvas.Left="0" Canvas.Top="0" Source="{Binding Path=imageFromPupil, 
-                UpdateSourceTrigger=PropertyChanged}" />
-            <Button Name="TakeAPhoto" Width="auto" Height="auto" Canvas.Left="838" Canvas.Top="935" 
-                    Content="Take a photo" FontSize="35" Command="{Binding TakePhoto}"/>
+            <Image Name="PupilImageXAML" Canvas.Left="60" Canvas.Top="70" Source="{Binding Path=imageFromPupil, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Name="TakeAPhoto" Width="auto" Height="auto" Canvas.Left="605" Canvas.Top="994" 
+                    Content="Take a photo" FontSize="35" Command="{Binding TakePhoto}" RenderTransformOrigin="0.183,1.667"/>
             <Button Name="ConnectPupilButton" Width="auto" Height="auto" FontSize="35"
-                Canvas.Left="65" Canvas.Top="935" Content="Connect"  Command="{Binding ConnectWithPupil}"/>
-            <Button Name="DisconnectPupilButton" Width="auto" Height="auto" Canvas.Left="576" 
-                    Canvas.Top="935" FontSize="35" Content="Disconnect" Command="{Binding DisconnectPupil}" />
-            <Button Content="Go to main menu" Canvas.Left="1636" Canvas.Top="10" Command="{Binding GoToMainMenu}"
-            Width="auto" Height="auto" FontSize="35"/>
-            <Label Name="ConnectPupilResultLabel" Canvas.Left="220" Canvas.Top="935" FontSize="25"  
-                   Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Name="CoordinatesLabel" Width="auto" Height="auto" FontSize="50" Canvas.Left="900" Canvas.Top="830"
-                   Content="{Binding Path=CoordinatesMouseString, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Name="RemainingPhotoTimeLabel" Width="auto" Height="auto" Canvas.Left="1140" Canvas.Top="935" FontSize="35" 
+                Canvas.Left="43" Canvas.Top="994" Content="Connect"  Command="{Binding ConnectWithPupil}"/>
+            <Button Name="DisconnectPupilButton" Width="auto" Height="auto" Canvas.Left="386" 
+                    Canvas.Top="994" FontSize="35" Content="Disconnect" Command="{Binding DisconnectPupil}" />
+            <Button Canvas.Left="1733" Canvas.Top="10" Command="{Binding GoToMainMenu}" Width="auto" Height="auto" FontSize="35" RenderTransformOrigin="1.034,0.928">
+                <TextBlock TextAlignment="Center">Go to<LineBreak/>main menu</TextBlock>
+            </Button>
+            <Label Name="ConnectPupilResultLabel" Canvas.Left="200" Canvas.Top="994" FontSize="25"  
+                   Content="{Binding Path=ConnectPupilResultString, UpdateSourceTrigger=PropertyChanged}" Height="51" Width="160" />
+            <Label Name="CoordinatesLabel" Width="394" Height="76" FontSize="50" Canvas.Left="1517" Canvas.Top="994"
+                   Content="{Binding Path=MouseDistanceToPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" RenderTransformOrigin="0.494,0.934" />
+            <Label Name="RemainingPhotoTimeLabel" Width="475" Height="73" Canvas.Left="955" Canvas.Top="997" FontSize="35" 
                    Content="{Binding Path=RemainingPhotoTimeString, UpdateSourceTrigger=PropertyChanged}"/>
         </Canvas>
     </Grid>

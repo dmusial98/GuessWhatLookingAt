@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 
@@ -11,15 +7,34 @@ namespace GuessWhatLookingAt
 {
     class FreezeGameModel
     {
+        #region Image size fields
+        static double _ImageWidth = 1632.0;
+        static double _ImageHeight = 918.0;
+
+        double ImageXScale = 1.0;
+        double ImageYScale = 1.0;
+        #endregion
+
         Thread pupilThread;
         public Pupil pupil { get; private set; } = new Pupil();
+        Point BegginingImagePoint = new Point(60.0, 70.0);
 
+        #region PhotoFields
         System.Timers.Timer photoTimer;
         const int _timerSeconds = 3;
         public int PhotoRemainingTime { get; private set; } = _timerSeconds;
         public bool hasPhoto { get; private set; } = false;
 
         public event EventHandler<PhotoTimeChangedEventArgs> PhotoTimeChangedEvent;
+        #endregion //PhotoFields
+
+        public FreezeGameModel()
+        {
+            pupil.ImageScaleChangedEvent += OnImageScaleChanged;
+            pupil.ImageWidthToDisplay = _ImageWidth;
+            pupil.ImageHeightToDisplay = _ImageHeight;
+        }
+       
 
         public void ConnectWithPupil()
         {
@@ -58,7 +73,9 @@ namespace GuessWhatLookingAt
 
         public double CountPointsDifference(Point p1)
         {
-            return Point.Subtract(pupil.gazePoint, p1).Length;
+            var gazeResizedPoint = new Point(pupil.gazePoint.X * ImageXScale, pupil.gazePoint.Y * ImageYScale);
+            gazeResizedPoint.Offset(BegginingImagePoint.X, BegginingImagePoint.Y);
+            return Point.Subtract(gazeResizedPoint, p1).Length;
         }
 
         private void OnTakePhotoTimerEvent(Object source, ElapsedEventArgs e)
@@ -102,6 +119,12 @@ namespace GuessWhatLookingAt
             }
 
             public int Time { get; set; }
+        }
+
+        private void OnImageScaleChanged(object sender, Pupil.ImageScaleChangedEventArgs args)
+        {
+            ImageXScale = args.XScaleImage;
+            ImageYScale = args.YScaleImage;
         }
     }
 }
