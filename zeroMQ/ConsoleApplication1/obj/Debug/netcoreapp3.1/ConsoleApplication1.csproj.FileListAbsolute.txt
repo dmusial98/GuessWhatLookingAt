@@ -1,0 +1,13 @@
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.exe
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.deps.json
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.runtimeconfig.json
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.runtimeconfig.dev.json
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\bin\Debug\netcoreapp3.1\ConsoleApplication1.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.csprojAssemblyReference.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.AssemblyInfoInputs.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.AssemblyInfo.cs
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.csproj.CoreCompileInputs.cache
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ConsoleApplication1\obj\Debug\netcoreapp3.1\ConsoleApplication1.genruntimeconfig.cache
