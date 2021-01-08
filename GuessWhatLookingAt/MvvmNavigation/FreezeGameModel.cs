@@ -72,21 +72,35 @@ namespace GuessWhatLookingAt
 
         public class PhotoTimeChangedEventArgs : EventArgs
         {
-            public PhotoTimeChangedEventArgs(int time)
+            public PhotoTimeChangedEventArgs(int time, bool isLastRound)
             {
                 Time = time;
+                IsLastRound = isLastRound;
             }
 
             public int Time { get; set; }
+            public bool IsLastRound { get; set; }
         }
         #endregion //Photo variables
 
         #region Logic variables
 
         const int _maxAttemptAmount = 3;
-        public int _remainningNumberOfAttempts { get; private set; } = _maxAttemptAmount;
+        int _remainingNumberOfAttempts = _maxAttemptAmount;
+
+        public int AttemptNumber { get; set; } = 1;
 
         double _minAttemptsDistance;
+
+        public int TotalPoints { get; private set; }
+
+        FreezeGamePunctation _punctation = new FreezeGamePunctation();
+
+        const int _maximalNumberOfRounds = 3;
+
+        int _gameRoundIndex = _maximalNumberOfRounds;
+
+        public int NumberOfGameRound { get; private set; } = 1;
 
         #endregion //Logic variables
 
@@ -114,6 +128,20 @@ namespace GuessWhatLookingAt
         #region Methods
 
         #region Photo methods
+
+        public void TakePhoto()
+        {
+            if (pupil.isConnected)
+            {
+                photoTimer = new System.Timers.Timer(1000);
+                photoTimer.Elapsed += OnTakePhotoTimerEvent;
+                photoTimer.AutoReset = false;
+
+                OnPhotoTimeEvent();
+
+                photoTimer.Enabled = true;
+            }
+        }
 
         public void SavePhotoImage()
         {
@@ -145,7 +173,9 @@ namespace GuessWhatLookingAt
 
         private void OnPhotoTimeEvent()
         {
-            PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(PhotoRemainingTime);
+            PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(
+                time: PhotoRemainingTime, 
+                isLastRound: _gameRoundIndex == 0 ? true : false);
             EventHandler<PhotoTimeChangedEventArgs> handler = PhotoTimeChangedEvent;
             if (handler != null)
             {
@@ -193,19 +223,6 @@ namespace GuessWhatLookingAt
                 pupil.Disconnect();
                 pupilThread?.Abort();
                 IsPupilConnected = false;
-            }
-        }
-        public void TakePhoto()
-        {
-            if (pupil.isConnected)
-            {
-                photoTimer = new System.Timers.Timer(1000);
-                photoTimer.Elapsed += OnTakePhotoTimerEvent;
-                photoTimer.AutoReset = false;
-
-                OnPhotoTimeEvent();
-
-                photoTimer.Enabled = true;
             }
         }
 
@@ -284,28 +301,49 @@ namespace GuessWhatLookingAt
 
         #region Logic methods
 
-        public bool MouseAttemptStarted(Point mousePosition, out double? distance)
+        public void StartRound()
+        {
+            _gameRoundIndex--;
+            TakePhoto();
+
+            if (_gameRoundIndex == -1)
+            {
+                _gameRoundIndex = _maximalNumberOfRounds - 1;
+                NumberOfGameRound = 1;
+                TotalPoints = 0;
+            }
+            else
+                ActualiseRoundNumber();
+
+        }
+
+        public bool MouseAttemptStarted(Point mousePosition, out double? distance, out int? points)
         {
             distance = CountPointsDifference(mousePosition);
-            _remainningNumberOfAttempts--;
+            _remainingNumberOfAttempts--;
 
             if (distance < _minAttemptsDistance)
                 _minAttemptsDistance = distance.Value;
 
-            if (_remainningNumberOfAttempts == 0) //last attempt
+            if (_remainingNumberOfAttempts == 0) //last attempt
             {
                 distance = _minAttemptsDistance;
+                _remainingNumberOfAttempts = _maxAttemptAmount;
+                CountPointsAfterAttempts();
+                points = TotalPoints;
                 ResetMinAttemptDistance();
-                _remainningNumberOfAttempts = _maxAttemptAmount;
+                AttemptNumber = 1;
                 return true;
             }
             else
             {
+                ActualiseAttemptNumber();
+                points = null;
                 return false;
             }
         }
 
-        public double CountPointsDifference(Point p1)
+        private double CountPointsDifference(Point p1)
         {
             var gazeResizedPoint = new Point(pupil.gazePoint.X * _ImageXScale, pupil.gazePoint.Y * _ImageYScale);
             gazeResizedPoint.Offset(_BegginingImagePoint.X, _BegginingImagePoint.Y);
@@ -313,8 +351,24 @@ namespace GuessWhatLookingAt
             return Math.Round(distance, 2);
         }
 
+        private void CountPointsAfterAttempts()
+        {
+            for (int i = _punctation.PunctationList.Count; i > 0; i--)
+            {
+                if (_minAttemptsDistance <= _punctation.PunctationList[i - 1])
+                {
+                    TotalPoints += i;
+                    return;
+                }
+            }
+        }
+
+
         private void ResetMinAttemptDistance() => _minAttemptsDistance = Point.Subtract(ImageRect.TopLeft, ImageRect.BottomRight).Length;
 
+        private void ActualiseAttemptNumber() => AttemptNumber = _maxAttemptAmount - _remainingNumberOfAttempts;
+
+        private void ActualiseRoundNumber() => NumberOfGameRound = _maximalNumberOfRounds - _gameRoundIndex;
 
         #endregion//logic methods
 

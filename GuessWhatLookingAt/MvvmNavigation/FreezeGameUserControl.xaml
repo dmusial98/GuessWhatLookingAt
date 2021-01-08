@@ -20,17 +20,33 @@
                     Canvas.Left="30" Canvas.Top="980" Command="{Binding ConnectDisconnectWithPupil}">
                 <TextBlock TextWrapping="Wrap" TextAlignment="Center" Text="{Binding Path=ConnectPupilButtonContentString, UpdateSourceTrigger=PropertyChanged}"/>
             </Button>
-            <Button Name="TakeAPhoto" Width="auto" Height="auto" Canvas.Left="378" Canvas.Top="997" 
-                    Content="Take a photo" FontSize="35" Command="{Binding TakePhoto}" RenderTransformOrigin="0.183,1.667"/>
+            <Button Name="StartARoundButton" Width="242" Height="73" Canvas.Left="358" Canvas.Top="981" 
+                    Content="{Binding Path=StartRoundButtonContentString, UpdateSourceTrigger=PropertyChanged}" FontSize="35" Command="{Binding StartRound}" RenderTransformOrigin="0.183,1.667"/>
             <Button Canvas.Left="1733" Canvas.Top="10" Command="{Binding GoToMainMenu}" Width="auto" Height="auto" FontSize="35" RenderTransformOrigin="1.034,0.928">
                 <TextBlock TextAlignment="Center">Go to<LineBreak/>main menu</TextBlock>
             </Button>
-            <Label Name="CoordinatesLabel" Width="394" Height="76" FontSize="50" Canvas.Left="1516" Canvas.Top="997"
+            <Label Name="EyeTribeLabel" Canvas.Left="1733" Canvas.Top="115" Width="178" Height="100" FontSize="30">
+                <TextBlock TextAlignment="Center">Eye Tribe<LineBreak/>Coordinates:</TextBlock>
+            </Label>
+            <Label Name="EyeTribeCoordiantesLabel" Canvas.Left="1733" Canvas.Top="215" Height="40" Width="178" 
+                   Content="{Binding Path=EyeTribeCoordinatesString, UpdateSourceTrigger=PropertyChanged}" FontSize="23"/>
+            <Label Name="DistanceLabel" Width="175" Height="50" FontSize="30" Canvas.Left="1735" Canvas.Top="260">
+                <TextBlock TextAlignment="Center" Width="165">Distance:</TextBlock>
+            </Label>
+            <Label Name="DistanceValueLabel" Width="187" Height="50" FontSize="30" Canvas.Left="1733" Canvas.Top="315"
                    Content="{Binding Path=MouseDistanceToPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" RenderTransformOrigin="0.494,0.934" />
-            <Label Name="EyeTribeCoordiantes" Canvas.Left="1205" Canvas.Top="980" Height="68" Width="275" 
-                   Content="{Binding Path=EyeTribeCoordinatesString, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
-            <Label Name="RemainingPhotoTimeLabel" Width="475" Height="73" Canvas.Left="625" Canvas.Top="980" FontSize="35"  
-                   Content="{Binding Path=RemainingPhotoTimeString, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Name="RoundLabel" Width="172" Height="50" FontSize="30" Canvas.Left="1735" Canvas.Top="380" >
+                <TextBlock TextAlignment="Center" Width="162" Height="50">Round:</TextBlock>
+            </Label>
+            <Label Name="RoundValueLabel" Width="178" Height="55" Canvas.Left="1733" Canvas.Top="440" FontSize="30"
+                   Content="{Binding Path=RoundValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Name="PointsLabel" Width="175" Height="45" Canvas.Left="1733" Canvas.Top="500" FontSize="30">
+                <TextBlock TextAlignment="Center" Width="165">Points:</TextBlock>
+            </Label>
+            <Label Name="PointsValueLabel" Width="175" Height="45" Canvas.Left="1736" Canvas.Top="555" FontSize="30"
+                   Content="{Binding Path=PointsValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Name="GameInfoLabel" Width="1285" Height="73" Canvas.Left="625" Canvas.Top="980" FontSize="35"  
+                   Content="{Binding Path=GameInfoLabelContentString, UpdateSourceTrigger=PropertyChanged}"/>
             <Button x:Name="ConnectEyeTribeButton" Width="130" Height="72" FontSize="20"
                 Canvas.Left="200" Canvas.Top="981" Command="{Binding ConnectDisconnectWithEyeTribe}">
                 <TextBlock TextWrapping="Wrap" TextAlignment="Center" Text="{Binding ConnectEyeTribeButtonContentString, UpdateSourceTrigger=PropertyChanged}"/>

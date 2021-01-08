@@ -20,9 +20,15 @@ namespace GuessWhatLookingAt
 
         public string MouseDistanceToPupilGazePoint { get; set; } = "";
 
-        public string RemainingPhotoTimeString { get; set; } = "";
+        public string GameInfoLabelContentString { get; set; } = "";
 
-        public string EyeTribeCoordinatesString { get; set; } = "X: Y:";
+        public string EyeTribeCoordinatesString { get; set; } = "X:      Y:     ";
+
+        public string StartRoundButtonContentString { get; set; } = "Start game";
+
+        public string RoundValueLabelContentString { get; set; } = "";
+
+        public string PointsValueLabelContentString { get; set; } = "";
 
         public static FreezeGameViewSettings ViewSettings { get; set; } = new FreezeGameViewSettings();
 
@@ -30,6 +36,7 @@ namespace GuessWhatLookingAt
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
+        bool _isLastRound = false;
 
         static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
 
@@ -41,8 +48,6 @@ namespace GuessWhatLookingAt
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
         }
         #endregion
-
-
 
         #region Commands
 
@@ -108,7 +113,7 @@ namespace GuessWhatLookingAt
                         {
                             model.DisconnectEyeTribe();
                             ConnectEyeTribeButtonContentString = "Connect with Eye Tribe";
-                            EyeTribeCoordinatesString = "";
+                            EyeTribeCoordinatesString = "X:      Y:     "; ;
                             OnPropertyChanged("ConnectEyeTribeButtonContentString");
                             OnPropertyChanged("EyeTribeCoordinatesString");
                         }
@@ -117,21 +122,26 @@ namespace GuessWhatLookingAt
         }
         #endregion
 
-        #region Take a photo
-        private ICommand _TakePhoto;
+        #region Start round
+        private ICommand _StartRound;
 
-        public ICommand TakePhoto
+        public ICommand StartRound
         {
             get
             {
-                return _TakePhoto ?? (_TakePhoto = new RelayCommand(
+                return _StartRound ?? (_StartRound = new RelayCommand(
                     x =>
                     {
-                        model.TakePhoto();
+                        if (!model.IsPupilConnected)
+                            model.ConnectWithPupil();
+
+                        model.StartRound();
+                        RoundValueLabelContentString = model.NumberOfGameRound.ToString();
+                        OnPropertyChanged("RoundValueLabelContentString");
                     }));
             }
         }
-        #endregion
+        #endregion//Start round
 
         #endregion
 
@@ -154,12 +164,11 @@ namespace GuessWhatLookingAt
                         if (model.ImageRect.Contains(mousePosition))
                         {
                             double? distance;
-                            var isLastAttempt = model.MouseAttemptStarted(mousePosition, out distance);
+                            int? points;
+                            var isLastAttempt = model.MouseAttemptStarted(mousePosition, out distance, out points);
 
                             if (isLastAttempt)
                             {
-                                //App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
-
                                 App.Current.Dispatcher.Invoke(delegate
                                 {
                                     App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
@@ -169,8 +178,25 @@ namespace GuessWhatLookingAt
                             }
 
                             _lastMouseClickTimestamp = e.Timestamp;
-                            MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
+                            MouseDistanceToPupilGazePoint = distance.ToString();
                             OnPropertyChanged("MouseDistanceToPupilGazePoint");
+
+                            if (_isLastRound && isLastAttempt)
+                            {
+                                GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
+                                PointsValueLabelContentString = "";
+                                RoundValueLabelContentString = "";
+                                StartRoundButtonContentString = "Start game";
+                                OnPropertyChanged("GameInfoLabelContentString");
+                                OnPropertyChanged("PointsValueLabelContentString");
+                                OnPropertyChanged("RoundValueLabelContentString");
+                                OnPropertyChanged("StartRoundButtonContentString");
+                            }
+                            else if (points != null)
+                            {
+                                PointsValueLabelContentString = points.Value.ToString();
+                                OnPropertyChanged("PointsValueLabelContentString");
+                            }
                         }
                     }
                 }
@@ -183,20 +209,26 @@ namespace GuessWhatLookingAt
             {
                 if (args.Time != 1)
                 {
-                    RemainingPhotoTimeString = "Take photo in " + args.Time + " seconds";
-                    OnPropertyChanged("RemainingPhotoTimeString");
+                    GameInfoLabelContentString = "Take photo in " + args.Time + " seconds";
+                    OnPropertyChanged("GameInfoLabelContentString");
                 }
                 else
                 {
-                    RemainingPhotoTimeString = "Take photo in 1 second";
-                    OnPropertyChanged("RemainingPhotoTimeString");
+                    GameInfoLabelContentString = "Take photo in 1 second";
+                    OnPropertyChanged("GameInfoLabelContentString");
                 }
             }
             else
             {
-                RemainingPhotoTimeString = "";
+                if (!_isLastRound)
+                {
+                    StartRoundButtonContentString = "Start next round";
+                    OnPropertyChanged("StartRoundButtonContentString");
+                }
+
+                GameInfoLabelContentString = "";
                 ConnectPupilButtonContentString = "Connect with Pupil";
-                OnPropertyChanged("RemainingPhotoTimeString");
+                OnPropertyChanged("GameInfoLabelContentString");
                 OnPropertyChanged("ConnectPupilButtonContentString");
 
 
@@ -208,6 +240,8 @@ namespace GuessWhatLookingAt
                         });
                     _lockMouseLeftButton = false;
                 }
+
+                _isLastRound = args.IsLastRound;
                 //model.SavePhotoImage();
             }
         }

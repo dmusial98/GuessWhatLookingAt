@@ -9,9 +9,9 @@ namespace GuessWhatLookingAt
 
         public FreezeGamePunctation()
         {
-            for(int i = 0; i < maxPoints; i++)
+            for(int i = maxPoints; i > 0; i--)
             {
-                PunctationList.Add((i + 1) * 50.0);
+                PunctationList.Add(i * 50.0);
             }
         }
 
