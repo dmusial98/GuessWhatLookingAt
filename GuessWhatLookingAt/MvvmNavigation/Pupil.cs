@@ -145,6 +145,8 @@ namespace GuessWhatLookingAt
         {
             while (isConnected)
             {
+                //TODO: zrobic w nastepnym watku odbieranie rownolegle wszystkich gazeow i wyswietlenie ich
+
 
             }
         }

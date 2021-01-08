@@ -118,6 +118,7 @@
     <Compile Include="BaseViewModel.cs" />
     <Compile Include="EyeTribe.cs" />
     <Compile Include="FreezeGameModel.cs" />
+    <Compile Include="FreezeGamePunctation.cs" />
     <Compile Include="FreezeGameSettings.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="EventArgs.cs" />

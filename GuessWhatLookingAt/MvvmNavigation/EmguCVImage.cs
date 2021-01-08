@@ -53,6 +53,11 @@ namespace GuessWhatLookingAt
 
         }
 
+        public void SaveImage(string path)
+        {
+            mat.Save("photo.jpeg");
+        }
+
         public void StartRecord()
         {
             if (videoWriter == null)

@@ -28,6 +28,9 @@ namespace GuessWhatLookingAt
 
         #endregion
 
+        int _lastMouseClickTimestamp = 0;
+        bool _lockMouseLeftButton = false;
+
         static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
 
         #region Constructors
@@ -38,6 +41,8 @@ namespace GuessWhatLookingAt
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
         }
         #endregion
+
+
 
         #region Commands
 
@@ -96,17 +101,17 @@ namespace GuessWhatLookingAt
                         if (!model.IsEyeTribeConnected)
                         {
                             model.ConnectWithEyeTribe();
-                            //ConnectPupilButtonContentString = "Disconnect Pupil";
-                            //MouseDistanceToPupilGazePoint = "";
-                            //OnPropertyChanged("ConnectPupilButtonContentString");
-                            //OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                            ConnectEyeTribeButtonContentString = "Disconnect Eye Tribe";
+                            OnPropertyChanged("ConnectEyeTribeButtonContentString");
                         }
-                        //else
-                        //{
-                        //    model.DisconnectPupil();
-                        //    ConnectPupilButtonContentString = "Connect with Pupil";
-                        //    OnPropertyChanged("ConnectPupilButtonContentString");
-                        //}
+                        else
+                        {
+                            model.DisconnectEyeTribe();
+                            ConnectEyeTribeButtonContentString = "Connect with Eye Tribe";
+                            EyeTribeCoordinatesString = "";
+                            OnPropertyChanged("ConnectEyeTribeButtonContentString");
+                            OnPropertyChanged("EyeTribeCoordinatesString");
+                        }
                     }));
             }
         }
@@ -122,7 +127,6 @@ namespace GuessWhatLookingAt
                 return _TakePhoto ?? (_TakePhoto = new RelayCommand(
                     x =>
                     {
-                        App.Current.MainWindow.MouseDown += OnLeftMouseButtonDown;
                         model.TakePhoto();
                     }));
             }
@@ -143,16 +147,31 @@ namespace GuessWhatLookingAt
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
-                    Rect pupilImageRect = new Rect(ViewSettings.ImageFromPupilPosition, _PupilImageSize);
+                    if (!_lockMouseLeftButton && _lastMouseClickTimestamp != e.Timestamp)
+                    {
+                        Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
 
-                    if (pupilImageRect.Contains(mousePosition))
+                        if (model.ImageRect.Contains(mousePosition))
                         {
+                            double? distance;
+                            var isLastAttempt = model.MouseAttemptStarted(mousePosition, out distance);
 
-                        var distance = model.CountPointsDifference(mousePosition);
-                        distance = Math.Round(distance, 2);
-                        MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
-                        OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                            if (isLastAttempt)
+                            {
+                                //App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
+
+                                App.Current.Dispatcher.Invoke(delegate
+                                {
+                                    App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
+                                });
+
+                                _lockMouseLeftButton = true;
+                            }
+
+                            _lastMouseClickTimestamp = e.Timestamp;
+                            MouseDistanceToPupilGazePoint = "Distance: " + distance.ToString();
+                            OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                        }
                     }
                 }
             }
@@ -179,6 +198,17 @@ namespace GuessWhatLookingAt
                 ConnectPupilButtonContentString = "Connect with Pupil";
                 OnPropertyChanged("RemainingPhotoTimeString");
                 OnPropertyChanged("ConnectPupilButtonContentString");
+
+
+                if (!model.IsEyeTribeConnected)
+                {
+                    App.Current.Dispatcher.Invoke(delegate
+                        {
+                            App.Current.MainWindow.MouseDown += OnLeftMouseButtonDown;
+                        });
+                    _lockMouseLeftButton = false;
+                }
+                //model.SavePhotoImage();
             }
         }
 
