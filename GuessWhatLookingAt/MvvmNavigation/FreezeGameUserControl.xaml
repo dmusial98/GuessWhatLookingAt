@@ -20,7 +20,7 @@
                     Canvas.Left="30" Canvas.Top="980" Command="{Binding ConnectDisconnectWithPupil}">
                 <TextBlock TextWrapping="Wrap" TextAlignment="Center" Text="{Binding Path=ConnectPupilButtonContentString, UpdateSourceTrigger=PropertyChanged}"/>
             </Button>
-            <Button Name="StartARoundButton" Width="242" Height="73" Canvas.Left="358" Canvas.Top="981" 
+            <Button Name="StartRoundButton" Width="242" Height="73" Canvas.Left="358" Canvas.Top="981" 
                     Content="{Binding Path=StartRoundButtonContentString, UpdateSourceTrigger=PropertyChanged}" FontSize="35" Command="{Binding StartRound}" RenderTransformOrigin="0.183,1.667"/>
             <Button Canvas.Left="1733" Canvas.Top="10" Command="{Binding GoToMainMenu}" Width="auto" Height="auto" FontSize="35" RenderTransformOrigin="1.034,0.928">
                 <TextBlock TextAlignment="Center">Go to<LineBreak/>main menu</TextBlock>

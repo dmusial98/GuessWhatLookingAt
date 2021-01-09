@@ -36,6 +36,7 @@ namespace GuessWhatLookingAt
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
+        bool _lockEyeTribeTimer = false;
         bool _isLastRound = false;
 
         static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
@@ -191,6 +192,9 @@ namespace GuessWhatLookingAt
                                 OnPropertyChanged("PointsValueLabelContentString");
                                 OnPropertyChanged("RoundValueLabelContentString");
                                 OnPropertyChanged("StartRoundButtonContentString");
+
+                                if (!model.IsPupilConnected)
+                                    model.ConnectWithPupil();
                             }
                             else if (points != null)
                             {
@@ -218,7 +222,7 @@ namespace GuessWhatLookingAt
                     OnPropertyChanged("GameInfoLabelContentString");
                 }
             }
-            else
+            else //Time == 0
             {
                 if (!_isLastRound)
                 {
@@ -234,11 +238,17 @@ namespace GuessWhatLookingAt
 
                 if (!model.IsEyeTribeConnected)
                 {
-                    App.Current.Dispatcher.Invoke(delegate
+                    App.Current.Dispatcher.Invoke(delegate //Guessing gaze position player with mouse using
                         {
                             App.Current.MainWindow.MouseDown += OnLeftMouseButtonDown;
                         });
                     _lockMouseLeftButton = false;
+                }
+                else // Eye Tribe is connected
+                {
+                    model.EyeTribeTimerEvent += OnEyeTribeTimerChanged;
+                    model.StartEyeTribeTimer();
+                    _lockEyeTribeTimer = false;
                 }
 
                 _isLastRound = args.IsLastRound;
@@ -250,6 +260,67 @@ namespace GuessWhatLookingAt
         {
             EyeTribeCoordinatesString = "X: " + Math.Round(args.gazePoint.X, 0).ToString() + " Y: " + Math.Round(args.gazePoint.Y, 0).ToString();
             OnPropertyChanged("EyeTribeCoordinatesString");
+        }
+
+        private void OnEyeTribeTimerChanged(object sender, FreezeGameModel.EyeTribeTimerEventArgs args)
+        {
+            if (!_lockEyeTribeTimer)
+            {
+                if (args.Time != 0)
+                {
+                    if (args.Time != 1)
+                    {
+                        GameInfoLabelContentString = "Save Eye Tribe gaze point to indicate second player gaze point in " + args.Time + " seconds";
+                        OnPropertyChanged("GameInfoLabelContentString");
+                    }
+                    else
+                    {
+                        GameInfoLabelContentString = "Save Eye Tribe gaze point to indicate second player gaze point in 1 second";
+                        OnPropertyChanged("GameInfoLabelContentString");
+                    }
+                }
+                else //Time == 0
+                {
+                    double? distance;
+                    int? points;
+                    var isLastAttempt = model.EyeTribeAttemptStarted(out distance, out points);
+                    
+                    if(isLastAttempt)
+                    {
+                        model.EyeTribeTimerEvent -= OnEyeTribeTimerChanged;
+                        _lockEyeTribeTimer = true;
+                    }
+
+                    MouseDistanceToPupilGazePoint = distance.ToString();
+                    OnPropertyChanged("MouseDistanceToPupilGazePoint");
+
+                    if (_isLastRound && isLastAttempt)
+                    {
+                        GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
+                        PointsValueLabelContentString = "";
+                        RoundValueLabelContentString = "";
+                        StartRoundButtonContentString = "Start game";
+                        OnPropertyChanged("GameInfoLabelContentString");
+                        OnPropertyChanged("PointsValueLabelContentString");
+                        OnPropertyChanged("RoundValueLabelContentString");
+                        OnPropertyChanged("StartRoundButtonContentString");
+
+                        if (!model.IsPupilConnected)
+                            model.ConnectWithPupil();
+
+                    }
+                    else if (points != null)
+                    {
+                        PointsValueLabelContentString = points.Value.ToString();
+                        OnPropertyChanged("PointsValueLabelContentString");
+                    }
+
+                    if (!args.IsLastAttempt)
+                    {
+                        model.StartEyeTribeTimer();
+                    }
+                }
+            }
         }
 
 

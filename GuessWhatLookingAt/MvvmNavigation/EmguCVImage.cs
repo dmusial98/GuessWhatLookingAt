@@ -10,7 +10,9 @@ namespace GuessWhatLookingAt
 {
     public class EmguCVImage
     {
-        public Mat mat { get; private set; }
+        public Mat OriginalMat { get; private set; }
+
+        public Mat OutMat { get; private set; }
 
         VideoWriter videoWriter = null;
 
@@ -18,7 +20,8 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                mat = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
+                OriginalMat = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
+                OutMat = OriginalMat.Clone();
             }
             catch (Exception ex)
             {
@@ -26,14 +29,20 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void DrawCircleForPupil(Point gazePoint)
+        public void DrawCircleForPupil(Point gazePoint, bool cleanImage = false)
         {
-            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+            if (cleanImage)
+                OutMat = OriginalMat.Clone();
+
+            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
         }
 
-        public void DrawCircleForEyeTribe(Point gazePoint)
+        public void DrawCircleForEyeTribe(Point gazePoint, bool cleanImage = false)
         {
-            CvInvoke.Circle(mat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
+            if (cleanImage)
+                OutMat = OriginalMat.Clone();
+
+            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
         }
 
         public void PutConfidenceText(double confidence)
@@ -41,13 +50,13 @@ namespace GuessWhatLookingAt
             string confidenceString = "Confidence: " + Math.Round(confidence, 3).ToString();
             MCvScalar color = new MCvScalar(20, 255 * confidence, 1 - 255 * confidence);
 
-            CvInvoke.PutText(mat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
+            CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
         }
 
         public BitmapSource GetBitmapSourceFromMat(double XScale, double YScale)
         {
-            var byteArray = mat.GetRawData(new int[] { });
-            var bmpSource = BitmapSource.Create(mat.Width, mat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, mat.Width * 3);
+            var byteArray = OutMat.GetRawData(new int[] { });
+            var bmpSource = BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
 
             return new TransformedBitmap(bmpSource, new ScaleTransform(XScale, YScale));
 
@@ -55,14 +64,14 @@ namespace GuessWhatLookingAt
 
         public void SaveImage(string path)
         {
-            mat.Save("photo.jpeg");
+            OutMat.Save("photo.jpeg");
         }
 
         public void StartRecord()
         {
             if (videoWriter == null)
             {
-                videoWriter = new VideoWriter("pupilVideo.mp4", VideoWriter.Fourcc('M', 'P', '4', 'V'), 30, new System.Drawing.Size(mat.Width, mat.Height), true);
+                videoWriter = new VideoWriter("pupilVideo.mp4", VideoWriter.Fourcc('M', 'P', '4', 'V'), 30, new System.Drawing.Size(OriginalMat.Width, OriginalMat.Height), true);
             }
         }
 
@@ -70,7 +79,7 @@ namespace GuessWhatLookingAt
         {
             if (videoWriter.IsOpened)
             {
-                videoWriter.Write(mat);
+                videoWriter.Write(OutMat);
             }
         }
 
