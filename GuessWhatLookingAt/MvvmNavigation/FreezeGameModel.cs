@@ -50,7 +50,7 @@ namespace GuessWhatLookingAt
         Point? _EyeTribeGazePoint;
         public bool IsEyeTribeConnected { get; private set; } = false;
 
-        System.Timers.Timer _eyeTribeTimer;
+        System.Threading.Timer _eyeTribeTimer;
 
         const int _eyeTribeTimerSeconds = 5;
         public int EyeTribeTimerRemainingTime { get; private set; } = _eyeTribeTimerSeconds;
@@ -71,7 +71,7 @@ namespace GuessWhatLookingAt
             public EyeTribeTimerEventArgs(int time, bool isLastAttempt)
             {
                 Time = time;
-                IsLastAttempt = IsLastAttempt;
+                IsLastAttempt = isLastAttempt;
             }
 
             public int Time { get; set; }
@@ -83,7 +83,7 @@ namespace GuessWhatLookingAt
 
         #region Photo variables
 
-        System.Timers.Timer photoTimer;
+        System.Threading.Timer photoTimer;
         const int _timerSeconds = 3;
         public int PhotoRemainingTime { get; private set; } = _timerSeconds;
         public bool hasPhoto { get; private set; } = false;
@@ -153,13 +153,13 @@ namespace GuessWhatLookingAt
         {
             if (pupil.isConnected)
             {
-                photoTimer = new System.Timers.Timer(1000);
-                photoTimer.Elapsed += OnTakePhotoTimerEvent;
-                photoTimer.AutoReset = false;
+                photoTimer = new System.Threading.Timer(
+                    OnTakePhotoTimerEvent,
+                    this,
+                    1000,
+                    1000);
 
                 OnPhotoTimeEvent();
-
-                photoTimer.Enabled = true;
             }
         }
 
@@ -168,25 +168,28 @@ namespace GuessWhatLookingAt
             image.SaveImage("");
         }
 
-        private void OnTakePhotoTimerEvent(Object source, ElapsedEventArgs e)
+        private void OnTakePhotoTimerEvent(object state)
         {
-            if (PhotoRemainingTime != 0)
-            {
-                PhotoRemainingTime--;
-                photoTimer.Enabled = true;
+            //var model = (FreezeGameModel)state;
 
+            if (/*model.*/PhotoRemainingTime != 0)
+            {
+                /*model.*/PhotoRemainingTime--;
                 OnPhotoTimeEvent();
             }
             else
             {
-                pupil.Disconnect();
-                pupilThread?.Abort();
-                hasPhoto = true;
-                IsPupilConnected = false;
-                photoTimer.Elapsed -= OnTakePhotoTimerEvent;
-
+                /*model.*/pupil.Disconnect();
+                /*model.*/pupilThread?.Abort();
+                /*model.*/hasPhoto = true;
+                /*model.*/IsPupilConnected = false;
+                
                 OnPhotoTimeEvent();
-                PhotoRemainingTime = _timerSeconds;
+                /*model.*/PhotoRemainingTime = _timerSeconds;
+
+                /*model.*/photoTimer.Change(
+                    Timeout.Infinite,
+                    Timeout.Infinite); //turn off photoTimer
             }
         }
 
@@ -332,38 +335,33 @@ namespace GuessWhatLookingAt
 
         public void StartEyeTribeTimer()
         {
-            if (eyeTribe.isRunning)
+            if (eyeTribe.isRunning /*&& _eyeTribeTimer == null*/)
             {
-                _eyeTribeTimer = new System.Timers.Timer(1000);
-                _eyeTribeTimer.Elapsed += OnEyeTribeTimerEvent;
-                _eyeTribeTimer.AutoReset = false;
-
+                _eyeTribeTimer = new System.Threading.Timer(
+                    callback: OnEyeTribeTimerEvent,
+                    state: this,
+                    dueTime: 1000,
+                    period: 1000);
+                
                 OnEyeTribeTimeEvent();
-
-                _eyeTribeTimer.Enabled = true;
             }
         }
 
-        private void OnEyeTribeTimerEvent(Object source, ElapsedEventArgs e)
+        private void OnEyeTribeTimerEvent(object state)
         {
-            if (EyeTribeTimerRemainingTime != 0)
-            {
-                EyeTribeTimerRemainingTime--;
-                _eyeTribeTimer.Enabled = true;
+            //var model = (FreezeGameModel)state;
 
-                OnEyeTribeTimeEvent();
+            if (/*model.*/EyeTribeTimerRemainingTime != 0)
+            {
+                /*model.*/EyeTribeTimerRemainingTime--;
+
+                /*model.*/OnEyeTribeTimeEvent();
             }
-            else
+            else //Time == 0
             {
-                //pupil.Disconnect();
-                //pupilThread?.Abort();
-                //hasPhoto = true;
-                //IsPupilConnected = false;
-
-                OnEyeTribeTimeEvent();
-                EyeTribeTimerRemainingTime = _eyeTribeTimerSeconds;
-                _eyeTribeTimer.Enabled = false;
-                
+                /*model.*/OnEyeTribeTimeEvent();
+                /*model.*/EyeTribeTimerRemainingTime = _eyeTribeTimerSeconds;
+                /*model.*/_eyeTribeTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 

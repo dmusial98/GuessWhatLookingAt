@@ -28,6 +28,8 @@ namespace GuessWhatLookingAt
 
         public string RoundValueLabelContentString { get; set; } = "";
 
+        public string AttemptValueLabelContentString { get; set; } = "";
+
         public string PointsValueLabelContentString { get; set; } = "";
 
         public static FreezeGameViewSettings ViewSettings { get; set; } = new FreezeGameViewSettings();
@@ -37,6 +39,7 @@ namespace GuessWhatLookingAt
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
         bool _lockEyeTribeTimer = false;
+        bool _isLastAttempt = false;
         bool _isLastRound = false;
 
         static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
@@ -133,12 +136,34 @@ namespace GuessWhatLookingAt
                 return _StartRound ?? (_StartRound = new RelayCommand(
                     x =>
                     {
-                        if (!model.IsPupilConnected)
-                            model.ConnectWithPupil();
+                        if (!model.hasPhoto) //new game
+                        {
+                            model.StartRound();
+                            RoundValueLabelContentString = model.NumberOfGameRound.ToString();
+                            AttemptValueLabelContentString = model.AttemptNumber.ToString();
+                            OnPropertyChanged("RoundValueLabelContentString");
+                            OnPropertyChanged("AttemptValueLabelContentString");
+                        }
+                        else if (model.hasPhoto && !_isLastAttempt)
+                        {
+                            model.EyeTribeTimerEvent += OnEyeTribeTimerChanged;
+                            model.StartEyeTribeTimer();
+                            AttemptValueLabelContentString = (model.AttemptNumber + 1).ToString();
+                            OnPropertyChanged("AttemptValueLabelContentString");
+                            _lockEyeTribeTimer = false;
+                        }
+                        else if (model.hasPhoto && _isLastAttempt)
+                        {
+                            if (!model.IsPupilConnected)
+                                model.ConnectWithPupil();
 
-                        model.StartRound();
-                        RoundValueLabelContentString = model.NumberOfGameRound.ToString();
-                        OnPropertyChanged("RoundValueLabelContentString");
+                            model.StartRound();
+                            RoundValueLabelContentString = model.NumberOfGameRound.ToString();
+                            AttemptValueLabelContentString = model.AttemptNumber.ToString();
+                            OnPropertyChanged("AttemptValueLabelContentString");
+                            OnPropertyChanged("RoundValueLabelContentString");
+                        }
+
                     }));
             }
         }
@@ -187,11 +212,13 @@ namespace GuessWhatLookingAt
                                 GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
                                 PointsValueLabelContentString = "";
                                 RoundValueLabelContentString = "";
+                                AttemptValueLabelContentString = "";
                                 StartRoundButtonContentString = "Start game";
                                 OnPropertyChanged("GameInfoLabelContentString");
                                 OnPropertyChanged("PointsValueLabelContentString");
                                 OnPropertyChanged("RoundValueLabelContentString");
                                 OnPropertyChanged("StartRoundButtonContentString");
+                                OnPropertyChanged("AttemptValueLabelContentString");
 
                                 if (!model.IsPupilConnected)
                                     model.ConnectWithPupil();
@@ -281,43 +308,53 @@ namespace GuessWhatLookingAt
                 }
                 else //Time == 0
                 {
+                    GameInfoLabelContentString = "";
+                    OnPropertyChanged("GameInfoLabelContentString");
+
                     double? distance;
                     int? points;
-                    var isLastAttempt = model.EyeTribeAttemptStarted(out distance, out points);
-                    
-                    if(isLastAttempt)
-                    {
-                        model.EyeTribeTimerEvent -= OnEyeTribeTimerChanged;
-                        _lockEyeTribeTimer = true;
-                    }
+                    model.EyeTribeAttemptStarted(out distance, out points);
+
+                    _isLastAttempt = points != null ? true : false;
+
+                    model.EyeTribeTimerEvent -= OnEyeTribeTimerChanged;
+                    _lockEyeTribeTimer = true;
 
                     MouseDistanceToPupilGazePoint = distance.ToString();
                     OnPropertyChanged("MouseDistanceToPupilGazePoint");
 
-                    if (_isLastRound && isLastAttempt)
+                    if (_isLastRound && _isLastAttempt)
                     {
                         GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
                         PointsValueLabelContentString = "";
                         RoundValueLabelContentString = "";
                         StartRoundButtonContentString = "Start game";
+                        AttemptValueLabelContentString = "";
                         OnPropertyChanged("GameInfoLabelContentString");
                         OnPropertyChanged("PointsValueLabelContentString");
                         OnPropertyChanged("RoundValueLabelContentString");
                         OnPropertyChanged("StartRoundButtonContentString");
+                        OnPropertyChanged("AttemptValueLabelContentString");
 
                         if (!model.IsPupilConnected)
                             model.ConnectWithPupil();
-
                     }
-                    else if (points != null)
+                    else if (!_isLastAttempt)
                     {
-                        PointsValueLabelContentString = points.Value.ToString();
-                        OnPropertyChanged("PointsValueLabelContentString");
+                        StartRoundButtonContentString = "Start next attempt";
+                        OnPropertyChanged("StartRoundButtonContentString");
                     }
-
-                    if (!args.IsLastAttempt)
+                    else if (_isLastAttempt)
                     {
-                        model.StartEyeTribeTimer();
+                        StartRoundButtonContentString = "Start next round";
+                        OnPropertyChanged("StartRoundButtonContentString");
+                        if (points != null)
+                        {
+                            PointsValueLabelContentString = points.Value.ToString();
+                            OnPropertyChanged("PointsValueLabelContentString");
+                        }
+
+
                     }
                 }
             }
