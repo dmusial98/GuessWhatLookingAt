@@ -2,7 +2,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Timers;
 using System.Windows;
 using System.Windows.Media;
 
@@ -23,7 +22,7 @@ namespace GuessWhatLookingAt
         Point _BegginingImagePoint = new Point(0.0, 0.0);
 
         public Rect ImageRect { get; private set; }
-
+         
         public event EventHandler<BitmapSourceEventArgs> BitmapSourceReached;
 
         public class BitmapSourceEventArgs : EventArgs
@@ -170,24 +169,22 @@ namespace GuessWhatLookingAt
 
         private void OnTakePhotoTimerEvent(object state)
         {
-            //var model = (FreezeGameModel)state;
-
-            if (/*model.*/PhotoRemainingTime != 0)
+            if (PhotoRemainingTime != 0)
             {
-                /*model.*/PhotoRemainingTime--;
+                PhotoRemainingTime--;
                 OnPhotoTimeEvent();
             }
             else
             {
-                /*model.*/pupil.Disconnect();
-                /*model.*/pupilThread?.Abort();
-                /*model.*/hasPhoto = true;
-                /*model.*/IsPupilConnected = false;
-                
-                OnPhotoTimeEvent();
-                /*model.*/PhotoRemainingTime = _timerSeconds;
+                pupil.Disconnect();
+                pupilThread?.Abort();
+                hasPhoto = true;
+                IsPupilConnected = false;
 
-                /*model.*/photoTimer.Change(
+                OnPhotoTimeEvent();
+                PhotoRemainingTime = _timerSeconds;
+
+                photoTimer.Change(
                     Timeout.Infinite,
                     Timeout.Infinite); //turn off photoTimer
             }
@@ -196,7 +193,7 @@ namespace GuessWhatLookingAt
         private void OnPhotoTimeEvent()
         {
             PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(
-                time: PhotoRemainingTime, 
+                time: PhotoRemainingTime,
                 isLastRound: _gameRoundIndex == 0 ? true : false);
             EventHandler<PhotoTimeChangedEventArgs> handler = PhotoTimeChangedEvent;
             if (handler != null)
@@ -234,8 +231,8 @@ namespace GuessWhatLookingAt
                 pupil.Connect();
 
                 IsPupilConnected = true;
-                pupilThread = new Thread(pupil.ReceiveFrame);
-                pupilThread.Start();
+                //pupilThread = new Thread(pupil.ReceiveFrame);
+                //pupilThread.Start();
             }
         }
         public void DisconnectPupil()
@@ -243,29 +240,39 @@ namespace GuessWhatLookingAt
             if (pupil.isConnected)
             {
                 pupil.Disconnect();
-                pupilThread?.Abort();
+                //pupilThread?.Abort();
                 IsPupilConnected = false;
             }
         }
 
         void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs pupilArgs)
         {
-            GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.rawImageData, GCHandleType.Pinned);
-            IntPtr pointer = pinnedarray.AddrOfPinnedObject();
+            if (pupilArgs.rawImageData != null)
+            {
+                GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.rawImageData, GCHandleType.Pinned);
+                IntPtr pointer = pinnedarray.AddrOfPinnedObject();
 
-            image.SetMat(pointer, Convert.ToInt32(pupilArgs.imageSize.Width), Convert.ToInt32(pupilArgs.imageSize.Height));
-            pinnedarray.Free();
-
-            _PupilGazePoint = pupilArgs.gazePoint;
-            image.DrawCircleForPupil(_PupilGazePoint.Value);
-
+                image.SetMat(pointer, Convert.ToInt32(pupilArgs.imageSize.Width), Convert.ToInt32(pupilArgs.imageSize.Height));
+                pinnedarray.Free();
+            }
+            if (pupilArgs.gazePoints.Count != 0)
+            {
+                for(int i =0; i < pupilArgs.gazePoints.Count; i++)
+                {
+                    _PupilGazePoint = pupilArgs.gazePoints[i];
+                    image.DrawCircleForPupil(_PupilGazePoint.Value, pupilArgs.gazeConfidence[i]);
+                }
+            }
             if (_EyeTribeGazePoint != null)
                 image.DrawCircleForEyeTribe(_EyeTribeGazePoint.GetValueOrDefault());
 
             //image.PutConfidenceText(pupilArgs.gazeConfidence);
-            var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.imageXScale, pupilArgs.imageYScale));
+            if (/*image.OriginalMat != null && */image.OutMat != null)
+            {
+                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.imageXScale, pupilArgs.imageYScale));
 
-            OnImageSourceReached(imageSourceArgs);
+                OnImageSourceReached(imageSourceArgs);
+            }
         }
 
         #endregion//Pupil methods
@@ -306,22 +313,23 @@ namespace GuessWhatLookingAt
             else
             {
                 _EyeTribeGazePoint = null;
-            }   
+            }
 
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             OnEyeTribeGazePositionReached(args);
 
-            if(hasPhoto && !IsPupilConnected)
-            {
-                image.DrawCircleForPupil(
-                    gazePoint: _PupilGazePoint.Value, 
-                    cleanImage: true);
+            //if (hasPhoto && !IsPupilConnected)
+            //{
+            //    image.DrawCircleForPupil(
+            //        gazePoint: _PupilGazePoint.Value,
+            //        confidence: 1.0,
+            //        cleanImage: true);
 
-                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+            //    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
 
-                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(_ImageXScale, _ImageYScale));
-                OnImageSourceReached(imageSourceArgs);
-            }
+            //    var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(_ImageXScale, _ImageYScale));
+            //    OnImageSourceReached(imageSourceArgs);
+            //}
         }
 
         public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
@@ -342,26 +350,24 @@ namespace GuessWhatLookingAt
                     state: this,
                     dueTime: 1000,
                     period: 1000);
-                
+
                 OnEyeTribeTimeEvent();
             }
         }
 
         private void OnEyeTribeTimerEvent(object state)
         {
-            //var model = (FreezeGameModel)state;
-
-            if (/*model.*/EyeTribeTimerRemainingTime != 0)
+            if (EyeTribeTimerRemainingTime != 0)
             {
-                /*model.*/EyeTribeTimerRemainingTime--;
+                EyeTribeTimerRemainingTime--;
 
-                /*model.*/OnEyeTribeTimeEvent();
+                OnEyeTribeTimeEvent();
             }
             else //Time == 0
             {
-                /*model.*/OnEyeTribeTimeEvent();
-                /*model.*/EyeTribeTimerRemainingTime = _eyeTribeTimerSeconds;
-                /*model.*/_eyeTribeTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                OnEyeTribeTimeEvent();
+                EyeTribeTimerRemainingTime = _eyeTribeTimerSeconds;
+                _eyeTribeTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
@@ -409,7 +415,7 @@ namespace GuessWhatLookingAt
             distance = CountPointsDifference(_EyeTribeGazePoint == null ? new Point(0.0, 0.0) : _EyeTribeGazePoint.Value);
             _remainingNumberOfAttempts--;
 
-            return RealiseAttemptLogic(ref distance ,out points);
+            return RealiseAttemptLogic(ref distance, out points);
         }
 
         private double CountPointsDifference(Point p1)

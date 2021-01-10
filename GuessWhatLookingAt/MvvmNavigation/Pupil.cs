@@ -2,6 +2,7 @@
 using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -18,6 +19,8 @@ namespace GuessWhatLookingAt
 
         string subPort;
         string pubPort;
+
+        System.Threading.Thread frameThread;
 
         string frameTopic = "";
         byte[] framePayload;
@@ -82,12 +85,16 @@ namespace GuessWhatLookingAt
             requestClient.ReceiveFrameString(); //confirm receive data
 
             isConnected = true;
+
+            frameThread = new System.Threading.Thread(ReceiveFrame);
+            //gazeThread = new System.Threading.Thread(ReceiveGaze);
+
+            frameThread.Start();
+            //gazeThread.Start();
         }
 
         public void ReceiveFrame()
         {
-            //pupilImage = new EmguCVImage();
-
             while (isConnected)
             {
                 frameTopic = frameSubscriber.ReceiveFrameString(); //camera name
@@ -114,25 +121,40 @@ namespace GuessWhatLookingAt
                     OnImageScaleChanged(imageScaleArgs);
                 }
 
+                var imageArgs = new PupilReceivedDataEventArgs();
+                imageArgs.gazePoints = new List<Point>();
+                imageArgs.gazeConfidence = new List<double>();
+
                 //receive video frame in bgr
                 frameData = frameSubscriber.ReceiveFrameBytes();
 
-                //receive gaze information
-                gazeMsg = gazeSubscriber.ReceiveFrameString();
-                gazeData = gazeSubscriber.ReceiveFrameBytes();
+                bool gazeReceived = true;
 
-                var msgpackGazeDecode = new MsgPack();
-                msgpackGazeDecode.DecodeFromBytes(gazeData);
+                while (gazeReceived)
+                {
+                    //receive gaze information
+                    gazeSubscriber.TryReceiveFrameString(out gazeMsg);
+                    gazeReceived = gazeSubscriber.TryReceiveFrameBytes(out gazeData);
 
-                //new event for inform about video data
-                var imageArgs = new PupilReceivedDataEventArgs();
+                    if (gazeData != null)
+                    {
+                        var msgpackGazeDecode = new MsgPack();
+                        msgpackGazeDecode.DecodeFromBytes(gazeData);
 
-                gazePoint = imageArgs.gazePoint = new Point(
-                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
-                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat * frameHeight);
-                gazeConfidence = imageArgs.gazeConfidence = msgpackGazeDecode.ForcePathObject("confidence").AsFloat;
+                        //new event for inform about video data
+                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2)
+                            imageArgs.gazePoints.Add(new Point(
+                                msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
+                                (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat) * frameHeight));
+
+                        imageArgs.gazeConfidence.Add(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
+                    }
+                }
+
+
 
                 imageArgs.rawImageData = frameData;
+                imageArgs.imageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;
                 imageArgs.imageSize = new Size(frameWidth, frameHeight);
                 imageArgs.imageXScale = _imageXScale;
                 imageArgs.imageYScale = _imageYScale;
@@ -141,20 +163,11 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void ReceiveGaze()
-        {
-            while (isConnected)
-            {
-                //TODO: zrobic w nastepnym watku odbieranie rownolegle wszystkich gazeow i wyswietlenie ich
-
-
-            }
-        }
-
-
         public void Disconnect()
         {
             isConnected = false;
+
+            frameThread?.Abort();
 
             requestClient.Dispose();
             frameSubscriber.Dispose();
@@ -182,8 +195,10 @@ namespace GuessWhatLookingAt
         public class PupilReceivedDataEventArgs : EventArgs
         {
             public byte[] rawImageData { get; set; }
-            public Point gazePoint { get; set; }
-            public double gazeConfidence { get; set; }
+            public double imageTimestamp { get; set; }
+            public List<Point> gazePoints { get; set; }
+            public List<double> gazeConfidence { get; set; }
+            public double gazeTimestamp { get; set; }
             public Size imageSize { get; set; }
             public double imageXScale { get; set; }
             public double imageYScale { get; set; }

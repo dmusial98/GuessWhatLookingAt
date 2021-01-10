@@ -29,12 +29,18 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void DrawCircleForPupil(Point gazePoint, bool cleanImage = false)
+        public void DrawCircleForPupil(Point gazePoint, double confidence, bool cleanImage = false)
         {
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
-            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 128, 0), 40);
+            //if(confidence > 0.5)
+                CvInvoke.Circle(
+                    OutMat, 
+                    new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)),
+                    8, 
+                    new Emgu.CV.Structure.MCvScalar(0, 128, 0),
+                    40);
         }
 
         public void DrawCircleForEyeTribe(Point gazePoint, bool cleanImage = false)
