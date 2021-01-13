@@ -301,18 +301,17 @@ namespace GuessWhatLookingAt
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             OnEyeTribeGazePositionReached(args);
 
-            //if (hasPhoto && !IsPupilConnected)
-            //{
-            //    image.DrawCircleForPupil(
-            //        gazePoint: _PupilGazePoint.Value,
-            //        confidence: 1.0,
-            //        cleanImage: true);
+            if (HasPhoto && !IsPupilConnected)
+            {
+                image.DrawCircleForPupil(
+                    point: _PupilGazePoint,
+                    cleanImage: true);
 
-            //    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
 
-            //    var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(_ImageXScale, _ImageYScale));
-            //    OnImageSourceReached(imageSourceArgs);
-            //}
+                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(_ImageXScale, _ImageYScale));
+                OnImageSourceReached(imageSourceArgs);
+            }
         }
 
         public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
@@ -322,7 +321,7 @@ namespace GuessWhatLookingAt
 
         public void StartEyeTribeTimer()
         {
-            if (eyeTribe.isRunning /*&& _eyeTribeTimer == null*/)
+            if (eyeTribe.isRunning)
             {
                 _eyeTribeTimer = new System.Threading.Timer(
                     callback: OnEyeTribeTimerEvent,

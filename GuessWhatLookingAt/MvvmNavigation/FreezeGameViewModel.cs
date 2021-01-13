@@ -42,7 +42,8 @@ namespace GuessWhatLookingAt
         bool _isLastAttempt = false;
         bool _isLastRound = false;
 
-        static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
+        //Todo
+        static Size _PupilImageSize = new Size(App.Current.MainWindow.ActualWidth, App.Current.MainWindow.ActualHeight);
 
         #region Constructors
         public FreezeGameViewModel()
@@ -172,6 +173,12 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
+        
+        private void OnWindowResized(object sender, RoutedEventArgs e)
+        {
+            _PupilImageSize = new Size(App.Current.MainWindow.ActualHeight, App.Current.MainWindow.ActualWidth);
+        }
+        
         void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
         {
             LoadImageFromPupil(args.Image);
