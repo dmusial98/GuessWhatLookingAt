@@ -105,6 +105,18 @@ namespace GuessWhatLookingAt
             }
         }
 
+        public void Disconnect()
+        {
+            if(isRunning)
+            {
+                isRunning = false;
+                incomingThread?.Abort();
+                timerHeartbeat.Dispose();
+                socket.Close();
+                socket.Dispose();
+            }
+        }
+
         public class Packet
         {
             public string time = DateTime.UtcNow.Ticks.ToString();
