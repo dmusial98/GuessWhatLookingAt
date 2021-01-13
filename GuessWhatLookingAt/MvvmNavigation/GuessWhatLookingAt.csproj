@@ -120,6 +120,7 @@
     <Compile Include="FreezeGameModel.cs" />
     <Compile Include="FreezeGamePunctation.cs" />
     <Compile Include="FreezeGameSettings.cs" />
+    <Compile Include="GazePoint.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="EventRaiser.cs" />

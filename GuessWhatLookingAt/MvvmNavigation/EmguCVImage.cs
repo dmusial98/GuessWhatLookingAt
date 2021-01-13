@@ -29,14 +29,14 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void DrawCircleForPupil(Point gazePoint, double confidence, bool cleanImage = false)
+        public void DrawCircleForPupil(GazePoint point, bool cleanImage = false)
         {
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
                 CvInvoke.Circle(
                     OutMat, 
-                    new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)),
+                    new System.Drawing.Point(Convert.ToInt32(point.point.X * OriginalMat.Width), Convert.ToInt32(point.point.Y * OriginalMat.Height)),
                     8, 
                     new Emgu.CV.Structure.MCvScalar(0, 128, 0),
                     40);

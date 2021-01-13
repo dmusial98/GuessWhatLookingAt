@@ -136,7 +136,7 @@ namespace GuessWhatLookingAt
                 return _StartRound ?? (_StartRound = new RelayCommand(
                     x =>
                     {
-                        if (!model.hasPhoto) //new game
+                        if (!model.HasPhoto) //new game
                         {
                             model.StartRound();
                             RoundValueLabelContentString = model.NumberOfGameRound.ToString();
@@ -144,7 +144,7 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("RoundValueLabelContentString");
                             OnPropertyChanged("AttemptValueLabelContentString");
                         }
-                        else if (model.hasPhoto && !_isLastAttempt)
+                        else if (model.HasPhoto && !_isLastAttempt)
                         {
                             model.EyeTribeTimerEvent += OnEyeTribeTimerChanged;
                             model.StartEyeTribeTimer();
@@ -152,7 +152,7 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("AttemptValueLabelContentString");
                             _lockEyeTribeTimer = false;
                         }
-                        else if (model.hasPhoto && _isLastAttempt)
+                        else if (model.HasPhoto && _isLastAttempt)
                         {
                             if (!model.IsPupilConnected)
                                 model.ConnectWithPupil();
@@ -174,12 +174,12 @@ namespace GuessWhatLookingAt
         #region Events services
         void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
         {
-            LoadImageFromPupil(args.image);
+            LoadImageFromPupil(args.Image);
         }
 
         private void OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (model.hasPhoto)
+            if (model.HasPhoto)
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
@@ -285,7 +285,7 @@ namespace GuessWhatLookingAt
 
         private void OnEyeTribeGazePointReached(object sender, FreezeGameModel.EyeTribeGazePositionEventArgs args)
         {
-            EyeTribeCoordinatesString = "X: " + Math.Round(args.gazePoint.X, 0).ToString() + " Y: " + Math.Round(args.gazePoint.Y, 0).ToString();
+            EyeTribeCoordinatesString = "X: " + Math.Round(args.GazePoint.X, 0).ToString() + " Y: " + Math.Round(args.GazePoint.Y, 0).ToString();
             OnPropertyChanged("EyeTribeCoordinatesString");
         }
 

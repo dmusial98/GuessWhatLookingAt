@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -13,7 +14,7 @@ namespace GuessWhatLookingAt
 
         #region Image variables
 
-        EmguCVImage image = new EmguCVImage();
+        readonly EmguCVImage image = new EmguCVImage();
         public Size ImageSize { get; private set; }
 
         double _ImageXScale = 1.0;
@@ -27,18 +28,17 @@ namespace GuessWhatLookingAt
 
         public class BitmapSourceEventArgs : EventArgs
         {
-            public BitmapSourceEventArgs(ImageSource im) => image = im;
+            public BitmapSourceEventArgs(ImageSource im) => Image = im;
 
-            public ImageSource image { get; set; }
+            public ImageSource Image { get; set; }
         }
         #endregion//Image variables
 
         #region Pupil variables
 
         public Pupil pupil = new Pupil();
-        Thread pupilThread;
 
-        Point? _PupilGazePoint;
+        GazePoint _PupilGazePoint;
         public bool IsPupilConnected { get; private set; } = false;
 
         #endregion//Pupil variables
@@ -58,9 +58,9 @@ namespace GuessWhatLookingAt
 
         public class EyeTribeGazePositionEventArgs : EventArgs
         {
-            public EyeTribeGazePositionEventArgs(double gazeX, double gazeY) => gazePoint = new Point(gazeX, gazeY);
+            public EyeTribeGazePositionEventArgs(double gazeX, double gazeY) => GazePoint = new Point(gazeX, gazeY);
 
-            public Point gazePoint { get; set; }
+            public Point GazePoint { get; set; }
         }
 
         public event EventHandler<EyeTribeTimerEventArgs> EyeTribeTimerEvent;
@@ -85,7 +85,7 @@ namespace GuessWhatLookingAt
         System.Threading.Timer photoTimer;
         const int _timerSeconds = 3;
         public int PhotoRemainingTime { get; private set; } = _timerSeconds;
-        public bool hasPhoto { get; private set; } = false;
+        public bool HasPhoto { get; private set; } = false;
 
         public event EventHandler<PhotoTimeChangedEventArgs> PhotoTimeChangedEvent;
 
@@ -177,8 +177,7 @@ namespace GuessWhatLookingAt
             else
             {
                 pupil.Disconnect();
-                pupilThread?.Abort();
-                hasPhoto = true;
+                HasPhoto = true;
                 IsPupilConnected = false;
 
                 OnPhotoTimeEvent();
@@ -194,12 +193,8 @@ namespace GuessWhatLookingAt
         {
             PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(
                 time: PhotoRemainingTime,
-                isLastRound: _gameRoundIndex == 0 ? true : false);
-            EventHandler<PhotoTimeChangedEventArgs> handler = PhotoTimeChangedEvent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+                isLastRound: _gameRoundIndex == 0);
+            PhotoTimeChangedEvent?.Invoke(this, args);
         }
 
         #endregion//Photo meethods
@@ -213,11 +208,7 @@ namespace GuessWhatLookingAt
 
         private void OnImageSourceReached(BitmapSourceEventArgs args)
         {
-            var handler = BitmapSourceReached;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            BitmapSourceReached?.Invoke(this, args);
         }
 
         #endregion//Image methods
@@ -227,7 +218,7 @@ namespace GuessWhatLookingAt
         {
             if (!pupil.isConnected)
             {
-                hasPhoto = false;
+                HasPhoto = false;
                 pupil.Connect();
 
                 IsPupilConnected = true;
@@ -244,29 +235,25 @@ namespace GuessWhatLookingAt
 
         void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs pupilArgs)
         {
-            if (pupilArgs.rawImageData != null)
+            if (pupilArgs.RawImageData != null)
             {
-                GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.rawImageData, GCHandleType.Pinned);
+                GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.RawImageData, GCHandleType.Pinned);
                 IntPtr pointer = pinnedarray.AddrOfPinnedObject();
 
-                image.SetMat(pointer, Convert.ToInt32(pupilArgs.imageSize.Width), Convert.ToInt32(pupilArgs.imageSize.Height));
+                image.SetMat(pointer, Convert.ToInt32(pupilArgs.ImageSize.Width), Convert.ToInt32(pupilArgs.ImageSize.Height));
                 pinnedarray.Free();
             }
-            if (pupilArgs.gazePoints.Count != 0)
+            if (pupilArgs.GazePoints.Count != 0)
             {
-                for(int i =0; i < pupilArgs.gazePoints.Count; i++)
-                {
-                    _PupilGazePoint = pupilArgs.gazePoints[i];
-                    image.DrawCircleForPupil(_PupilGazePoint.Value, pupilArgs.gazeConfidence[i]);
-                }
+                _PupilGazePoint = pupilArgs.GazePoints.Max();
+                image.DrawCircleForPupil(_PupilGazePoint);
             }
             if (_EyeTribeGazePoint != null)
                 image.DrawCircleForEyeTribe(_EyeTribeGazePoint.GetValueOrDefault());
 
             if (image.OutMat != null)
             {
-                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.imageXScale, pupilArgs.imageYScale));
-
+                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.ImageXScale, pupilArgs.ImageYScale));
                 OnImageSourceReached(imageSourceArgs);
             }
         }
@@ -330,11 +317,7 @@ namespace GuessWhatLookingAt
 
         public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
         {
-            var handler = EyeTribeGazePointReached;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            EyeTribeGazePointReached?.Invoke(this, args);
         }
 
         public void StartEyeTribeTimer()
@@ -371,12 +354,9 @@ namespace GuessWhatLookingAt
         {
             EyeTribeTimerEventArgs args = new EyeTribeTimerEventArgs(
                 time: EyeTribeTimerRemainingTime,
-                isLastAttempt: _remainingNumberOfAttempts == 0 ? true : false);
-            EventHandler<EyeTribeTimerEventArgs> handler = EyeTribeTimerEvent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+                isLastAttempt: _remainingNumberOfAttempts == 0);
+
+            EyeTribeTimerEvent?.Invoke(this, args);
         }
 
         #endregion//Eye Tribe methods
