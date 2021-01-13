@@ -1,0 +1,1 @@
+start  MvvmNavigation.exe
