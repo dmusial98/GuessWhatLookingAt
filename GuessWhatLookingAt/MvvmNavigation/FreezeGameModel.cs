@@ -231,8 +231,6 @@ namespace GuessWhatLookingAt
                 pupil.Connect();
 
                 IsPupilConnected = true;
-                //pupilThread = new Thread(pupil.ReceiveFrame);
-                //pupilThread.Start();
             }
         }
         public void DisconnectPupil()
@@ -240,7 +238,6 @@ namespace GuessWhatLookingAt
             if (pupil.isConnected)
             {
                 pupil.Disconnect();
-                //pupilThread?.Abort();
                 IsPupilConnected = false;
             }
         }
@@ -266,8 +263,7 @@ namespace GuessWhatLookingAt
             if (_EyeTribeGazePoint != null)
                 image.DrawCircleForEyeTribe(_EyeTribeGazePoint.GetValueOrDefault());
 
-            //image.PutConfidenceText(pupilArgs.gazeConfidence);
-            if (/*image.OriginalMat != null && */image.OutMat != null)
+            if (image.OutMat != null)
             {
                 var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(pupilArgs.imageXScale, pupilArgs.imageYScale));
 
