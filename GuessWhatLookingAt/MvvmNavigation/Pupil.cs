@@ -87,8 +87,10 @@ namespace GuessWhatLookingAt
             isConnected = true;
 
             frameThread = new System.Threading.Thread(ReceiveFrame);
+            //gazeThread = new System.Threading.Thread(ReceiveGaze);
 
             frameThread.Start();
+            //gazeThread.Start();
         }
 
         public void ReceiveFrame()
@@ -140,17 +142,16 @@ namespace GuessWhatLookingAt
                         msgpackGazeDecode.DecodeFromBytes(gazeData);
 
                         //new event for inform about video data
-                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2 &&
-                            msgpackGazeDecode.ForcePathObject("confidence").AsFloat > 0.5)
-                        {
+                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2)
                             imageArgs.gazePoints.Add(new Point(
                                 msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
                                 (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat) * frameHeight));
 
-                            imageArgs.gazeConfidence.Add(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
-                        }
+                        imageArgs.gazeConfidence.Add(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
                     }
                 }
+
+
 
                 imageArgs.rawImageData = frameData;
                 imageArgs.imageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;

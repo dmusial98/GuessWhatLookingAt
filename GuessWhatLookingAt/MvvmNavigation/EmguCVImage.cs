@@ -34,6 +34,7 @@ namespace GuessWhatLookingAt
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
+            //if(confidence > 0.5)
                 CvInvoke.Circle(
                     OutMat, 
                     new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)),
