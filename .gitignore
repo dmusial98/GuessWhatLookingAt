@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/GuessWhatLookingAt/MvvmNavigation/obj/Debug/MvvmNavigation_MarkupCompile.i.cache
+/GuessWhatLookingAt/MvvmNavigation/obj/Debug/MvvmNavigation_MarkupCompile.i.lref

@@ -68,6 +68,35 @@ namespace GuessWhatLookingAt {
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         void System.Windows.Markup.IComponentConnector.Connect(int connectionId, object target) {
+            switch (connectionId)
+            {
+            case 1:
+            
+            #line 8 "..\..\MainWindow.xaml"
+            ((GuessWhatLookingAt.MainWindow)(target)).SizeChanged += new System.Windows.SizeChangedEventHandler(this.Window_SizeChanged);
+            
+            #line default
+            #line hidden
+            
+            #line 8 "..\..\MainWindow.xaml"
+            ((GuessWhatLookingAt.MainWindow)(target)).LocationChanged += new System.EventHandler(this.Window_LocationChanged);
+            
+            #line default
+            #line hidden
+            
+            #line 9 "..\..\MainWindow.xaml"
+            ((GuessWhatLookingAt.MainWindow)(target)).Loaded += new System.Windows.RoutedEventHandler(this.Window_Loaded);
+            
+            #line default
+            #line hidden
+            
+            #line 9 "..\..\MainWindow.xaml"
+            ((GuessWhatLookingAt.MainWindow)(target)).StateChanged += new System.EventHandler(this.Window_LocationChanged);
+            
+            #line default
+            #line hidden
+            return;
+            }
             this._contentLoaded = true;
         }
     }
