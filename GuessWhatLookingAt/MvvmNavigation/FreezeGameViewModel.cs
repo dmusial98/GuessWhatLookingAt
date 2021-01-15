@@ -9,7 +9,7 @@ namespace GuessWhatLookingAt
 {
     public class FreezeGameViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
     {
-        FreezeGameModel model = new FreezeGameModel(_PupilImageSize, ViewSettings.ImageFromPupilPosition);
+        FreezeGameModel model;
 
         #region XAML Properties
         public ImageSource imageFromPupil { get; set; }
@@ -32,9 +32,10 @@ namespace GuessWhatLookingAt
 
         public string PointsValueLabelContentString { get; set; } = "";
 
-        public static FreezeGameViewSettings ViewSettings { get; set; } = new FreezeGameViewSettings();
-
+        public static WindowViewParameters _WindowViewParameters { get; set; }
         #endregion
+
+        MainWindow MainWindow { get; set; }
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
@@ -42,11 +43,18 @@ namespace GuessWhatLookingAt
         bool _isLastAttempt = false;
         bool _isLastRound = false;
 
-        static readonly Size _PupilImageSize = new Size(1632.0, 918.0);
+        static Size _PupilImageSize = new Size(App.Current.MainWindow.ActualWidth, App.Current.MainWindow.ActualHeight);
 
         #region Constructors
-        public FreezeGameViewModel()
+        public FreezeGameViewModel(MainWindow mainWindow)
         {
+            MainWindow = mainWindow;
+            mainWindow.WindowViewParametersChangedEvent += OnWindowViewParametersChanged;
+
+            _WindowViewParameters = new WindowViewParameters();
+
+            model = new FreezeGameModel(_WindowViewParameters);
+
             model.BitmapSourceReached += OnBitmapSourceReached;
             model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
@@ -136,7 +144,7 @@ namespace GuessWhatLookingAt
                 return _StartRound ?? (_StartRound = new RelayCommand(
                     x =>
                     {
-                        if (!model.hasPhoto) //new game
+                        if (!model.HasPhoto) //new game
                         {
                             model.StartRound();
                             RoundValueLabelContentString = model.NumberOfGameRound.ToString();
@@ -144,7 +152,7 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("RoundValueLabelContentString");
                             OnPropertyChanged("AttemptValueLabelContentString");
                         }
-                        else if (model.hasPhoto && !_isLastAttempt)
+                        else if (model.HasPhoto && !_isLastAttempt)
                         {
                             model.EyeTribeTimerEvent += OnEyeTribeTimerChanged;
                             model.StartEyeTribeTimer();
@@ -152,7 +160,7 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("AttemptValueLabelContentString");
                             _lockEyeTribeTimer = false;
                         }
-                        else if (model.hasPhoto && _isLastAttempt)
+                        else if (model.HasPhoto && _isLastAttempt)
                         {
                             if (!model.IsPupilConnected)
                                 model.ConnectWithPupil();
@@ -172,14 +180,26 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
+
+
+        void OnWindowViewParametersChanged(object sender, MainWindow.WindowViewParametersEventArgs args)
+        {
+            GameInfoLabelContentString = "Window Size = " + args.WindowRect.Width.ToString() +
+                " x " + args.WindowRect.Height.ToString();
+
+            OnPropertyChanged("GameInfoLabelContentString");
+
+            _WindowViewParameters.WindowRect = args.WindowRect;
+        }
+
         void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
         {
-            LoadImageFromPupil(args.image);
+            LoadImageFromPupil(args.Image);
         }
 
         private void OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (model.hasPhoto)
+            if (model.HasPhoto)
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
@@ -187,13 +207,15 @@ namespace GuessWhatLookingAt
                     {
                         Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
 
-                        if (model.ImageRect.Contains(mousePosition))
+                        if (_WindowViewParameters.WindowRect.Contains(mousePosition))
                         {
                             double? distance;
                             int? points;
-                            var isLastAttempt = model.MouseAttemptStarted(mousePosition, out distance, out points);
+                            model.MouseAttemptStarted(mousePosition, out distance, out points);
 
-                            if (isLastAttempt)
+                            _isLastAttempt = points != null;                            
+
+                            if (_isLastAttempt)
                             {
                                 App.Current.Dispatcher.Invoke(delegate
                                 {
@@ -204,10 +226,10 @@ namespace GuessWhatLookingAt
                             }
 
                             _lastMouseClickTimestamp = e.Timestamp;
-                            MouseDistanceToPupilGazePoint = distance.ToString();
+                            MouseDistanceToPupilGazePoint = Math.Round(distance.Value, 4).ToString();
                             OnPropertyChanged("MouseDistanceToPupilGazePoint");
 
-                            if (_isLastRound && isLastAttempt)
+                            if (_isLastRound && _isLastAttempt)
                             {
                                 GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
                                 PointsValueLabelContentString = "";
@@ -285,7 +307,7 @@ namespace GuessWhatLookingAt
 
         private void OnEyeTribeGazePointReached(object sender, FreezeGameModel.EyeTribeGazePositionEventArgs args)
         {
-            EyeTribeCoordinatesString = "X: " + Math.Round(args.gazePoint.X, 0).ToString() + " Y: " + Math.Round(args.gazePoint.Y, 0).ToString();
+            EyeTribeCoordinatesString = "X: " + Math.Round(args.GazePoint.X, 0).ToString() + " Y: " + Math.Round(args.GazePoint.Y, 0).ToString();
             OnPropertyChanged("EyeTribeCoordinatesString");
         }
 

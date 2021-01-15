@@ -3,9 +3,7 @@ using NetMQ.Sockets;
 using SimpleMsgPack;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace GuessWhatLookingAt
 {
@@ -32,10 +30,9 @@ namespace GuessWhatLookingAt
         byte[] gazeData;
 
         public Point gazePoint { get; private set; } = new Point(0, 0);
-        public double gazeConfidence = 0;
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
-        public event EventHandler<ImageScaleChangedEventArgs> ImageScaleChangedEvent;
+        //public event EventHandler<ImageScaleChangedEventArgs> ImageScaleChangedEvent;
 
         public Size ImageSizeToDisplay { get; set; }
 
@@ -87,10 +84,8 @@ namespace GuessWhatLookingAt
             isConnected = true;
 
             frameThread = new System.Threading.Thread(ReceiveFrame);
-            //gazeThread = new System.Threading.Thread(ReceiveGaze);
 
             frameThread.Start();
-            //gazeThread.Start();
         }
 
         public void ReceiveFrame()
@@ -103,27 +98,25 @@ namespace GuessWhatLookingAt
                 MsgPack msgpackFrameDecode = new MsgPack();
                 msgpackFrameDecode.DecodeFromBytes(framePayload);
 
-                //new size of image and new scale for image
-                if (Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger) != frameHeight ||
-                    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameWidth)
-                {
-                    //write height and width parameters
-                    frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
-                    frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+                //new size of image 
+                //if (Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger) != frameHeight ||
+                //    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameWidth)
+                //{
+                //    //write height and width parameters
+                //    frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
+                //    frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
 
-                    _imageXScale = ImageSizeToDisplay.Width / frameWidth;
-                    _imageYScale = ImageSizeToDisplay.Height / frameHeight;
+                //    //notify about event occurence
+                //    var imageScaleArgs = new ImageScaleChangedEventArgs();
+                //    imageScaleArgs.FrameSize = new Size(frameWidth, frameHeight);
+                //    OnImageScaleChanged(imageScaleArgs);
+                //}
 
-                    //notify about event occurence
-                    var imageScaleArgs = new ImageScaleChangedEventArgs();
-                    imageScaleArgs.XScaleImage = _imageXScale;
-                    imageScaleArgs.YScaleImage = _imageYScale;
-                    OnImageScaleChanged(imageScaleArgs);
-                }
+                frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+                frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
 
                 var imageArgs = new PupilReceivedDataEventArgs();
-                imageArgs.gazePoints = new List<Point>();
-                imageArgs.gazeConfidence = new List<double>();
+                imageArgs.GazePoints = new List<GazePoint>();
 
                 //receive video frame in bgr
                 frameData = frameSubscriber.ReceiveFrameBytes();
@@ -142,22 +135,21 @@ namespace GuessWhatLookingAt
                         msgpackGazeDecode.DecodeFromBytes(gazeData);
 
                         //new event for inform about video data
-                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2)
-                            imageArgs.gazePoints.Add(new Point(
-                                msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat * frameWidth,
-                                (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat) * frameHeight));
-
-                        imageArgs.gazeConfidence.Add(msgpackGazeDecode.ForcePathObject("confidence").AsFloat);
+                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2 &&
+                            msgpackGazeDecode.ForcePathObject("confidence").AsFloat > 0.5)
+                        {
+                            imageArgs.GazePoints.Add(new GazePoint(
+                                new Point(
+                                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat,
+                                    (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat)),
+                                msgpackGazeDecode.ForcePathObject("confidence").AsFloat));
+                        }
                     }
                 }
 
-
-
-                imageArgs.rawImageData = frameData;
-                imageArgs.imageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;
-                imageArgs.imageSize = new Size(frameWidth, frameHeight);
-                imageArgs.imageXScale = _imageXScale;
-                imageArgs.imageYScale = _imageYScale;
+                imageArgs.RawImageData = frameData;
+                imageArgs.ImageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;
+                imageArgs.ImageSize = new Size(frameWidth, frameHeight);
 
                 OnPupilReceivedData(imageArgs);
             }
@@ -176,39 +168,26 @@ namespace GuessWhatLookingAt
 
         protected virtual void OnPupilReceivedData(PupilReceivedDataEventArgs args)
         {
-            EventHandler<PupilReceivedDataEventArgs> handler = PupilDataReceivedEvent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
+            PupilDataReceivedEvent?.Invoke(this, args);
         }
 
-        protected virtual void OnImageScaleChanged(ImageScaleChangedEventArgs args)
-        {
-            EventHandler<ImageScaleChangedEventArgs> handler = ImageScaleChangedEvent;
-            if (handler != null)
-            {
-                handler(this, args);
-            }
-        }
+        //protected virtual void OnImageScaleChanged(ImageScaleChangedEventArgs args)
+        //{
+        //    ImageScaleChangedEvent?.Invoke(this, args);
+        //}
 
         public class PupilReceivedDataEventArgs : EventArgs
         {
-            public byte[] rawImageData { get; set; }
-            public double imageTimestamp { get; set; }
-            public List<Point> gazePoints { get; set; }
-            public List<double> gazeConfidence { get; set; }
-            public double gazeTimestamp { get; set; }
-            public Size imageSize { get; set; }
-            public double imageXScale { get; set; }
-            public double imageYScale { get; set; }
+            public byte[] RawImageData { get; set; }
+            public double ImageTimestamp { get; set; }
+            public Size ImageSize { get; set; }
+            public List<GazePoint> GazePoints { get; set; }
         }
 
-        public class ImageScaleChangedEventArgs : EventArgs
-        {
-            public double XScaleImage { get; set; }
-            public double YScaleImage { get; set; }
-        }
+        //public class ImageScaleChangedEventArgs : EventArgs
+        //{
+        //    public Size FrameSize { get; set; }
+        //}
     }
 }
 

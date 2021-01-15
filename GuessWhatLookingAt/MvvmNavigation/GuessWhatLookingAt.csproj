@@ -120,6 +120,7 @@
     <Compile Include="FreezeGameModel.cs" />
     <Compile Include="FreezeGamePunctation.cs" />
     <Compile Include="FreezeGameSettings.cs" />
+    <Compile Include="GazePoint.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="EventRaiser.cs" />
@@ -136,7 +137,7 @@
       <DependentUpon>MainMenuUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainMenuViewModel.cs" />
-    <Compile Include="FreezeGameViewSettings.cs" />
+    <Compile Include="WindowViewParameters.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace GuessWhatLookingAt
 {
@@ -51,14 +52,13 @@ namespace GuessWhatLookingAt
             ChangeViewModel(PageViewModels[1]);
         }
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(MainWindow mainWindow)
         {
             // Add available pages and set page
             PageViewModels.Add(new MainMenuViewModel());
-            PageViewModels.Add(new FreezeGameViewModel());
-            
+            PageViewModels.Add(new FreezeGameViewModel(mainWindow));      
 
-            CurrentPageViewModel = PageViewModels[0];
+            CurrentPageViewModel = PageViewModels[1];
 
             Mediator.Subscribe("GoToMainMenu", OnGoToMainMenu);
             Mediator.Subscribe("GoToFreezeGame", OnGoToFreezeGame);

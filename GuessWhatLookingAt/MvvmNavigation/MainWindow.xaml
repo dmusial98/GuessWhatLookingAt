@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuessWhatLookingAt"
         mc:Ignorable="d"
-        Title="MainWindow" WindowState="Maximized">
+        Title="MainWindow" WindowState="Maximized" SizeChanged="Window_SizeChanged" LocationChanged="Window_LocationChanged"
+        Loaded="Window_Loaded" StateChanged="Window_LocationChanged">
+    
     <Grid>
         <ContentControl Content="{Binding CurrentPageViewModel}" />
     </Grid>

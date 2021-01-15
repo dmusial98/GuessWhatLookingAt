@@ -29,7 +29,7 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void DrawCircleForPupil(Point gazePoint, double confidence, bool cleanImage = false)
+        public void DrawCircleForPupil(GazePoint point, bool cleanImage = false)
         {
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
@@ -37,18 +37,18 @@ namespace GuessWhatLookingAt
             //if(confidence > 0.5)
                 CvInvoke.Circle(
                     OutMat, 
-                    new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)),
+                    new System.Drawing.Point(Convert.ToInt32(point.point.X * OriginalMat.Width), Convert.ToInt32(point.point.Y * OriginalMat.Height)),
                     8, 
                     new Emgu.CV.Structure.MCvScalar(0, 128, 0),
                     40);
         }
 
-        public void DrawCircleForEyeTribe(Point gazePoint, bool cleanImage = false)
+        public void DrawCircleForEyeTribe(Point point, bool cleanImage = false)
         {
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
-            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
+            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(point.X * OriginalMat.Width), Convert.ToInt32(point.Y * OriginalMat.Height)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
         }
 
         public void PutConfidenceText(double confidence)
@@ -59,12 +59,12 @@ namespace GuessWhatLookingAt
             CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
         }
 
-        public BitmapSource GetBitmapSourceFromMat(double XScale, double YScale)
+        public BitmapSource GetBitmapSourceFromMat(/*double XScale, double YScale*/)
         {
             var byteArray = OutMat.GetRawData(new int[] { });
             var bmpSource = BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
 
-            return new TransformedBitmap(bmpSource, new ScaleTransform(XScale, YScale));
+            return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
 
         }
 
