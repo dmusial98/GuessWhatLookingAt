@@ -20,9 +20,52 @@ namespace GuessWhatLookingAt
     /// </summary>
     public partial class MainWindow : Window
     {
+        public event EventHandler<WindowViewParametersEventArgs> WindowViewParametersChangedEvent;
+
         public MainWindow()
         {
             InitializeComponent();
         }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var args = new WindowViewParametersEventArgs(
+                new Rect(
+                    x: Left,
+                    y: Top,
+                    width: Width,
+                    height: Height));
+            WindowViewParametersChangedEvent?.Invoke(this, args);
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            var args = new WindowViewParametersEventArgs(
+                new Rect(
+                    x: Left,
+                    y: Top,
+                    width: Width,
+                    height: Height));
+            WindowViewParametersChangedEvent?.Invoke(this, args);
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var args = new WindowViewParametersEventArgs(
+                new Rect(
+                    x: Left,
+                    y: Top,
+                    width: Width,
+                    height: Height));
+            WindowViewParametersChangedEvent?.Invoke(this, args);
+        }
+
+        public class WindowViewParametersEventArgs : EventArgs
+        {
+            public WindowViewParametersEventArgs(Rect r) => WindowRect = r;
+            public Rect WindowRect { get; set; }
+        }
+
+        
     }
 }

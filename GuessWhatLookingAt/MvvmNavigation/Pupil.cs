@@ -30,10 +30,9 @@ namespace GuessWhatLookingAt
         byte[] gazeData;
 
         public Point gazePoint { get; private set; } = new Point(0, 0);
-        public double gazeConfidence = 0;
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
-        public event EventHandler<ImageScaleChangedEventArgs> ImageScaleChangedEvent;
+        //public event EventHandler<ImageScaleChangedEventArgs> ImageScaleChangedEvent;
 
         public Size ImageSizeToDisplay { get; set; }
 
@@ -99,23 +98,22 @@ namespace GuessWhatLookingAt
                 MsgPack msgpackFrameDecode = new MsgPack();
                 msgpackFrameDecode.DecodeFromBytes(framePayload);
 
-                //new size of image and new scale for image
-                if (Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger) != frameHeight ||
-                    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameWidth)
-                {
-                    //write height and width parameters
-                    frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
-                    frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+                //new size of image 
+                //if (Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger) != frameHeight ||
+                //    Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger) != frameWidth)
+                //{
+                //    //write height and width parameters
+                //    frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
+                //    frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
 
-                    _imageXScale = ImageSizeToDisplay.Width / frameWidth;
-                    _imageYScale = ImageSizeToDisplay.Height / frameHeight;
+                //    //notify about event occurence
+                //    var imageScaleArgs = new ImageScaleChangedEventArgs();
+                //    imageScaleArgs.FrameSize = new Size(frameWidth, frameHeight);
+                //    OnImageScaleChanged(imageScaleArgs);
+                //}
 
-                    //notify about event occurence
-                    var imageScaleArgs = new ImageScaleChangedEventArgs();
-                    imageScaleArgs.XScaleImage = _imageXScale;
-                    imageScaleArgs.YScaleImage = _imageYScale;
-                    OnImageScaleChanged(imageScaleArgs);
-                }
+                frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
+                frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
 
                 var imageArgs = new PupilReceivedDataEventArgs();
                 imageArgs.GazePoints = new List<GazePoint>();
@@ -140,9 +138,10 @@ namespace GuessWhatLookingAt
                         if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2 &&
                             msgpackGazeDecode.ForcePathObject("confidence").AsFloat > 0.5)
                         {
-                            imageArgs.GazePoints.Add(new GazePoint(new Point(
-                                msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat,
-                                (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat)),
+                            imageArgs.GazePoints.Add(new GazePoint(
+                                new Point(
+                                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat,
+                                    (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat)),
                                 msgpackGazeDecode.ForcePathObject("confidence").AsFloat));
                         }
                     }
@@ -151,8 +150,6 @@ namespace GuessWhatLookingAt
                 imageArgs.RawImageData = frameData;
                 imageArgs.ImageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;
                 imageArgs.ImageSize = new Size(frameWidth, frameHeight);
-                imageArgs.ImageXScale = _imageXScale;
-                imageArgs.ImageYScale = _imageYScale;
 
                 OnPupilReceivedData(imageArgs);
             }
@@ -174,26 +171,23 @@ namespace GuessWhatLookingAt
             PupilDataReceivedEvent?.Invoke(this, args);
         }
 
-        protected virtual void OnImageScaleChanged(ImageScaleChangedEventArgs args)
-        {
-            ImageScaleChangedEvent?.Invoke(this, args);
-        }
+        //protected virtual void OnImageScaleChanged(ImageScaleChangedEventArgs args)
+        //{
+        //    ImageScaleChangedEvent?.Invoke(this, args);
+        //}
 
         public class PupilReceivedDataEventArgs : EventArgs
         {
             public byte[] RawImageData { get; set; }
             public double ImageTimestamp { get; set; }
-            public List<GazePoint> GazePoints { get; set; }
             public Size ImageSize { get; set; }
-            public double ImageXScale { get; set; }
-            public double ImageYScale { get; set; }
+            public List<GazePoint> GazePoints { get; set; }
         }
 
-        public class ImageScaleChangedEventArgs : EventArgs
-        {
-            public double XScaleImage { get; set; }
-            public double YScaleImage { get; set; }
-        }
+        //public class ImageScaleChangedEventArgs : EventArgs
+        //{
+        //    public Size FrameSize { get; set; }
+        //}
     }
 }
 

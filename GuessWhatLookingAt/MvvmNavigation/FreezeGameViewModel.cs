@@ -9,7 +9,7 @@ namespace GuessWhatLookingAt
 {
     public class FreezeGameViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
     {
-        FreezeGameModel model = new FreezeGameModel(_PupilImageSize, ViewSettings.ImageFromPupilPosition);
+        FreezeGameModel model;
 
         #region XAML Properties
         public ImageSource imageFromPupil { get; set; }
@@ -32,9 +32,10 @@ namespace GuessWhatLookingAt
 
         public string PointsValueLabelContentString { get; set; } = "";
 
-        public static FreezeGameViewSettings ViewSettings { get; set; } = new FreezeGameViewSettings();
-
+        public static WindowViewParameters _WindowViewParameters { get; set; }
         #endregion
+
+        MainWindow MainWindow { get; set; }
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
@@ -42,12 +43,18 @@ namespace GuessWhatLookingAt
         bool _isLastAttempt = false;
         bool _isLastRound = false;
 
-        //Todo
         static Size _PupilImageSize = new Size(App.Current.MainWindow.ActualWidth, App.Current.MainWindow.ActualHeight);
 
         #region Constructors
-        public FreezeGameViewModel()
+        public FreezeGameViewModel(MainWindow mainWindow)
         {
+            MainWindow = mainWindow;
+            mainWindow.WindowViewParametersChangedEvent += OnWindowViewParametersChanged;
+
+            _WindowViewParameters = new WindowViewParameters();
+
+            model = new FreezeGameModel(_WindowViewParameters);
+
             model.BitmapSourceReached += OnBitmapSourceReached;
             model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
             model.PhotoTimeChangedEvent += OnPhotoTimeChanged;
@@ -173,12 +180,18 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
-        
-        private void OnWindowResized(object sender, RoutedEventArgs e)
+
+
+        void OnWindowViewParametersChanged(object sender, MainWindow.WindowViewParametersEventArgs args)
         {
-            _PupilImageSize = new Size(App.Current.MainWindow.ActualHeight, App.Current.MainWindow.ActualWidth);
+            GameInfoLabelContentString = "Window Size = " + args.WindowRect.Width.ToString() +
+                " x " + args.WindowRect.Height.ToString();
+
+            OnPropertyChanged("GameInfoLabelContentString");
+
+            _WindowViewParameters.WindowRect = args.WindowRect;
         }
-        
+
         void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
         {
             LoadImageFromPupil(args.Image);
@@ -194,13 +207,15 @@ namespace GuessWhatLookingAt
                     {
                         Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
 
-                        if (model.ImageRect.Contains(mousePosition))
+                        if (_WindowViewParameters.WindowRect.Contains(mousePosition))
                         {
                             double? distance;
                             int? points;
-                            var isLastAttempt = model.MouseAttemptStarted(mousePosition, out distance, out points);
+                            model.MouseAttemptStarted(mousePosition, out distance, out points);
 
-                            if (isLastAttempt)
+                            _isLastAttempt = points != null;                            
+
+                            if (_isLastAttempt)
                             {
                                 App.Current.Dispatcher.Invoke(delegate
                                 {
@@ -211,10 +226,10 @@ namespace GuessWhatLookingAt
                             }
 
                             _lastMouseClickTimestamp = e.Timestamp;
-                            MouseDistanceToPupilGazePoint = distance.ToString();
+                            MouseDistanceToPupilGazePoint = Math.Round(distance.Value, 4).ToString();
                             OnPropertyChanged("MouseDistanceToPupilGazePoint");
 
-                            if (_isLastRound && isLastAttempt)
+                            if (_isLastRound && _isLastAttempt)
                             {
                                 GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
                                 PointsValueLabelContentString = "";

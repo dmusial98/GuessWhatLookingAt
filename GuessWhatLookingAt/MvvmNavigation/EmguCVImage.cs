@@ -58,12 +58,13 @@ namespace GuessWhatLookingAt
             CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
         }
 
-        public BitmapSource GetBitmapSourceFromMat(double XScale, double YScale)
+        public BitmapSource GetBitmapSourceFromMat(/*double XScale, double YScale*/)
         {
             var byteArray = OutMat.GetRawData(new int[] { });
             var bmpSource = BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
 
-            return new TransformedBitmap(bmpSource, new ScaleTransform(XScale, YScale));
+            //return bmpSource;
+            return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
 
         }
 

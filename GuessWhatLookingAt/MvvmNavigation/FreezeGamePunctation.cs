@@ -11,7 +11,7 @@ namespace GuessWhatLookingAt
         {
             for(int i = maxPoints; i > 0; i--)
             {
-                PunctationList.Add(i * 50.0);
+                PunctationList.Add(i * 0.05);
             }
         }
 

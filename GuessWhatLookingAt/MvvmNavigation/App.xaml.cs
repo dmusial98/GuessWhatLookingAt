@@ -17,8 +17,10 @@ namespace GuessWhatLookingAt
         {
             base.OnStartup(e);
 
+            WindowViewParameters viewSettings = new WindowViewParameters();
+
             MainWindow app = new MainWindow();
-            MainWindowViewModel context = new MainWindowViewModel();
+            MainWindowViewModel context = new MainWindowViewModel(app);
             app.DataContext = context;
             app.Show();
         }
