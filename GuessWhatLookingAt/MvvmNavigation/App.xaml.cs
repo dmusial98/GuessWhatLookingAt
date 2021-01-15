@@ -18,9 +18,10 @@ namespace GuessWhatLookingAt
             base.OnStartup(e);
 
             WindowViewParameters viewSettings = new WindowViewParameters();
+            var gameSettings = new FreezeGameSettings();
 
             MainWindow app = new MainWindow();
-            MainWindowViewModel context = new MainWindowViewModel(app);
+            MainWindowViewModel context = new MainWindowViewModel(app, gameSettings);
             app.DataContext = context;
             app.Show();
         }

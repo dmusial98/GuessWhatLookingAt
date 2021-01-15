@@ -23,6 +23,12 @@ namespace GuessWhatLookingAt
         public MainMenuUserControl()
         {
             InitializeComponent();
+            //this.DataContext = this;
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            
         }
     }
 }

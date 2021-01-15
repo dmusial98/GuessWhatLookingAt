@@ -52,13 +52,13 @@ namespace GuessWhatLookingAt
             ChangeViewModel(PageViewModels[1]);
         }
 
-        public MainWindowViewModel(MainWindow mainWindow)
+        public MainWindowViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
         {
             // Add available pages and set page
-            PageViewModels.Add(new MainMenuViewModel());
-            PageViewModels.Add(new FreezeGameViewModel(mainWindow));      
+            PageViewModels.Add(new MainMenuViewModel(gameSettings));
+            PageViewModels.Add(new FreezeGameViewModel(mainWindow, gameSettings));      
 
-            CurrentPageViewModel = PageViewModels[1];
+            CurrentPageViewModel = PageViewModels[0];
 
             Mediator.Subscribe("GoToMainMenu", OnGoToMainMenu);
             Mediator.Subscribe("GoToFreezeGame", OnGoToFreezeGame);

@@ -20,7 +20,12 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                OriginalMat = new Mat(frameHeight, frameWidth, DepthType.Cv8U, 3, dataPointer, frameWidth * 3);
+                OriginalMat = new Mat(frameHeight, 
+                    frameWidth,
+                    DepthType.Cv8U, 
+                    3, 
+                    dataPointer, 
+                    frameWidth * 3);
                 OutMat = OriginalMat.Clone();
             }
             catch (Exception ex)
@@ -34,11 +39,10 @@ namespace GuessWhatLookingAt
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
-            //if(confidence > 0.5)
                 CvInvoke.Circle(
                     OutMat, 
                     new System.Drawing.Point(Convert.ToInt32(point.point.X * OriginalMat.Width), Convert.ToInt32(point.point.Y * OriginalMat.Height)),
-                    8, 
+                    1, 
                     new Emgu.CV.Structure.MCvScalar(0, 128, 0),
                     40);
         }
@@ -48,24 +52,53 @@ namespace GuessWhatLookingAt
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
-            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(point.X * OriginalMat.Width), Convert.ToInt32(point.Y * OriginalMat.Height)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
+            CvInvoke.Circle(OutMat, 
+                new System.Drawing.Point(
+                    Convert.ToInt32(point.X * OriginalMat.Width), 
+                    Convert.ToInt32(point.Y * OriginalMat.Height)), 
+                1, 
+                new MCvScalar(0, 0, 128), 
+                40);
         }
 
-        public void PutConfidenceText(double confidence)
+        public void DrawCircleForAttemptPoint(Point point)
         {
-            string confidenceString = "Confidence: " + Math.Round(confidence, 3).ToString();
-            MCvScalar color = new MCvScalar(20, 255 * confidence, 1 - 255 * confidence);
-
-            CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
+            CvInvoke.Circle(OutMat, 
+                new System.Drawing.Point(
+                    Convert.ToInt32(point.X * OriginalMat.Width), 
+                    Convert.ToInt32(point.Y * OriginalMat.Height)), 
+                1, 
+                new Emgu.CV.Structure.MCvScalar(128, 0, 0), 
+                40);
         }
 
-        public BitmapSource GetBitmapSourceFromMat(/*double XScale, double YScale*/)
+        public void DrawLineBetweenPoints(Point p1, Point p2)
+        {
+            CvInvoke.Line(
+                OutMat,
+                new System.Drawing.Point(
+                    Convert.ToInt32(p1.X * OriginalMat.Width), 
+                    Convert.ToInt32(p1.Y * OriginalMat.Height)),
+                new System.Drawing.Point(
+                    Convert.ToInt32(p2.X * OriginalMat.Width),
+                    Convert.ToInt32(p2.Y * OriginalMat.Height)),
+                new MCvScalar(128, 128, 0),
+                2);
+        }
+
+        //public void PutConfidenceText(double confidence)
+        //{
+        //    string confidenceString = "Confidence: " + Math.Round(confidence, 3).ToString();
+        //    MCvScalar color = new MCvScalar(20, 255 * confidence, 1 - 255 * confidence);
+
+        //    CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
+        //}
+
+        public BitmapSource GetBitmapSourceFromMat()
         {
             var byteArray = OutMat.GetRawData(new int[] { });
-            var bmpSource = BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
-
-            return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
-
+            return BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
+            //return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
         }
 
         public void SaveImage(string path)

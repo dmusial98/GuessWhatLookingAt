@@ -36,6 +36,7 @@ namespace GuessWhatLookingAt
         #endregion
 
         MainWindow MainWindow { get; set; }
+        FreezeGameSettings GameSettings;
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
@@ -43,17 +44,15 @@ namespace GuessWhatLookingAt
         bool _isLastAttempt = false;
         bool _isLastRound = false;
 
-        static Size _PupilImageSize = new Size(App.Current.MainWindow.ActualWidth, App.Current.MainWindow.ActualHeight);
-
         #region Constructors
-        public FreezeGameViewModel(MainWindow mainWindow)
+        public FreezeGameViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
         {
             MainWindow = mainWindow;
             mainWindow.WindowViewParametersChangedEvent += OnWindowViewParametersChanged;
 
             _WindowViewParameters = new WindowViewParameters();
-
-            model = new FreezeGameModel(_WindowViewParameters);
+            GameSettings = gameSettings;
+            model = new FreezeGameModel(_WindowViewParameters, GameSettings);
 
             model.BitmapSourceReached += OnBitmapSourceReached;
             model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
@@ -180,7 +179,6 @@ namespace GuessWhatLookingAt
         #endregion
 
         #region Events services
-
 
         void OnWindowViewParametersChanged(object sender, MainWindow.WindowViewParametersEventArgs args)
         {
@@ -381,7 +379,6 @@ namespace GuessWhatLookingAt
                 }
             }
         }
-
 
         #endregion
 

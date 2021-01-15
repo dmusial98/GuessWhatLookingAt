@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -25,6 +26,9 @@ namespace GuessWhatLookingAt
 
             public ImageSource Image { get; set; }
         }
+
+        List<Point> _AttemptPoints = new List<Point>();
+
         #endregion//Image variables
 
         #region Pupil variables
@@ -44,8 +48,7 @@ namespace GuessWhatLookingAt
 
         System.Threading.Timer _eyeTribeTimer;
 
-        const int _eyeTribeTimerSeconds = 5;
-        public int EyeTribeTimerRemainingTime { get; private set; } = _eyeTribeTimerSeconds;
+        public int EyeTribeTimerRemainingTime { get; private set; }
 
         public event EventHandler<EyeTribeGazePositionEventArgs> EyeTribeGazePointReached;
 
@@ -76,8 +79,7 @@ namespace GuessWhatLookingAt
         #region Photo variables
 
         System.Threading.Timer photoTimer;
-        const int _timerSeconds = 3;
-        public int PhotoRemainingTime { get; private set; } = _timerSeconds;
+        public int PhotoRemainingTime { get; private set; }
         public bool HasPhoto { get; private set; } = false;
 
         public event EventHandler<PhotoTimeChangedEventArgs> PhotoTimeChangedEvent;
@@ -97,8 +99,9 @@ namespace GuessWhatLookingAt
 
         #region Logic variables
 
-        const int _maxAttemptAmount = 3;
-        int _remainingNumberOfAttempts = _maxAttemptAmount;
+        FreezeGameSettings GameSettings; 
+
+        int _remainingNumberOfAttempts;
 
         public int AttemptNumber { get; set; } = 1;
 
@@ -108,9 +111,7 @@ namespace GuessWhatLookingAt
 
         FreezeGamePunctation _punctation = new FreezeGamePunctation();
 
-        const int _maximalNumberOfRounds = 3;
-
-        int _gameRoundIndex = _maximalNumberOfRounds;
+        int _gameRoundIndex;
 
         public int NumberOfGameRound { get; private set; } = 1;
 
@@ -119,12 +120,16 @@ namespace GuessWhatLookingAt
         #endregion //Variables
 
         #region Constructors
-        public FreezeGameModel(WindowViewParameters windowViewParameters)
+        public FreezeGameModel(WindowViewParameters windowViewParameters, FreezeGameSettings gameSettings)
         {
             _WindowViewParameters = windowViewParameters;
+            GameSettings = gameSettings;
 
             //logic variables setting up
             ResetMinAttemptDistance();
+            EyeTribeTimerRemainingTime = GameSettings.EyeTribeTime;
+            PhotoRemainingTime = GameSettings.PhotoTime;
+            _gameRoundIndex = GameSettings.RoundsAmount;
 
             //events service setting up
             eyeTribe.OnData += OnEyeTribeDataReached;
@@ -169,7 +174,7 @@ namespace GuessWhatLookingAt
                 IsPupilConnected = false;
 
                 OnPhotoTimeEvent();
-                PhotoRemainingTime = _timerSeconds;
+                PhotoRemainingTime = GameSettings.PhotoTime;
 
                 photoTimer.Change(
                     Timeout.Infinite,
@@ -194,6 +199,20 @@ namespace GuessWhatLookingAt
             BitmapSourceReached?.Invoke(this, args);
         }
 
+        private void DrawImageWithAllAttempts()
+        {
+            image.DrawCircleForPupil(_PupilGazePoint, true);
+
+            foreach(Point point in _AttemptPoints)
+            {
+                image.DrawCircleForAttemptPoint(point);
+                image.DrawLineBetweenPoints(_PupilGazePoint.point, point);
+            }
+
+            var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
+            OnImageSourceReached(imageSourceArgs);
+        }
+
         #endregion//Image methods
 
         #region Pupil methods
@@ -202,11 +221,9 @@ namespace GuessWhatLookingAt
             if (!pupil.isConnected)
             {
                 HasPhoto = false;
-                pupil.Connect();
+                pupil.Connect(GameSettings.PupilAdressString);
 
                 IsPupilConnected = true;
-                //pupilThread = new Thread(pupil.ReceiveFrame);
-                //pupilThread.Start();
             }
         }
         public void DisconnectPupil()
@@ -214,7 +231,6 @@ namespace GuessWhatLookingAt
             if (pupil.isConnected)
             {
                 pupil.Disconnect();
-                //pupilThread?.Abort();
                 IsPupilConnected = false;
             }
         }
@@ -229,20 +245,19 @@ namespace GuessWhatLookingAt
                 image.SetMat(pointer, Convert.ToInt32(pupilArgs.ImageSize.Width), Convert.ToInt32(pupilArgs.ImageSize.Height));
                 pinnedarray.Free();
             }
-            if (pupilArgs.GazePoints.Count != 0)
+            if (GameSettings.DisplayPupilGazePoint && pupilArgs.GazePoints.Count != 0)
             {
                 _PupilGazePoint = pupilArgs.GazePoints.Max();
 
                 foreach (GazePoint gazePoint in pupilArgs.GazePoints)
                     image.DrawCircleForPupil(gazePoint);
             }
-            if (_EyeTribeGazePoint != null)
+            if (GameSettings.DisplayEyeTribeGazePoint && _EyeTribeGazePoint != null)
                 image.DrawCircleForEyeTribe(_EyeTribeGazePoint.GetValueOrDefault());
 
-            //image.PutConfidenceText(pupilArgs.gazeConfidence);
-            if (/*image.OriginalMat != null && */image.OutMat != null)
+            if (image.OutMat != null)
             {
-                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(/*pupilArgs.ImageXScale, pupilArgs.ImageYScale*/));
+                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
                 OnImageSourceReached(imageSourceArgs);
             }
         }
@@ -254,7 +269,7 @@ namespace GuessWhatLookingAt
         {
             if (!eyeTribe.isRunning)
             {
-                eyeTribe.Connect("localhost", 6555);
+                eyeTribe.Connect("localhost", GameSettings.EyeTribePort);
                 IsEyeTribeConnected = true;
             }
         }
@@ -278,8 +293,9 @@ namespace GuessWhatLookingAt
             var eyeTribePoint = new Point(gazeX, gazeY);
 
             if (_WindowViewParameters.WindowRect.Contains(eyeTribePoint))
-                _EyeTribeGazePoint = NormalizePointToImage(
+                _EyeTribeGazePoint = NormalizePointCoordinatesToImage(
                     point: eyeTribePoint,
+                    saveToAttemptPoints: false,
                     relativeToWindow: false);
             else
                 _EyeTribeGazePoint = null;
@@ -287,7 +303,7 @@ namespace GuessWhatLookingAt
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             OnEyeTribeGazePositionReached(args);
 
-            if (HasPhoto && !IsPupilConnected)
+            if (HasPhoto && !IsPupilConnected && GameSettings.DisplayEyeTribeGazePoint)
             {
                 image.DrawCircleForPupil(
                     point: _PupilGazePoint,
@@ -330,7 +346,7 @@ namespace GuessWhatLookingAt
             else //Time == 0
             {
                 OnEyeTribeTimeEvent();
-                EyeTribeTimerRemainingTime = _eyeTribeTimerSeconds;
+                EyeTribeTimerRemainingTime = GameSettings.EyeTribeTime;
                 _eyeTribeTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
@@ -355,7 +371,7 @@ namespace GuessWhatLookingAt
 
             if (_gameRoundIndex == -1)
             {
-                _gameRoundIndex = _maximalNumberOfRounds - 1;
+                _gameRoundIndex = GameSettings.RoundsAmount - 1;
                 NumberOfGameRound = 1;
                 TotalPoints = 0;
             }
@@ -381,18 +397,27 @@ namespace GuessWhatLookingAt
 
         private double CountPointsDifference(Point point, bool coordinatesRelativeToWindow = true)
         {
-            var normalizedMousePositionOnImage = NormalizePointToImage(point, coordinatesRelativeToWindow);
+            var normalizedMousePositionOnImage = NormalizePointCoordinatesToImage(
+                point: point, 
+                saveToAttemptPoints: true, 
+                relativeToWindow: coordinatesRelativeToWindow);
+
             return Point.Subtract(_PupilGazePoint.point, normalizedMousePositionOnImage).Length;
         }
 
-        private Point NormalizePointToImage(Point point, bool relativeToWindow = true)
+        private Point NormalizePointCoordinatesToImage(Point point, bool saveToAttemptPoints, bool relativeToWindow = true)
         {
             if (!relativeToWindow)
                 point.Offset(-_WindowViewParameters.WindowRect.X, -_WindowViewParameters.WindowRect.Y);
 
-            return new Point(
+            var normalizedPoint =  new Point(
                 point.X / (_WindowViewParameters.WindowRect.Width * 0.9),
                 point.Y / (_WindowViewParameters.WindowRect.Height * 0.9));
+
+            if (saveToAttemptPoints)
+                _AttemptPoints.Add(normalizedPoint);
+
+            return normalizedPoint;
         }
 
         private void CountPointsAfterAttempts()
@@ -414,12 +439,14 @@ namespace GuessWhatLookingAt
 
             if (_remainingNumberOfAttempts == 0) //last attempt
             {
+                DrawImageWithAllAttempts();
                 distance = _minAttemptsDistance;
-                _remainingNumberOfAttempts = _maxAttemptAmount;
+                _remainingNumberOfAttempts = GameSettings.AttemptsAmount;
                 CountPointsAfterAttempts();
                 points = TotalPoints;
                 ResetMinAttemptDistance();
                 AttemptNumber = 1;
+                _AttemptPoints.Clear();
                 return true;
             }
             else
@@ -432,9 +459,9 @@ namespace GuessWhatLookingAt
 
         private void ResetMinAttemptDistance() => _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowRect.TopLeft, _WindowViewParameters.WindowRect.BottomRight).Length;
 
-        private void ActualiseAttemptNumber() => AttemptNumber = _maxAttemptAmount - _remainingNumberOfAttempts;
+        private void ActualiseAttemptNumber() => AttemptNumber = GameSettings.AttemptsAmount - _remainingNumberOfAttempts;
 
-        private void ActualiseRoundNumber() => NumberOfGameRound = _maximalNumberOfRounds - _gameRoundIndex;
+        private void ActualiseRoundNumber() => NumberOfGameRound = GameSettings.RoundsAmount - _gameRoundIndex;
 
         #endregion//logic methods
 

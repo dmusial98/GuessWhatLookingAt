@@ -10,7 +10,5 @@ namespace GuessWhatLookingAt
     public class WindowViewParameters
     {
         public Rect WindowRect { get; set; }
-
-        //public Point WindowPosition { get; set; } 
     }
 }
