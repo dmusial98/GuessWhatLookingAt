@@ -42,12 +42,12 @@ namespace GuessWhatLookingAt
                     40);
         }
 
-        public void DrawCircleForEyeTribe(Point gazePoint, bool cleanImage = false)
+        public void DrawCircleForEyeTribe(Point point, bool cleanImage = false)
         {
             if (cleanImage)
                 OutMat = OriginalMat.Clone();
 
-            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(gazePoint.X), Convert.ToInt32(gazePoint.Y)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
+            CvInvoke.Circle(OutMat, new System.Drawing.Point(Convert.ToInt32(point.X * OriginalMat.Width), Convert.ToInt32(point.Y * OriginalMat.Height)), 8, new Emgu.CV.Structure.MCvScalar(0, 0, 128), 40);
         }
 
         public void PutConfidenceText(double confidence)
@@ -63,7 +63,6 @@ namespace GuessWhatLookingAt
             var byteArray = OutMat.GetRawData(new int[] { });
             var bmpSource = BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
 
-            //return bmpSource;
             return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
 
         }

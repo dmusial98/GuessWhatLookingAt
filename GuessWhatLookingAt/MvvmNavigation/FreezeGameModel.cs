@@ -17,8 +17,6 @@ namespace GuessWhatLookingAt
         readonly EmguCVImage image = new EmguCVImage();
         public WindowViewParameters _WindowViewParameters { get; private set; }
 
-        public Rect ImageRect { get; private set; }
-
         public event EventHandler<BitmapSourceEventArgs> BitmapSourceReached;
 
         public class BitmapSourceEventArgs : EventArgs
@@ -123,18 +121,13 @@ namespace GuessWhatLookingAt
         #region Constructors
         public FreezeGameModel(WindowViewParameters windowViewParameters)
         {
-            //image variables setting up
             _WindowViewParameters = windowViewParameters;
-            //pupil.ImageScaleChangedEvent += OnImageScaleChanged;
-            //pupil.ImageSizeToDisplay = ImageSize;
-            //_BegginingImagePoint = begginingImagePoint;
-            //ImageRect = new Rect(_BegginingImagePoint, ImageSize);
 
             //logic variables setting up
             ResetMinAttemptDistance();
 
             //events service setting up
-            //eyeTribe.OnData += OnEyeTribeDataReached;
+            eyeTribe.OnData += OnEyeTribeDataReached;
             pupil.PupilDataReceivedEvent += OnPupilDataReached;
         }
         #endregion//Constructors
@@ -195,11 +188,6 @@ namespace GuessWhatLookingAt
         #endregion//Photo meethods
 
         #region Image methods
-        //private void OnImageScaleChanged(object sender, Pupil.ImageScaleChangedEventArgs args)
-        //{
-        //    _ImageXScale = args.XScaleImage;
-        //    _ImageYScale = args.YScaleImage;
-        //}
 
         private void OnImageSourceReached(BitmapSourceEventArgs args)
         {
@@ -276,40 +264,37 @@ namespace GuessWhatLookingAt
             }
         }
 
-        //void OnEyeTribeDataReached(object sender, EyeTribe.EyeTribeReceivedDataEventArgs e)
-        //{
-        //    JObject values = JObject.Parse(e.data.values);
-        //    JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
-        //    double gazeX = (double)gaze.Property("x").Value;
-        //    double gazeY = (double)gaze.Property("y").Value;
+        void OnEyeTribeDataReached(object sender, EyeTribe.EyeTribeReceivedDataEventArgs e)
+        {
+            JObject values = JObject.Parse(e.data.values);
+            JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
+            double gazeX = (double)gaze.Property("x").Value;
+            double gazeY = (double)gaze.Property("y").Value;
 
-        //    var eyeTribePoint = new Point(gazeX, gazeY);
+            var eyeTribePoint = new Point(gazeX, gazeY);
 
-        //    if (ImageRect.Contains(eyeTribePoint))
-        //    {
-        //        eyeTribePoint.Offset(-_BegginingImagePoint.X, -_BegginingImagePoint.Y);
-        //        _EyeTribeGazePoint = new Point(eyeTribePoint.X / _ImageXScale, eyeTribePoint.Y / _ImageYScale);
-        //    }
-        //    else
-        //    {
-        //        _EyeTribeGazePoint = null;
-        //    }
+            if (_WindowViewParameters.WindowRect.Contains(eyeTribePoint))
+                _EyeTribeGazePoint = NormalizePointToImage(
+                    point: eyeTribePoint,
+                    relativeToWindow: false);
+            else
+                _EyeTribeGazePoint = null;
+            
+            var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
+            OnEyeTribeGazePositionReached(args);
 
-        //    var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
-        //    OnEyeTribeGazePositionReached(args);
+            if (HasPhoto && !IsPupilConnected)
+            {
+                image.DrawCircleForPupil(
+                    point: _PupilGazePoint,
+                    cleanImage: true);
 
-        //    if (HasPhoto && !IsPupilConnected)
-        //    {
-        //        image.DrawCircleForPupil(
-        //            point: _PupilGazePoint,
-        //            cleanImage: true);
+                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
 
-        //        image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
-
-        //        var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat(_ImageXScale, _ImageYScale));
-        //        OnImageSourceReached(imageSourceArgs);
-        //    }
-        //}
+                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
+                OnImageSourceReached(imageSourceArgs);
+            }
+        }
 
         public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
         {
@@ -390,20 +375,20 @@ namespace GuessWhatLookingAt
             return RealiseAttemptLogic(ref distance, out points);
         }
 
-        private double CountPointsDifference(Point p1, bool coordinatesRelativeToWindow = true)
+        private double CountPointsDifference(Point point, bool coordinatesRelativeToWindow = true)
         {
-            //var gazeResizedPoint = new Point(pupil.gazePoint.X * _ImageXScale, pupil.gazePoint.Y * _ImageYScale);
-            //gazeResizedPoint.Offset(_BegginingImagePoint.X, _BegginingImagePoint.Y);
-            //var distance = Point.Subtract(gazeResizedPoint, p1).Length;
-
-            if (!coordinatesRelativeToWindow)
-                p1.Offset(- _WindowViewParameters.WindowRect.X, - _WindowViewParameters.WindowRect.Y);
-
-            var normalizedMousePositionOnImage = new Point(
-                p1.X / (_WindowViewParameters.WindowRect.Width * 0.9),
-                p1.Y / (_WindowViewParameters.WindowRect.Height * 0.9));
-
+            var normalizedMousePositionOnImage = NormalizePointToImage(point, coordinatesRelativeToWindow);
             return Point.Subtract(_PupilGazePoint.point, normalizedMousePositionOnImage).Length;
+        }
+
+        private Point NormalizePointToImage(Point point, bool relativeToWindow = true)
+        {
+            if (!relativeToWindow)
+                point.Offset(-_WindowViewParameters.WindowRect.X, -_WindowViewParameters.WindowRect.Y);
+
+            return new Point(
+                point.X / (_WindowViewParameters.WindowRect.Width * 0.9),
+                point.Y / (_WindowViewParameters.WindowRect.Height * 0.9));
         }
 
         private void CountPointsAfterAttempts()
@@ -441,7 +426,7 @@ namespace GuessWhatLookingAt
             }
         }
 
-        private void ResetMinAttemptDistance() => _minAttemptsDistance = Point.Subtract(ImageRect.TopLeft, ImageRect.BottomRight).Length;
+        private void ResetMinAttemptDistance() => _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowRect.TopLeft, _WindowViewParameters.WindowRect.BottomRight).Length;
 
         private void ActualiseAttemptNumber() => AttemptNumber = _maxAttemptAmount - _remainingNumberOfAttempts;
 
