@@ -92,6 +92,18 @@ namespace GuessWhatLookingAt
             }
         }
 
+        public void CleanImage()
+        {
+            try
+            {
+                OutMat = OriginalMat.Clone();
+            }
+            catch(Exception ex)
+            {
+
+            }
+        }
+
         public void DrawLineBetweenPoints(Point p1, Point p2)
         {
             try

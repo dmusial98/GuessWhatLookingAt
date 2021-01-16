@@ -311,11 +311,14 @@ namespace GuessWhatLookingAt
             OnEyeTribeGazePositionReached(args);
 
 
-            if (HasPhoto && !IsPupilConnected)
+            if (HasPhoto && !IsPupilConnected) //during "has photo" time
             {
-                image.DrawCircleForPupil(
-                    point: _PupilGazePoint,
-                    cleanImage: true);
+                if (GameSettings.DisplayPupilGazePoint)
+                    image.DrawCircleForPupil(
+                        point: _PupilGazePoint,
+                        cleanImage: true);
+                else
+                    image.CleanImage();
 
                 if (GameSettings.DisplayEyeTribeGazePoint)
                 {
@@ -325,14 +328,27 @@ namespace GuessWhatLookingAt
                 foreach (Point point in _AttemptPoints)
                     image.DrawCircleForAttemptPoint(point);
 
-                if(_wasLastAttempt) //last attempt
+                if (_wasLastAttempt) //last attempt
                 {
+                    image.DrawCircleForPupil(_PupilGazePoint);
                     foreach (Point point in _AttemptPoints)
                         image.DrawLineBetweenPoints(point, _PupilGazePoint.point);
                 }
 
                 var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
                 OnImageSourceReached(imageSourceArgs);
+            }
+            else if(!IsPupilConnected)
+            {
+                image.CleanImage();
+
+                if (GameSettings.DisplayPupilGazePoint)
+                    image.DrawCircleForPupil(_PupilGazePoint);
+
+                if (GameSettings.DisplayEyeTribeGazePoint)
+                    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+
+                OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
             }
         }
 
@@ -481,7 +497,7 @@ namespace GuessWhatLookingAt
 
         private bool RealiseAttemptLogic(ref double? distance, out int? points)
         {
-            if (distance.Value < _minAttemptsDistance)
+            if (distance != null && distance.Value < _minAttemptsDistance)
                 _minAttemptsDistance = distance.Value;
 
             if (_remainingNumberOfAttempts == 0) //last attempt
@@ -509,7 +525,7 @@ namespace GuessWhatLookingAt
 
         private void ResetMinAttemptDistance()
         {
-            if (_WindowViewParameters.WindowState == WindowState.Minimized)
+            if (_WindowViewParameters.WindowState == WindowState.Maximized)
                 _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowMaximizedRect.TopLeft, _WindowViewParameters.WindowMaximizedRect.BottomRight).Length;
             else
                 _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowRect.TopLeft, _WindowViewParameters.WindowRect.BottomRight).Length;
