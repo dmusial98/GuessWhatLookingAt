@@ -63,16 +63,16 @@ namespace GuessWhatLookingAt
 
         #region Commands
 
-        #region Go to main menu
-        private ICommand _goToMainMenu;
+        #region Go to settings
+        private ICommand _goToSettings;
 
-        public ICommand GoToMainMenu
+        public ICommand GoToSettings
         {
             get
             {
-                return _goToMainMenu ?? (_goToMainMenu = new RelayCommand(x =>
+                return _goToSettings ?? (_goToSettings = new RelayCommand(x =>
                 {
-                    Mediator.Notify("GoToMainMenu", "");
+                    Mediator.Notify("GoToSettings", "");
                 }));
             }
         }
@@ -160,7 +160,7 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("AttemptValueLabelContentString");
                             _lockEyeTribeTimer = false;
                         }
-                        else if (model.HasPhoto && _isLastAttempt)
+                        else if (model.HasPhoto && _isLastAttempt) //after last attempt
                         {
                             if (!model.IsPupilConnected)
                                 model.ConnectWithPupil();
@@ -177,6 +177,40 @@ namespace GuessWhatLookingAt
         }
         #endregion//Start round
 
+        #region Display Pupil gaze points
+
+        private ICommand _DisplayPupilGazePoint;
+        public ICommand DisplayPupilGazePoint
+        {
+            get
+            {
+                return _DisplayPupilGazePoint ?? (_DisplayPupilGazePoint = new RelayCommand(
+                    x =>
+                    {
+                        GameSettings.DisplayPupilGazePoint = !GameSettings.DisplayPupilGazePoint;
+                    }));
+            }
+        }
+
+        #endregion
+
+        #region Display Eye Tribe gaze points
+
+        private ICommand _DisplayEyeTribeGazePoint;
+        public ICommand DisplayEyeTribeGazePoint
+        {
+            get
+            {
+                return _DisplayEyeTribeGazePoint ?? (_DisplayEyeTribeGazePoint = new RelayCommand(
+                    x =>
+                    {
+                        GameSettings.DisplayEyeTribeGazePoint = !GameSettings.DisplayEyeTribeGazePoint;
+                    }));
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Events services
@@ -187,8 +221,12 @@ namespace GuessWhatLookingAt
                 " x " + args.WindowRect.Height.ToString();
 
             OnPropertyChanged("GameInfoLabelContentString");
+            _WindowViewParameters.WindowState = args.WndState;
 
-            _WindowViewParameters.WindowRect = args.WindowRect;
+            if (args.WasLoaded && args.WndState == WindowState.Maximized)
+                _WindowViewParameters.WindowMaximizedRect = args.WindowRect;
+            else
+                _WindowViewParameters.WindowRect = args.WindowRect;
         }
 
         void OnBitmapSourceReached(object sender, FreezeGameModel.BitmapSourceEventArgs args)
@@ -196,63 +234,65 @@ namespace GuessWhatLookingAt
             LoadImageFromPupil(args.Image);
         }
 
+        Point GetAbsoluteMousePos() => MainWindow.PointToScreen(Mouse.GetPosition(MainWindow));
+
         private void OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (model.HasPhoto && e.LeftButton == MouseButtonState.Pressed && 
+            if (model.HasPhoto && e.LeftButton == MouseButtonState.Pressed &&
                 !_lockMouseLeftButton && _lastMouseClickTimestamp != e.Timestamp)
             {
-                //if ()
-                //{
-                //    if ()
-                //    {
-                        Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
+                Point relativeMousePosition = Mouse.GetPosition(MainWindow);
+                Point absoluteMousePosition = GetAbsoluteMousePos();
+                
 
-                        if (_WindowViewParameters.WindowRect.Contains(mousePosition))
+                if ((_WindowViewParameters.WindowState == WindowState.Maximized && _WindowViewParameters.WindowMaximizedRect.Contains(relativeMousePosition)) ||
+                    (_WindowViewParameters.WindowState == WindowState.Normal && _WindowViewParameters.WindowRect.Contains(absoluteMousePosition)))
+                {
+                    double? distance;
+                    int? points;
+                    model.MouseAttemptStarted(relativeMousePosition, out distance, out points);
+
+                    _isLastAttempt = points != null;
+
+                    if (_isLastAttempt)
+                    {
+                        App.Current.Dispatcher.Invoke(delegate
                         {
-                            double? distance;
-                            int? points;
-                            model.MouseAttemptStarted(mousePosition, out distance, out points);
+                            App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
+                        });
 
-                            _isLastAttempt = points != null;                            
+                        _lockMouseLeftButton = true;
+                    }
+                    else
+                    {
+                        AttemptValueLabelContentString = (model.AttemptNumber + 1).ToString();
+                        OnPropertyChanged("AttemptValueLabelContentString");
+                    }
 
-                            if (_isLastAttempt)
-                            {
-                                App.Current.Dispatcher.Invoke(delegate
-                                {
-                                    App.Current.MainWindow.MouseDown -= OnLeftMouseButtonDown;
-                                });
+                    _lastMouseClickTimestamp = e.Timestamp;
+                    MouseDistanceToPupilGazePoint = Math.Round(distance.Value, 4).ToString();
+                    OnPropertyChanged("MouseDistanceToPupilGazePoint");
+                    
 
-                                _lockMouseLeftButton = true;
-                            }
-
-                            _lastMouseClickTimestamp = e.Timestamp;
-                            MouseDistanceToPupilGazePoint = Math.Round(distance.Value, 4).ToString();
-                            OnPropertyChanged("MouseDistanceToPupilGazePoint");
-
-                            if (_isLastRound && _isLastAttempt)
-                            {
-                                GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
-                                PointsValueLabelContentString = "";
-                                RoundValueLabelContentString = "";
-                                AttemptValueLabelContentString = "";
-                                StartRoundButtonContentString = "Start game";
-                                OnPropertyChanged("GameInfoLabelContentString");
-                                OnPropertyChanged("PointsValueLabelContentString");
-                                OnPropertyChanged("RoundValueLabelContentString");
-                                OnPropertyChanged("StartRoundButtonContentString");
-                                OnPropertyChanged("AttemptValueLabelContentString");
-
-                                //if (!model.IsPupilConnected)
-                                //    model.ConnectWithPupil();
-                            }
-                            else if (points != null)
-                            {
-                                PointsValueLabelContentString = points.Value.ToString();
-                                OnPropertyChanged("PointsValueLabelContentString");
-                            }
-                        }
-                //    }
-                //}
+                    if (_isLastRound && _isLastAttempt)
+                    {
+                        GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
+                        PointsValueLabelContentString = "";
+                        RoundValueLabelContentString = "";
+                        AttemptValueLabelContentString = "";
+                        StartRoundButtonContentString = "Start game";
+                        OnPropertyChanged("GameInfoLabelContentString");
+                        OnPropertyChanged("PointsValueLabelContentString");
+                        OnPropertyChanged("RoundValueLabelContentString");
+                        OnPropertyChanged("StartRoundButtonContentString");
+                        OnPropertyChanged("AttemptValueLabelContentString");
+                    }
+                    else if (points != null)
+                    {
+                        PointsValueLabelContentString = points.Value.ToString();
+                        OnPropertyChanged("PointsValueLabelContentString");
+                    }
+                }
             }
         }
 
@@ -301,7 +341,6 @@ namespace GuessWhatLookingAt
                 }
 
                 _isLastRound = args.IsLastRound;
-                //model.SavePhotoImage();
             }
         }
 
@@ -358,8 +397,8 @@ namespace GuessWhatLookingAt
                         OnPropertyChanged("StartRoundButtonContentString");
                         OnPropertyChanged("AttemptValueLabelContentString");
 
-                        if (!model.IsPupilConnected)
-                            model.ConnectWithPupil();
+                        //if (!model.IsPupilConnected)
+                        //    model.ConnectWithPupil();
                     }
                     else if (!_isLastAttempt)
                     {

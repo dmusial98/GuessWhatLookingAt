@@ -103,9 +103,11 @@ namespace GuessWhatLookingAt
 
         int _remainingNumberOfAttempts;
 
+        bool _wasLastAttempt = false;
+
         public int AttemptNumber { get; set; } = 1;
 
-        double _minAttemptsDistance;
+        double _minAttemptsDistance = Double.MaxValue;
 
         public int TotalPoints { get; private set; }
 
@@ -126,7 +128,6 @@ namespace GuessWhatLookingAt
             GameSettings = gameSettings;
 
             //logic variables setting up
-            ResetMinAttemptDistance();
             EyeTribeTimerRemainingTime = GameSettings.EyeTribeTime;
             PhotoRemainingTime = GameSettings.PhotoTime;
             _remainingNumberOfAttempts = GameSettings.AttemptsAmount;
@@ -155,11 +156,6 @@ namespace GuessWhatLookingAt
             }
         }
 
-        public void SavePhotoImage()
-        {
-            image.SaveImage("");
-        }
-
         private void OnTakePhotoTimerEvent(object state)
         {
             if (PhotoRemainingTime != 0)
@@ -172,6 +168,12 @@ namespace GuessWhatLookingAt
                 pupil.Disconnect();
                 HasPhoto = true;
                 IsPupilConnected = false;
+
+                if (GameSettings.DisplayPupilGazePoint)
+                {
+                    image.DrawCircleForPupil(_PupilGazePoint, cleanImage: true);
+                    OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
+                }
 
                 OnPhotoTimeEvent();
                 PhotoRemainingTime = GameSettings.PhotoTime;
@@ -187,6 +189,7 @@ namespace GuessWhatLookingAt
             PhotoTimeChangedEventArgs args = new PhotoTimeChangedEventArgs(
                 time: PhotoRemainingTime,
                 isLastRound: _gameRoundIndex == 0);
+
             PhotoTimeChangedEvent?.Invoke(this, args);
         }
 
@@ -201,6 +204,8 @@ namespace GuessWhatLookingAt
 
         private void DrawImageWithAllAttempts()
         {
+            _wasLastAttempt = true;
+
             image.DrawCircleForPupil(_PupilGazePoint, true);
 
             foreach (Point point in _AttemptPoints)
@@ -293,7 +298,8 @@ namespace GuessWhatLookingAt
 
             var eyeTribePoint = new Point(gazeX, gazeY);
 
-            if (_WindowViewParameters.WindowRect.Contains(eyeTribePoint))
+            if ((_WindowViewParameters.WindowState == WindowState.Maximized && _WindowViewParameters.WindowMaximizedRect.Contains(eyeTribePoint)) ||
+              (_WindowViewParameters.WindowState == WindowState.Normal && _WindowViewParameters.WindowRect.Contains(eyeTribePoint)))
                 _EyeTribeGazePoint = NormalizePointCoordinatesToImage(
                     point: eyeTribePoint,
                     saveToAttemptPoints: false,
@@ -304,13 +310,26 @@ namespace GuessWhatLookingAt
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             OnEyeTribeGazePositionReached(args);
 
-            if (HasPhoto && !IsPupilConnected && GameSettings.DisplayEyeTribeGazePoint)
+
+            if (HasPhoto && !IsPupilConnected)
             {
                 image.DrawCircleForPupil(
                     point: _PupilGazePoint,
                     cleanImage: true);
 
-                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+                if (GameSettings.DisplayEyeTribeGazePoint)
+                {
+                    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+                }
+
+                foreach (Point point in _AttemptPoints)
+                    image.DrawCircleForAttemptPoint(point);
+
+                if(_wasLastAttempt) //last attempt
+                {
+                    foreach (Point point in _AttemptPoints)
+                        image.DrawLineBetweenPoints(point, _PupilGazePoint.point);
+                }
 
                 var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
                 OnImageSourceReached(imageSourceArgs);
@@ -378,11 +397,14 @@ namespace GuessWhatLookingAt
             }
             else
                 ActualiseRoundNumber();
+
+            _wasLastAttempt = false;
+            _AttemptPoints.Clear();
         }
 
         public bool MouseAttemptStarted(Point mousePosition, out double? distance, out int? points)
         {
-            distance = CountPointsDifference(mousePosition);
+            distance = CountPointsDifferenceMouse(mousePosition);
             _remainingNumberOfAttempts--;
 
             var normalizedMousePointCoordinates = NormalizePointCoordinatesToImage(
@@ -397,13 +419,17 @@ namespace GuessWhatLookingAt
 
         public bool EyeTribeAttemptStarted(out double? distance, out int? points)
         {
-            distance = CountPointsDifference(_EyeTribeGazePoint == null ? new Point(0.0, 0.0) : _EyeTribeGazePoint.Value);
+            var eyeTribePoint = _EyeTribeGazePoint != null ? _EyeTribeGazePoint.Value : new Point(0, 0);
+
+            distance = CountPointsDifferenceEyeTribe(eyeTribePoint);
             _remainingNumberOfAttempts--;
+
+            _AttemptPoints.Add(eyeTribePoint);
 
             return RealiseAttemptLogic(ref distance, out points);
         }
 
-        private double CountPointsDifference(Point point, bool coordinatesRelativeToWindow = true)
+        private double CountPointsDifferenceMouse(Point point, bool coordinatesRelativeToWindow = true)
         {
             var normalizedMousePositionOnImage = NormalizePointCoordinatesToImage(
                 point: point,
@@ -413,14 +439,27 @@ namespace GuessWhatLookingAt
             return Point.Subtract(_PupilGazePoint.point, normalizedMousePositionOnImage).Length;
         }
 
+        private double CountPointsDifferenceEyeTribe(Point point)
+        {
+            return Point.Subtract(_PupilGazePoint.point, point).Length;
+        }
+
         private Point NormalizePointCoordinatesToImage(Point point, bool saveToAttemptPoints, bool relativeToWindow = true)
         {
+            Rect rect;
+            if (_WindowViewParameters.WindowState == WindowState.Maximized)
+                rect = _WindowViewParameters.WindowMaximizedRect;
+            else
+                rect = _WindowViewParameters.WindowRect;
+
             if (!relativeToWindow)
-                point.Offset(-_WindowViewParameters.WindowRect.X, -_WindowViewParameters.WindowRect.Y);
+            {
+                point.Offset(-rect.X, -rect.Y);
+            }
 
             var normalizedPoint = new Point(
-                point.X / (_WindowViewParameters.WindowRect.Width * 0.9),
-                point.Y / (_WindowViewParameters.WindowRect.Height * 0.9));
+                point.X / (rect.Width * 0.9),
+                point.Y / (rect.Height * 0.9));
 
             if (saveToAttemptPoints)
                 _AttemptPoints.Add(normalizedPoint);
@@ -454,7 +493,10 @@ namespace GuessWhatLookingAt
                 points = TotalPoints;
                 ResetMinAttemptDistance();
                 AttemptNumber = 1;
-                _AttemptPoints.Clear();
+
+                if (!IsEyeTribeConnected)
+                    _AttemptPoints.Clear();
+
                 return true;
             }
             else
@@ -465,7 +507,13 @@ namespace GuessWhatLookingAt
             }
         }
 
-        private void ResetMinAttemptDistance() => _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowRect.TopLeft, _WindowViewParameters.WindowRect.BottomRight).Length;
+        private void ResetMinAttemptDistance()
+        {
+            if (_WindowViewParameters.WindowState == WindowState.Minimized)
+                _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowMaximizedRect.TopLeft, _WindowViewParameters.WindowMaximizedRect.BottomRight).Length;
+            else
+                _minAttemptsDistance = Point.Subtract(_WindowViewParameters.WindowRect.TopLeft, _WindowViewParameters.WindowRect.BottomRight).Length;
+        }
 
         private void ActualiseAttemptNumber() => AttemptNumber = GameSettings.AttemptsAmount - _remainingNumberOfAttempts;
 

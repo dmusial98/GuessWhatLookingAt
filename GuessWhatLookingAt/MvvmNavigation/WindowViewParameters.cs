@@ -10,5 +10,9 @@ namespace GuessWhatLookingAt
     public class WindowViewParameters
     {
         public Rect WindowRect { get; set; }
+
+        public Rect WindowMaximizedRect { get; set; }
+
+        public WindowState WindowState { get; set; }
     }
 }

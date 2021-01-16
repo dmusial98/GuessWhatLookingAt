@@ -42,7 +42,7 @@ namespace GuessWhatLookingAt
                 .FirstOrDefault(vm => vm == viewModel);
         }
 
-        private void OnGoToMainMenu(object obj)
+        private void OnGoToSettings(object obj)
         {
             ChangeViewModel(PageViewModels[0]);
         }
@@ -60,7 +60,7 @@ namespace GuessWhatLookingAt
 
             CurrentPageViewModel = PageViewModels[0];
 
-            Mediator.Subscribe("GoToMainMenu", OnGoToMainMenu);
+            Mediator.Subscribe("GoToSettings", OnGoToSettings);
             Mediator.Subscribe("GoToFreezeGame", OnGoToFreezeGame);
         }
     }

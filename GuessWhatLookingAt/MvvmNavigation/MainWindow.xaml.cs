@@ -35,6 +35,7 @@ namespace GuessWhatLookingAt
                     y: Top,
                     width: Width,
                     height: Height));
+            args.WndState = WindowState;
             WindowViewParametersChangedEvent?.Invoke(this, args);
         }
 
@@ -46,6 +47,7 @@ namespace GuessWhatLookingAt
                     y: Top,
                     width: Width,
                     height: Height));
+            args.WndState = WindowState;
             WindowViewParametersChangedEvent?.Invoke(this, args);
         }
 
@@ -57,6 +59,8 @@ namespace GuessWhatLookingAt
                     y: Top,
                     width: Width,
                     height: Height));
+            args.WndState = WindowState;
+            args.WasLoaded = true;
             WindowViewParametersChangedEvent?.Invoke(this, args);
         }
 
@@ -72,6 +76,9 @@ namespace GuessWhatLookingAt
         {
             public WindowViewParametersEventArgs(Rect r) => WindowRect = r;
             public Rect WindowRect { get; set; }
+            public WindowState WndState { get; set; }
+
+            public bool WasLoaded { get; set; } = false;
         }
 
         public class GameClosedEventArgs : EventArgs

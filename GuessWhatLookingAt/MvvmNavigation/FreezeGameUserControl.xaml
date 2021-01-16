@@ -60,8 +60,8 @@
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
 
-            <Button Grid.Row="0" Margin="15" Command="{Binding GoToMainMenu}" >
-                <TextBlock TextWrapping="Wrap" Text="Go to main menu" />
+            <Button Grid.Row="0" Margin="15" Command="{Binding GoToSettings}" >
+                <TextBlock TextWrapping="Wrap" Text="Settings" />
             </Button>
             <Label Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="Eye Tribe:" />
@@ -93,10 +93,12 @@
             <Label Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=PointsValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Button Grid.Row="11"  Margin="10"  >
+            <Button Grid.Row="11"  Margin="10"  Command="{Binding DisplayPupilGazePoint}">
                 <TextBlock TextWrapping="Wrap" Text="Display Pupil gaze point" />
             </Button>
-            <Button Grid.Row="12" Margin="10" Content="Settings" />
+            <Button Grid.Row="12" Margin="10"  Command="{Binding DisplayEyeTribeGazePoint}">
+                <TextBlock TextWrapping="Wrap" Text="Display Eye Tribe gaze point" />
+            </Button>
         </Grid>
     </Grid>
 
