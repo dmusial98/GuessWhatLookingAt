@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MvvmNavigation" GeneratedClassName="Settings1">
+  <Profiles />
+  <Settings>
+    <Setting Name="EyeTribe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">eyeTribe</Value>
+    </Setting>
+    <Setting Name="Number" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

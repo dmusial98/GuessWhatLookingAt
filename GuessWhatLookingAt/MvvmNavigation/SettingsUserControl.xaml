@@ -86,9 +86,9 @@
                 <Label Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Path=EyeTribeTime, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
             <Label Grid.Row="6" Grid.Column="0" Content="Show Pupil gaze points:" />
-            <CheckBox Grid.Row="6" Grid.Column="1" />
+            <CheckBox Grid.Row="6" Grid.Column="1" IsChecked="{Binding Path=DisplayPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Width="62" />
             <Label Grid.Row="7" Grid.Column="0" Content="Show Eye Tribe gaze point" />
-            <CheckBox Grid.Row="7" Grid.Column="1" />
+            <CheckBox Grid.Row="7" Grid.Column="1" IsChecked="{Binding Path=DisplayEyeTribeGazePoint, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
 
         <Grid Grid.Row="3">
@@ -98,7 +98,7 @@
                 <ColumnDefinition Width="46*"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1"  Margin="5">
+            <Button Grid.Column="1"  Margin="5" Command="{Binding SaveSettings}">
                 <TextBlock TextWrapping="Wrap" Text="Save" />
             </Button>
         </Grid>

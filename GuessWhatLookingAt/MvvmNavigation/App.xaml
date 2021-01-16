@@ -7,7 +7,7 @@
         <DataTemplate DataType="{x:Type local:FreezeGameViewModel}">
             <local:FreezeGameUserControl />
         </DataTemplate>
-        <DataTemplate DataType="{x:Type local:MainMenuViewModel}">
+        <DataTemplate DataType="{x:Type local:SettingsViewModel}">
             <local:MainMenuUserControl />
         </DataTemplate>
     </Application.Resources>

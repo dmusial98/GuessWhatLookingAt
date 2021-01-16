@@ -21,7 +21,7 @@ namespace GuessWhatLookingAt
     public partial class MainWindow : Window
     {
         public event EventHandler<WindowViewParametersEventArgs> WindowViewParametersChangedEvent;
-
+        public event EventHandler<GameClosedEventArgs> GameClosedEvent;
         public MainWindow()
         {
             InitializeComponent();
@@ -60,12 +60,24 @@ namespace GuessWhatLookingAt
             WindowViewParametersChangedEvent?.Invoke(this, args);
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var args = new GameClosedEventArgs();
+            GameClosedEvent?.Invoke(this, args);
+
+            Environment.Exit(Environment.ExitCode);
+        }
+
         public class WindowViewParametersEventArgs : EventArgs
         {
             public WindowViewParametersEventArgs(Rect r) => WindowRect = r;
             public Rect WindowRect { get; set; }
         }
 
+        public class GameClosedEventArgs : EventArgs
+        {
+
+        }
         
     }
 }

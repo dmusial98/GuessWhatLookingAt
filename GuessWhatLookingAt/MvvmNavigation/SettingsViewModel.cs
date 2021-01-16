@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
 namespace GuessWhatLookingAt
 {
-    public class MainMenuViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
+    public class SettingsViewModel : BaseViewModel, IPageViewModel, INotifyPropertyChanged
     {
         #region Settings variables
 
@@ -97,13 +98,49 @@ namespace GuessWhatLookingAt
             }
         }
 
+        bool _displayPupilGazePoint = false;
+        public bool DisplayPupilGazePoint
+        {
+            get
+            {
+                return _displayPupilGazePoint;
+            }
+            set
+            {
+                _displayPupilGazePoint = value;
+                OnPropertyChanged("DisplayPupilGazePoint");
+            }
+        }
+
+        bool _displayEyeTribeGazePoint = false;
+        public bool DisplayEyeTribeGazePoint
+        {
+            get
+            {
+                return _displayEyeTribeGazePoint;
+            }
+            set
+            {
+                _displayEyeTribeGazePoint = value;
+                OnPropertyChanged("DisplayEyeTribeGazePoint");
+            }
+        }
+
         #endregion
 
         #region Constructor
 
-        public MainMenuViewModel(FreezeGameSettings gameSettings)
+        public SettingsViewModel(FreezeGameSettings gameSettings)
         {
             GameSettings = gameSettings;
+            _pupilAdressString = GameSettings.PupilAdressString;
+            _eyeTribePortString = GameSettings.EyeTribePort.ToString();
+            _attemptsAmount = GameSettings.AttemptsAmount;
+            _roundsAmount = GameSettings.RoundsAmount;
+            _photoTime = GameSettings.PhotoTime;
+            _eyeTribeTime = GameSettings.EyeTribeTime;
+            _displayPupilGazePoint = GameSettings.DisplayPupilGazePoint;
+            _displayEyeTribeGazePoint = GameSettings.DisplayEyeTribeGazePoint;
         }
 
         #endregion
@@ -125,5 +162,25 @@ namespace GuessWhatLookingAt
 
         #endregion
 
+
+        private ICommand _saveSettings;
+
+        public ICommand SaveSettings
+        {
+            get
+            {
+                return _saveSettings ?? (_saveSettings = new RelayCommand(x =>
+                {
+                    GameSettings.PupilAdressString = _pupilAdressString;
+                    GameSettings.EyeTribePort = Int32.Parse(_eyeTribePortString);
+                    GameSettings.AttemptsAmount = _attemptsAmount;
+                    GameSettings.RoundsAmount = _roundsAmount;
+                    GameSettings.PhotoTime = _photoTime;
+                    GameSettings.EyeTribeTime = _eyeTribeTime;
+                    GameSettings.DisplayPupilGazePoint = _displayPupilGazePoint;
+                    GameSettings.DisplayEyeTribeGazePoint = _displayEyeTribeGazePoint;
+                }));
+            }
+        }
     }
 }

@@ -49,6 +49,7 @@ namespace GuessWhatLookingAt
         {
             MainWindow = mainWindow;
             mainWindow.WindowViewParametersChangedEvent += OnWindowViewParametersChanged;
+            mainWindow.GameClosedEvent += OnGameClosed;
 
             _WindowViewParameters = new WindowViewParameters();
             GameSettings = gameSettings;
@@ -197,12 +198,13 @@ namespace GuessWhatLookingAt
 
         private void OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (model.HasPhoto)
+            if (model.HasPhoto && e.LeftButton == MouseButtonState.Pressed && 
+                !_lockMouseLeftButton && _lastMouseClickTimestamp != e.Timestamp)
             {
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                    if (!_lockMouseLeftButton && _lastMouseClickTimestamp != e.Timestamp)
-                    {
+                //if ()
+                //{
+                //    if ()
+                //    {
                         Point mousePosition = Mouse.GetPosition(App.Current.MainWindow);
 
                         if (_WindowViewParameters.WindowRect.Contains(mousePosition))
@@ -240,8 +242,8 @@ namespace GuessWhatLookingAt
                                 OnPropertyChanged("StartRoundButtonContentString");
                                 OnPropertyChanged("AttemptValueLabelContentString");
 
-                                if (!model.IsPupilConnected)
-                                    model.ConnectWithPupil();
+                                //if (!model.IsPupilConnected)
+                                //    model.ConnectWithPupil();
                             }
                             else if (points != null)
                             {
@@ -249,8 +251,8 @@ namespace GuessWhatLookingAt
                                 OnPropertyChanged("PointsValueLabelContentString");
                             }
                         }
-                    }
-                }
+                //    }
+                //}
             }
         }
 
@@ -378,6 +380,20 @@ namespace GuessWhatLookingAt
                     }
                 }
             }
+        }
+
+        private void OnGameClosed(object sender, MainWindow.GameClosedEventArgs args)
+        {
+            Properties.Settings.Default.PupilAdressString = GameSettings.PupilAdressString;
+            Properties.Settings.Default.EyeTribePort = GameSettings.EyeTribePort;
+            Properties.Settings.Default.AttemptsAmount = GameSettings.AttemptsAmount;
+            Properties.Settings.Default.RoundsAmount = GameSettings.RoundsAmount;
+            Properties.Settings.Default.PhotoTime = GameSettings.PhotoTime;
+            Properties.Settings.Default.EyeTribeTime = GameSettings.EyeTribeTime;
+            Properties.Settings.Default.DisplayPupilGazePoint = GameSettings.DisplayPupilGazePoint;
+            Properties.Settings.Default.DisplayEyeTribeGazePoint = GameSettings.DisplayEyeTribeGazePoint;
+
+            Properties.Settings.Default.Save();
         }
 
         #endregion

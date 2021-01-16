@@ -86,19 +86,10 @@ namespace GuessWhatLookingAt
                 2);
         }
 
-        //public void PutConfidenceText(double confidence)
-        //{
-        //    string confidenceString = "Confidence: " + Math.Round(confidence, 3).ToString();
-        //    MCvScalar color = new MCvScalar(20, 255 * confidence, 1 - 255 * confidence);
-
-        //    CvInvoke.PutText(OriginalMat, confidenceString, new System.Drawing.Point(200, 700), FontFace.HersheyDuplex, 1.0, color);
-        //}
-
         public BitmapSource GetBitmapSourceFromMat()
         {
             var byteArray = OutMat.GetRawData(new int[] { });
             return BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
-            //return new TransformedBitmap(bmpSource, new ScaleTransform(1.0, 1.0));
         }
 
         public void SaveImage(string path)

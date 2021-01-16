@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:GuessWhatLookingAt"
         mc:Ignorable="d"
         Title="Guess what looking at" WindowState="Maximized" SizeChanged="Window_SizeChanged" LocationChanged="Window_LocationChanged"
-        Loaded="Window_Loaded" StateChanged="Window_LocationChanged">
-    
+        Loaded="Window_Loaded" StateChanged="Window_LocationChanged" Closing="Window_Closing">
+        
     <Grid>
         <ContentControl Content="{Binding CurrentPageViewModel}" />
     </Grid>

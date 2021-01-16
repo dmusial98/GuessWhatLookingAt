@@ -55,7 +55,7 @@ namespace GuessWhatLookingAt
         public MainWindowViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
         {
             // Add available pages and set page
-            PageViewModels.Add(new MainMenuViewModel(gameSettings));
+            PageViewModels.Add(new SettingsViewModel(gameSettings));
             PageViewModels.Add(new FreezeGameViewModel(mainWindow, gameSettings));      
 
             CurrentPageViewModel = PageViewModels[0];
