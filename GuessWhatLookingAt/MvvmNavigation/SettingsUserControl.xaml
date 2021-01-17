@@ -19,9 +19,7 @@
                 <ColumnDefinition Width="8*" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Margin="10" Command="{Binding GoToFreezeGame}"  >
-                <TextBlock TextWrapping="Wrap" Text="Back to game" />
-            </Button>
+            <Button Grid.Column="1" Margin="10" Content="Go to game" Command="{Binding GoToFreezeGame}"  />
         </Grid>
 
         <Label Grid.Row="1" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -45,20 +43,20 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Margin="15" Content="Pupil Capture IP adress:" />
-            <TextBox Grid.Row="0" Grid.Column="1" Margin="20" Text="{Binding Path=PupilAdressString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Grid.Row="1" Grid.Column="0" Content="Eye tribe port number:" />
-            <TextBox Grid.Row="1" Grid.Column="1" Margin="20" Text="{Binding Path=EyeTribePortString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Grid.Row="2" Grid.Column="0" Content="Number of rounds in one game:" />
+            <Label Grid.Row="0" Grid.Column="0" Margin="15" Content="Pupil Capture IP adress:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=PupilAdressString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Eye tribe port number:" />
+            <TextBox Grid.Row="1" Grid.Column="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=EyeTribePortString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Number of rounds in one game:" />
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90*" />
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
-                <Slider Grid.Column="0" Margin="20" Maximum="25" Minimum="1"  Value="{Binding Path=RoundsAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Slider Grid.Column="0" Margin="20" Maximum="25" Minimum="1" VerticalAlignment="Center" HorizontalAlignment="Center" Value="{Binding Path=RoundsAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Path=RoundsAmount, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <Label Grid.Row="3" Grid.Column="0" Content="Number of attempts in one round:" />
+            <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Number of attempts in one round:" />
             <Grid Grid.Row="3" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90*" />
@@ -67,7 +65,7 @@
                 <Slider Grid.Column="0" Margin="20" Maximum="10" Minimum="1"  Value="{Binding Path=AttemptsAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Path=AttemptsAmount, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <Label Grid.Row="4" Grid.Column="0" Content="Time for taking photo in seconds:" />
+            <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Time for taking photo in seconds:" />
             <Grid Grid.Row="4" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90*" />
@@ -76,7 +74,7 @@
                 <Slider Grid.Column="0" Margin="20" Maximum="30" Minimum="1"  Value="{Binding Path=PhotoTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Path=PhotoTime, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <Label Grid.Row="5" Grid.Column="0" Content="Time for taking position of Eye Tribe gaze point is seconds:" />
+            <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Time for taking position of Eye Tribe gaze point is seconds:" />
             <Grid Grid.Row="5" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90*" />
@@ -85,12 +83,11 @@
                 <Slider Grid.Column="0" Margin="20" Maximum="30" Minimum="1"  Value="{Binding Path=EyeTribeTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Content="{Binding Path=EyeTribeTime, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
-            <Label Grid.Row="6" Grid.Column="0" Content="Show Pupil gaze points:" />
-            <CheckBox Grid.Row="6" Grid.Column="1" IsChecked="{Binding Path=DisplayPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Width="62" />
-            <Label Grid.Row="7" Grid.Column="0" Content="Show Eye Tribe gaze point" />
-            <CheckBox Grid.Row="7" Grid.Column="1" IsChecked="{Binding Path=DisplayEyeTribeGazePoint, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Grid.Row="6" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Show Pupil gaze points:" />
+            <CheckBox Grid.Row="6" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding Path=DisplayPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Grid.Row="7" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Show Eye Tribe gaze point" />
+            <CheckBox Grid.Row="7" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsChecked="{Binding Path=DisplayEyeTribeGazePoint, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
-
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="46*"/>
@@ -102,7 +99,5 @@
                 <TextBlock TextWrapping="Wrap" Text="Save" />
             </Button>
         </Grid>
-
-
     </Grid>
 </UserControl>
