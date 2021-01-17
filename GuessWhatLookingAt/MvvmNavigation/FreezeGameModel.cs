@@ -38,11 +38,15 @@ namespace GuessWhatLookingAt
         GazePoint _PupilGazePoint;
         public bool IsPupilConnected { get; private set; } = false;
 
+        System.Threading.Thread pupilConnectThread;
         #endregion//Pupil variables
 
         #region Eye Tribe variables
 
         public EyeTribe eyeTribe = new EyeTribe();
+
+        System.Threading.Thread eyeTribeConnectThread;
+
         Point? _EyeTribeGazePoint;
         public bool IsEyeTribeConnected { get; private set; } = false;
 
@@ -226,9 +230,8 @@ namespace GuessWhatLookingAt
             if (!pupil.isConnected)
             {
                 HasPhoto = false;
-                pupil.Connect(GameSettings.PupilAdressString);
-
-                IsPupilConnected = true;
+                pupilConnectThread = new Thread(() => pupil.Connect(GameSettings.PupilAdressString));
+                pupilConnectThread.Start();
             }
         }
         public void DisconnectPupil()
@@ -238,10 +241,14 @@ namespace GuessWhatLookingAt
                 pupil.Disconnect();
                 IsPupilConnected = false;
             }
+            else
+                pupilConnectThread?.Abort();
         }
 
         void OnPupilDataReached(object sender, Pupil.PupilReceivedDataEventArgs pupilArgs)
         {
+            IsPupilConnected = true;
+
             if (pupilArgs.RawImageData != null)
             {
                 GCHandle pinnedarray = GCHandle.Alloc(pupilArgs.RawImageData, GCHandleType.Pinned);
@@ -275,8 +282,8 @@ namespace GuessWhatLookingAt
         {
             if (!eyeTribe.isRunning)
             {
-                eyeTribe.Connect("localhost", GameSettings.EyeTribePort);
-                IsEyeTribeConnected = true;
+                eyeTribeConnectThread = new Thread(() => eyeTribe.Connect(GameSettings.EyeTribePort));
+                eyeTribeConnectThread.Start();
             }
         }
 
@@ -287,10 +294,14 @@ namespace GuessWhatLookingAt
                 eyeTribe.Disconnect();
                 IsEyeTribeConnected = false;
             }
+            else
+                eyeTribeConnectThread?.Abort();
         }
 
         void OnEyeTribeDataReached(object sender, EyeTribe.EyeTribeReceivedDataEventArgs e)
         {
+            IsEyeTribeConnected = true;
+
             JObject values = JObject.Parse(e.data.values);
             JObject gaze = JObject.Parse(values.SelectToken("frame").SelectToken("avg").ToString());
             double gazeX = (double)gaze.Property("x").Value;

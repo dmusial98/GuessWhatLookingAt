@@ -16,13 +16,16 @@ namespace GuessWhatLookingAt
         public bool isRunning { get; private set; } = false;
 
         public event EventHandler<EyeTribeReceivedDataEventArgs> OnData;
-        
 
-        public bool Connect(string host, int port)
+        public delegate void ParameterizedThreadStart(object obj1, object obj2);
+
+        public bool Connect(object port)
         {
+            var _port = (int)port;
+
             try
             {
-                socket = new TcpClient(host, port);
+                socket = new TcpClient("localhost", _port);
             }
             catch (Exception ex)
             {

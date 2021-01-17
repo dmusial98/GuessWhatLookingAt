@@ -64,3 +64,8 @@ C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation
 C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\obj\Debug\GuessWhatLookingAt.pdb
 C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\obj\Debug\SettingsUserControl.g.cs
 C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\obj\Debug\SettingsUserControl.baml
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\bin\Debug\MaterialDesignColors.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\bin\Debug\MaterialDesignThemes.Wpf.dll
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\bin\Debug\MaterialDesignColors.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\bin\Debug\MaterialDesignThemes.Wpf.pdb
+C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\bin\Debug\MaterialDesignThemes.Wpf.xml

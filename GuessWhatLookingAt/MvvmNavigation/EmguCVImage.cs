@@ -18,11 +18,11 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                OriginalMat = new Mat(frameHeight, 
+                OriginalMat = new Mat(frameHeight,
                     frameWidth,
-                    DepthType.Cv8U, 
-                    3, 
-                    dataPointer, 
+                    DepthType.Cv8U,
+                    3,
+                    dataPointer,
                     frameWidth * 3);
                 OutMat = OriginalMat.Clone();
             }
@@ -36,39 +36,45 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                if (cleanImage)
-                    OutMat = OriginalMat.Clone();
+                if (OutMat != null)
+                {
+                    if (cleanImage)
+                        OutMat = OriginalMat.Clone();
 
-                CvInvoke.Circle(
-                    OutMat,
-                    new System.Drawing.Point(Convert.ToInt32(point.point.X * OriginalMat.Width), Convert.ToInt32(point.point.Y * OriginalMat.Height)),
-                    1,
-                    new Emgu.CV.Structure.MCvScalar(0, 128, 0),
-                    40);
+                    CvInvoke.Circle(
+                        OutMat,
+                        new System.Drawing.Point(Convert.ToInt32(point.point.X * OriginalMat.Width), Convert.ToInt32(point.point.Y * OriginalMat.Height)),
+                        1,
+                        new Emgu.CV.Structure.MCvScalar(0, 128, 0),
+                        40);
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-            
+
         }
 
         public void DrawCircleForEyeTribe(Point point, bool cleanImage = false)
         {
             try
             {
-                if (cleanImage)
-                    OutMat = OriginalMat.Clone();
+                if (OutMat != null)
+                {
+                    if (cleanImage)
+                        OutMat = OriginalMat.Clone();
 
-                CvInvoke.Circle(OutMat,
-                    new System.Drawing.Point(
-                        Convert.ToInt32(point.X * OriginalMat.Width),
-                        Convert.ToInt32(point.Y * OriginalMat.Height)),
-                    1,
-                    new MCvScalar(0, 0, 128),
-                    40);
+                    CvInvoke.Circle(OutMat,
+                        new System.Drawing.Point(
+                            Convert.ToInt32(point.X * OriginalMat.Width),
+                            Convert.ToInt32(point.Y * OriginalMat.Height)),
+                        1,
+                        new MCvScalar(0, 0, 128),
+                        40);
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -86,7 +92,7 @@ namespace GuessWhatLookingAt
                     new Emgu.CV.Structure.MCvScalar(128, 0, 0),
                     40);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -96,9 +102,10 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                OutMat = OriginalMat.Clone();
+                if (OriginalMat != null)
+                    OutMat = OriginalMat.Clone();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -119,7 +126,7 @@ namespace GuessWhatLookingAt
                     new MCvScalar(128, 128, 0),
                     2);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -127,8 +134,21 @@ namespace GuessWhatLookingAt
 
         public BitmapSource GetBitmapSourceFromMat()
         {
-            var byteArray = OutMat.GetRawData(new int[] { });
-            return BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
+            try
+            {
+                //byte[] byteArray  = new byte[1];
+
+                if (OutMat != null)
+                {
+                    var byteArray = OutMat.GetRawData(new int[] { });
+                    return BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
+                }
+            }
+            catch (System.NullReferenceException ex)
+            {
+
+            }
+            return null;
         }
     }
 }

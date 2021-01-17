@@ -31,11 +31,15 @@ namespace GuessWhatLookingAt
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
-        public void Connect(string addres)
+        //public delegate void ParameterizedThreadStart(object obj);
+
+        public void Connect(object addres)
         {
+            var _addres = (string)addres;
+
             requestClient = new RequestSocket();
 
-            requestClient.Connect(addres);
+            requestClient.Connect(_addres);
 
             //getting subscriber and publisher port
             requestClient.SendFrame("SUB_PORT");

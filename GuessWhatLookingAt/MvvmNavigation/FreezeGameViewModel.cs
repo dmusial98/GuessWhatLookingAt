@@ -459,10 +459,13 @@ namespace GuessWhatLookingAt
         #region Actualise XAML
         public void LoadImageFromPupil(ImageSource image)
         {
-            image.Freeze();
-            imageFromPupil = image;
+            if (image != null)
+            {
+                image.Freeze();
+                imageFromPupil = image;
 
-            OnPropertyChanged("imageFromPupil");
+                OnPropertyChanged("imageFromPupil");
+            }
         }
         #endregion
     }
