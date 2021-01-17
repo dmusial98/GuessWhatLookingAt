@@ -31,9 +31,6 @@ namespace GuessWhatLookingAt
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
-        int frameNumber = 0;
-        int thresholdFrameNumber = 900;
-
         public void Connect(string addres)
         {
             requestClient = new RequestSocket();
@@ -137,9 +134,9 @@ namespace GuessWhatLookingAt
         public void Disconnect()
         {
             isConnected = false;
-
             frameThread?.Abort();
 
+            //clean after disconnecting
             requestClient.Dispose();
             frameSubscriber.Dispose();
             gazeSubscriber.Dispose();

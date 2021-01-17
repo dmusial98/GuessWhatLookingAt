@@ -43,6 +43,7 @@ namespace GuessWhatLookingAt
         bool _lockEyeTribeTimer = false;
         bool _isLastAttempt = false;
         bool _isLastRound = false;
+        int _lastPointsAmount = 0;
 
         #region Constructors
         public FreezeGameViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
@@ -171,7 +172,6 @@ namespace GuessWhatLookingAt
                             OnPropertyChanged("AttemptValueLabelContentString");
                             OnPropertyChanged("RoundValueLabelContentString");
                         }
-
                     }));
             }
         }
@@ -243,7 +243,7 @@ namespace GuessWhatLookingAt
             {
                 Point relativeMousePosition = Mouse.GetPosition(MainWindow);
                 Point absoluteMousePosition = GetAbsoluteMousePos();
-                
+
 
                 if ((_WindowViewParameters.WindowState == WindowState.Maximized && _WindowViewParameters.WindowMaximizedRect.Contains(relativeMousePosition)) ||
                     (_WindowViewParameters.WindowState == WindowState.Normal && _WindowViewParameters.WindowRect.Contains(absoluteMousePosition)))
@@ -272,11 +272,15 @@ namespace GuessWhatLookingAt
                     _lastMouseClickTimestamp = e.Timestamp;
                     MouseDistanceToPupilGazePoint = Math.Round(distance.Value, 4).ToString();
                     OnPropertyChanged("MouseDistanceToPupilGazePoint");
-                    
+
 
                     if (_isLastRound && _isLastAttempt)
                     {
-                        GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
+                        //TODO: pozniej zrobic funkcje ktora to zrobi, bo jest powtorka w eye tribe
+                        GameInfoLabelContentString = String.Concat("Your score for this game is ",
+                            model.TotalPoints.ToString(),
+                            "/",
+                            (model.NumberOfGameRound * 10).ToString());
                         PointsValueLabelContentString = "";
                         RoundValueLabelContentString = "";
                         AttemptValueLabelContentString = "";
@@ -286,10 +290,18 @@ namespace GuessWhatLookingAt
                         OnPropertyChanged("RoundValueLabelContentString");
                         OnPropertyChanged("StartRoundButtonContentString");
                         OnPropertyChanged("AttemptValueLabelContentString");
+                        _lastPointsAmount = 0;
                     }
                     else if (points != null)
                     {
-                        PointsValueLabelContentString = points.Value.ToString();
+                        //TODO: pozniej zrobic funkcje ktora to zrobi, bo jest powtorka w eye tribe
+                        PointsValueLabelContentString = String.Concat(
+                            points.Value.ToString(),
+                            "/",
+                            (model.NumberOfGameRound * 10).ToString(),
+                            " (+",
+                            (points.Value - _lastPointsAmount).ToString(), ")");
+                        _lastPointsAmount = points.Value;
                         OnPropertyChanged("PointsValueLabelContentString");
                     }
                 }
@@ -386,7 +398,10 @@ namespace GuessWhatLookingAt
 
                     if (_isLastRound && _isLastAttempt)
                     {
-                        GameInfoLabelContentString = "Congratulations, your score for this game is " + model.TotalPoints.ToString();
+                        GameInfoLabelContentString = String.Concat("Your score for this game is ",
+                            model.TotalPoints.ToString(),
+                            "/",
+                            (model.NumberOfGameRound * 10).ToString());
                         PointsValueLabelContentString = "";
                         RoundValueLabelContentString = "";
                         StartRoundButtonContentString = "Start game";
@@ -396,9 +411,7 @@ namespace GuessWhatLookingAt
                         OnPropertyChanged("RoundValueLabelContentString");
                         OnPropertyChanged("StartRoundButtonContentString");
                         OnPropertyChanged("AttemptValueLabelContentString");
-
-                        //if (!model.IsPupilConnected)
-                        //    model.ConnectWithPupil();
+                        _lastPointsAmount = 0;
                     }
                     else if (!_isLastAttempt)
                     {
@@ -411,7 +424,13 @@ namespace GuessWhatLookingAt
                         OnPropertyChanged("StartRoundButtonContentString");
                         if (points != null)
                         {
-                            PointsValueLabelContentString = points.Value.ToString();
+                            PointsValueLabelContentString = String.Concat(
+                                points.Value.ToString(),
+                                "/",
+                                (model.NumberOfGameRound * 10).ToString(),
+                                " (+",
+                                (points.Value - _lastPointsAmount).ToString(), ")");
+                            _lastPointsAmount = points.Value;
                             OnPropertyChanged("PointsValueLabelContentString");
                         }
 

@@ -1,20 +1,20 @@
-﻿MvvmNavigation
+﻿GuessWhatLookingAt
 
 
 winexe
 C#
 .cs
 C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\obj\Debug\
-MvvmNavigation
+GuessWhatLookingAt
 none
 false
 DEBUG;TRACE
 C:\Users\dmusi\source\repos\GuessWhatLookingAt\GuessWhatLookingAt\MvvmNavigation\App.xaml
-3-1939233313
+3-1895360964
 
-241289291256
+24350600943
 133-1542609915
-MainWindow.xaml;FreezeGameUserControl.xaml;MainMenuUserControl.xaml;
+MainWindow.xaml;FreezeGameUserControl.xaml;SettingsUserControl.xaml;
 
 False
 
