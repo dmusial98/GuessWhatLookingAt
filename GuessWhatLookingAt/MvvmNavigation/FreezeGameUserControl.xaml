@@ -27,12 +27,9 @@
                     <ColumnDefinition Width="66*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Margin="5" Command="{Binding ConnectDisconnectWithPupil}" >
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=ConnectPupilButtonContentString, UpdateSourceTrigger=PropertyChanged}" />
-                </Button>
-                <Button Grid.Column="1" Margin="5" Command="{Binding ConnectDisconnectWithEyeTribe}" >
-                    <TextBlock TextWrapping="Wrap" Text="{Binding Path=ConnectEyeTribeButtonContentString, UpdateSourceTrigger=PropertyChanged}" />
-                </Button>
+                <Button Grid.Column="0" Margin="5" Content="{Binding Path=ConnectPupilButtonContentString, UpdateSourceTrigger=PropertyChanged}" Command="{Binding ConnectDisconnectWithPupil}" />
+                <Button Grid.Column="1" Margin="5" Content="{Binding Path=ConnectEyeTribeButtonContentString, UpdateSourceTrigger=PropertyChanged}" Command="{Binding ConnectDisconnectWithEyeTribe}" />
+
                 <Button Grid.Column="2" Margin="5" Command="{Binding StartRound}">
                     <TextBlock TextWrapping="Wrap" Text="{Binding Path=StartRoundButtonContentString, UpdateSourceTrigger=PropertyChanged}" />
                 </Button>
