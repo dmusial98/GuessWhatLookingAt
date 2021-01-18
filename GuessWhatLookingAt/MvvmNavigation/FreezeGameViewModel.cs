@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-
+using System.Xml.Serialization;
 
 namespace GuessWhatLookingAt
 {
@@ -37,6 +38,7 @@ namespace GuessWhatLookingAt
 
         MainWindow MainWindow { get; set; }
         FreezeGameSettings GameSettings;
+        ListOfRankingRecords RankingRecords;
 
         int _lastMouseClickTimestamp = 0;
         bool _lockMouseLeftButton = false;
@@ -46,7 +48,7 @@ namespace GuessWhatLookingAt
         int _lastPointsAmount = 0;
 
         #region Constructors
-        public FreezeGameViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
+        public FreezeGameViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings, ListOfRankingRecords rankingRecords)
         {
             MainWindow = mainWindow;
             mainWindow.WindowViewParametersChangedEvent += OnWindowViewParametersChanged;
@@ -54,7 +56,9 @@ namespace GuessWhatLookingAt
 
             _WindowViewParameters = new WindowViewParameters();
             GameSettings = gameSettings;
-            model = new FreezeGameModel(_WindowViewParameters, GameSettings);
+            RankingRecords = rankingRecords;
+            model = new FreezeGameModel(_WindowViewParameters, GameSettings, rankingRecords);
+
 
             model.BitmapSourceReached += OnBitmapSourceReached;
             model.EyeTribeGazePointReached += OnEyeTribeGazePointReached;
@@ -74,6 +78,21 @@ namespace GuessWhatLookingAt
                 return _goToSettings ?? (_goToSettings = new RelayCommand(x =>
                 {
                     Mediator.Notify("GoToSettings", "");
+                }));
+            }
+        }
+        #endregion
+
+        #region Go to ranking
+        private ICommand _goToRanking;
+
+        public ICommand GoToRanking
+        {
+            get
+            {
+                return _goToRanking ?? (_goToRanking = new RelayCommand(x =>
+                {
+                    Mediator.Notify("GoToRanking", "");
                 }));
             }
         }
@@ -442,6 +461,7 @@ namespace GuessWhatLookingAt
 
         private void OnGameClosed(object sender, MainWindow.GameClosedEventArgs args)
         {
+            Properties.Settings.Default.NameToRanking = GameSettings.NameToRanking;
             Properties.Settings.Default.PupilAdressString = GameSettings.PupilAdressString;
             Properties.Settings.Default.EyeTribePort = GameSettings.EyeTribePort;
             Properties.Settings.Default.AttemptsAmount = GameSettings.AttemptsAmount;
@@ -452,6 +472,11 @@ namespace GuessWhatLookingAt
             Properties.Settings.Default.DisplayEyeTribeGazePoint = GameSettings.DisplayEyeTribeGazePoint;
 
             Properties.Settings.Default.Save();
+
+            XmlSerializer xml = new XmlSerializer(typeof(ListOfRankingRecords));
+            TextWriter xmlWriter = new StreamWriter("rank.xml");
+            xml.Serialize(xmlWriter, RankingRecords);
+            xmlWriter.Close();
         }
 
         #endregion

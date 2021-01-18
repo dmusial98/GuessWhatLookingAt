@@ -41,7 +41,8 @@
 
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
                 <RowDefinition Height="1*" />
                 <RowDefinition Height="1*" />
                 <RowDefinition Height="1*" />
@@ -57,39 +58,39 @@
             </Grid.RowDefinitions>
 
             <Button Grid.Row="0" Margin="8" Content="Settings" Command="{Binding GoToSettings}" />
-
-            <Label Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Button Grid.Row="1" Margin="8" Content="Ranking" Command="{Binding GoToRanking}"/>
+            <Label Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="Eye Tribe:" />
             </Label>
-            <Label Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=EyeTribeCoordinatesString, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Label Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock TextWrapping="Wrap" Text="Distance:" />
             </Label>
-            <Label Grid.Row="4" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=MouseDistanceToPupilGazePoint, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Label Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="Round:" />
             </Label>
-            <Label Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="7" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=RoundValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Label Grid.Row="7" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label Grid.Row="8" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock TextWrapping="Wrap" Text="Attempt:" />
             </Label>
-            <Label Grid.Row="8" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="9" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=AttemptValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Label Grid.Row="9" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="Points:" />
             </Label>
-            <Label Grid.Row="10" VerticalAlignment="Center" HorizontalAlignment="Center" >
+            <Label Grid.Row="11" VerticalAlignment="Center" HorizontalAlignment="Center" >
                 <TextBlock TextWrapping="Wrap" Text="{Binding Path=PointsValueLabelContentString, UpdateSourceTrigger=PropertyChanged}" />
             </Label>
-            <Button Grid.Row="11" Margin="8" Content="Display Pupil point" Command="{Binding DisplayPupilGazePoint}"/>
-            <Button Grid.Row="12" Margin="8" Content="Display ET point" Command="{Binding DisplayEyeTribeGazePoint}"/>
+            <Button Grid.Row="12" Margin="8" Content="Display Pupil point" Command="{Binding DisplayPupilGazePoint}"/>
+            <Button Grid.Row="13" Margin="8" Content="Display ET point" Command="{Binding DisplayEyeTribeGazePoint}"/>
 
         </Grid>
     </Grid>

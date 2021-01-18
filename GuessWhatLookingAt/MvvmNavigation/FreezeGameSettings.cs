@@ -8,6 +8,8 @@ namespace GuessWhatLookingAt
 {
     public class FreezeGameSettings
     {
+        public string NameToRanking { get; set; } = "";
+
         public string PupilAdressString { get; set; } = "";
 
         public int EyeTribePort { get; set; } = 0;

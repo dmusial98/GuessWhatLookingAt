@@ -11,7 +11,21 @@ namespace GuessWhatLookingAt
 
         FreezeGameSettings GameSettings;
 
-        string _pupilAdressString = "adres dla pupila";
+        string _nameToRanking = "";
+        public string NameToRanking
+        {
+            get
+            {
+                return _nameToRanking;
+            }
+            set
+            {
+                _nameToRanking = value;
+                OnPropertyChanged("NameToRanking");
+            }
+        }
+
+        string _pupilAdressString = "";
         public string PupilAdressString
         {
             get
@@ -133,6 +147,7 @@ namespace GuessWhatLookingAt
         public SettingsViewModel(FreezeGameSettings gameSettings)
         {
             GameSettings = gameSettings;
+            _nameToRanking = GameSettings.NameToRanking;
             _pupilAdressString = GameSettings.PupilAdressString;
             _eyeTribePortString = GameSettings.EyeTribePort.ToString();
             _attemptsAmount = GameSettings.AttemptsAmount;
@@ -171,6 +186,7 @@ namespace GuessWhatLookingAt
             {
                 return _saveSettings ?? (_saveSettings = new RelayCommand(x =>
                 {
+                    GameSettings.NameToRanking = _nameToRanking;
                     GameSettings.PupilAdressString = _pupilAdressString;
                     GameSettings.EyeTribePort = Int32.Parse(_eyeTribePortString);
                     GameSettings.AttemptsAmount = _attemptsAmount;

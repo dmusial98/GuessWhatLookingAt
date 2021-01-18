@@ -105,6 +105,14 @@ namespace GuessWhatLookingAt
 
         FreezeGameSettings GameSettings;
 
+        ListOfRankingRecords RankingRecords;
+
+        RankingRecord _tempRankRecord = new RankingRecord();
+
+        List<double> _distanceHistory = new List<double>();
+
+        bool _wasPupilGazePointDisplayed = false;
+
         int _remainingNumberOfAttempts;
 
         bool _wasLastAttempt = false;
@@ -121,15 +129,18 @@ namespace GuessWhatLookingAt
 
         public int NumberOfGameRound { get; private set; } = 1;
 
+        
+
         #endregion //Logic variables
 
         #endregion //Variables
 
         #region Constructors
-        public FreezeGameModel(WindowViewParameters windowViewParameters, FreezeGameSettings gameSettings)
+        public FreezeGameModel(WindowViewParameters windowViewParameters, FreezeGameSettings gameSettings, ListOfRankingRecords rankingRecords)
         {
             _WindowViewParameters = windowViewParameters;
             GameSettings = gameSettings;
+            RankingRecords = rankingRecords;
 
             //logic variables setting up
             EyeTribeTimerRemainingTime = GameSettings.EyeTribeTime;
@@ -148,8 +159,10 @@ namespace GuessWhatLookingAt
 
         public void TakePhoto()
         {
-            if (pupil.isConnected)
-            {
+            //TODO: zadecydowac co z tym sprawdzaniem polaczenia z pupilem
+
+            //if (pupil.isConnected)
+            //{
                 photoTimer = new System.Threading.Timer(
                     OnTakePhotoTimerEvent,
                     this,
@@ -157,7 +170,7 @@ namespace GuessWhatLookingAt
                     1000);
 
                 OnPhotoTimeEvent();
-            }
+            //}
         }
 
         private void OnTakePhotoTimerEvent(object state)
@@ -416,11 +429,15 @@ namespace GuessWhatLookingAt
             _gameRoundIndex--;
             TakePhoto();
 
-            if (_gameRoundIndex == -1)
+            if (_gameRoundIndex == -1) //first round
             {
                 _gameRoundIndex = GameSettings.RoundsAmount - 1;
                 NumberOfGameRound = 1;
                 TotalPoints = 0;
+
+                _tempRankRecord.AttemptsAmountInRound = GameSettings.AttemptsAmount;
+                _tempRankRecord.RoundsAmount = GameSettings.RoundsAmount;
+
             }
             else
                 ActualiseRoundNumber();
@@ -433,6 +450,8 @@ namespace GuessWhatLookingAt
         {
             distance = CountPointsDifferenceMouse(mousePosition);
             _remainingNumberOfAttempts--;
+
+            _distanceHistory.Add(distance.Value);
 
             var normalizedMousePointCoordinates = NormalizePointCoordinatesToImage(
                 mousePosition,
@@ -450,6 +469,8 @@ namespace GuessWhatLookingAt
 
             distance = CountPointsDifferenceEyeTribe(eyeTribePoint);
             _remainingNumberOfAttempts--;
+
+            _distanceHistory.Add(distance.Value);
 
             _AttemptPoints.Add(eyeTribePoint);
 
@@ -520,6 +541,29 @@ namespace GuessWhatLookingAt
                 points = TotalPoints;
                 ResetMinAttemptDistance();
                 AttemptNumber = 1;
+
+                //code for ranking actualise after last round
+                if (_gameRoundIndex == 0)
+                {
+                    _tempRankRecord.Name = GameSettings.NameToRanking;
+                    _tempRankRecord.Date = DateTime.Now;
+                    _tempRankRecord.PointsGenerally = ((11.0m - Convert.ToDecimal(_tempRankRecord.AttemptsAmountInRound)) * Convert.ToDecimal(points.Value)) / (Convert.ToDecimal(_tempRankRecord.RoundsAmount * 100.0m));
+                    _tempRankRecord.PointsInGame = points.Value;
+                    _tempRankRecord.AverageDistance = Math.Round(_distanceHistory.Sum() / (_tempRankRecord.AttemptsAmountInRound * _tempRankRecord.RoundsAmount), 4);
+                    RankingRecords.list.Add(_tempRankRecord);
+                    //RankingRecords.list.Sort((RankingRecord r1, RankingRecord r2) =>
+                    //{
+                    //    if (r1.PointsGenerally < r2.PointsGenerally)
+                    //        return 1;
+                    //    else if (r1.PointsGenerally > r2.PointsGenerally)
+                    //        return -1;
+                    //    else
+                    //        return 0;
+                    //}); //zobaczymy czy ten kod jest tu potrzebny
+                    _tempRankRecord = new RankingRecord();
+
+                    RankingRecords.NewElement();
+                }
 
                 if (!IsEyeTribeConnected)
                     _AttemptPoints.Clear();

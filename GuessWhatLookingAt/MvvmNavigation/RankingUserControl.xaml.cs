@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace GuessWhatLookingAt
 {
     /// <summary>
-    /// Interaction logic for UserControl2.xaml
+    /// Interaction logic for RankingUserControl.xaml
     /// </summary>
-    public partial class SettingsUserControl : UserControl
+    public partial class RankingUserControl : UserControl
     {
-        public SettingsUserControl()
+        public RankingUserControl()
         {
             InitializeComponent();
         }

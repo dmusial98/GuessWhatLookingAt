@@ -52,16 +52,23 @@ namespace GuessWhatLookingAt
             ChangeViewModel(PageViewModels[1]);
         }
 
-        public MainWindowViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings)
+        private void OnGoToRanking(object obj)
+        {
+            ChangeViewModel(PageViewModels[2]);
+        }
+
+        public MainWindowViewModel(MainWindow mainWindow, FreezeGameSettings gameSettings, ListOfRankingRecords rankingRecords)
         {
             // Add available pages and set page
             PageViewModels.Add(new SettingsViewModel(gameSettings));
-            PageViewModels.Add(new FreezeGameViewModel(mainWindow, gameSettings));      
+            PageViewModels.Add(new FreezeGameViewModel(mainWindow, gameSettings, rankingRecords));
+            PageViewModels.Add(new RankingViewModel(rankingRecords));
 
-            CurrentPageViewModel = PageViewModels[0];
+            CurrentPageViewModel = PageViewModels[1];
 
             Mediator.Subscribe("GoToSettings", OnGoToSettings);
             Mediator.Subscribe("GoToFreezeGame", OnGoToFreezeGame);
+            Mediator.Subscribe("GoToRanking", OnGoToRanking);
         }
     }
 }

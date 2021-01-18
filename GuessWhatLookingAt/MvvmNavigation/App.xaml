@@ -10,7 +10,10 @@
                 <local:FreezeGameUserControl />
             </DataTemplate>
             <DataTemplate DataType="{x:Type local:SettingsViewModel}">
-                <local:MainMenuUserControl />
+                <local:SettingsUserControl />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:RankingViewModel}">
+                <local:RankingUserControl />
             </DataTemplate>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:CustomColorTheme BaseTheme="Dark" PrimaryColor="DarkGreen" SecondaryColor="DarkBlue" />

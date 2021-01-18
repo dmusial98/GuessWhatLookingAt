@@ -31,8 +31,6 @@ namespace GuessWhatLookingAt
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
-        //public delegate void ParameterizedThreadStart(object obj);
-
         public void Connect(object addres)
         {
             var _addres = (string)addres;

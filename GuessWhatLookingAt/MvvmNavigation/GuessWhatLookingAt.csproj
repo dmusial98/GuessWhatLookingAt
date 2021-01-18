@@ -175,6 +175,11 @@
     </Compile>
     <Compile Include="Pupil.cs" />
     <Compile Include="EmguCVImage.cs" />
+    <Compile Include="RankingRecord.cs" />
+    <Compile Include="RankingUserControl.xaml.cs">
+      <DependentUpon>RankingUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RankingViewModel.cs" />
     <Compile Include="RelayCommand.cs" />
     <Compile Include="FreezeGameUserControl.xaml.cs">
       <DependentUpon>FreezeGameUserControl.xaml</DependentUpon>
@@ -198,6 +203,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="FreezeGameUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RankingUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

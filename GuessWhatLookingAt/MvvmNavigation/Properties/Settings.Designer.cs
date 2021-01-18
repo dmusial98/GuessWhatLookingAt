@@ -118,5 +118,17 @@ namespace GuessWhatLookingAt.Properties {
                 this["DisplayEyeTribeGazePoint"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Player")]
+        public string NameToRanking {
+            get {
+                return ((string)(this["NameToRanking"]));
+            }
+            set {
+                this["NameToRanking"] = value;
+            }
+        }
     }
 }
