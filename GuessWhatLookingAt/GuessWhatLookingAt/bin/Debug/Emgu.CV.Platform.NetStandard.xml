@@ -4943,7 +4943,7 @@
         </member>
         <member name="M:Emgu.CV.Image`2.#ctor(`1[0:,0:,0:])">
             <summary>
-            Create image from the specific multi-dimensional data, where the 1st dimension is # of rows (height), the 2nd dimension is # cols (width) and the 3rd dimension is the channel
+            Create image from the specific multi-dimensional data, where the 1st dimesion is # of rows (height), the 2nd dimension is # cols (width) and the 3rd dimension is the channel
             </summary>
             <param name="data">The multi-dimensional data where the 1st dimension is # of rows (height), the 2nd dimension is # cols (width) and the 3rd dimension is the channel </param>
         </member>
@@ -8034,122 +8034,122 @@
         </member>
         <member name="P:Emgu.CV.Moments.M00">
             <summary>
-            Spatial Moment M00
+            M00
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M10">
             <summary>
-            Spatial Moment M10
+            M10
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M01">
             <summary>
-            Spatial Moment M01
+            M01
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M20">
             <summary>
-            Spatial Moment M20
+            M20
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M11">
             <summary>
-            Spatial Moment M11
+            M11
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M02">
             <summary>
-            Spatial Moment M02
+            M02
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M30">
             <summary>
-            Spatial Moment M30
+            M30
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M21">
             <summary>
-            Spatial Moment M21
+            M21
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M12">
             <summary>
-            Spatial Moment M12
+            M12
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.M03">
             <summary>
-            Spatial Moment M03
+            M03
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu20">
             <summary>
-            Central Moment Mu20
+            Mu20
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu11">
             <summary>
-            Central Moment Mu11
+            Mu11
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu02">
             <summary>
-            Central Moment Mu02
+            Mu02
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu30">
             <summary>
-            Central Moment Mu30
+            Mu30
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu21">
             <summary>
-            Central Moment Mu21
+            Mu21
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu12">
             <summary>
-            Central Moment Mu12
+            Mu12
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Mu03">
             <summary>
-            Central Moment Mu03
+            Mu03
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu20">
             <summary>
-            Central Normalized Moment Nu20
+            Nu20
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu11">
             <summary>
-            Central Normalized Moment Nu11
+            Nu11
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu02">
             <summary>
-            Central Normalized Moment Nu02
+            Nu02
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu30">
             <summary>
-            Central Normalized Moment Nu30
+            Nu30
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu21">
             <summary>
-            Central Normalized Moment Nu21
+            Nu21
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu12">
             <summary>
-            Central Normalized Moment Nu12
+            Nu12
             </summary>
         </member>
         <member name="P:Emgu.CV.Moments.Nu03">
             <summary>
-            Central Normalized Moment Nu03
+            Nu03
             </summary>
         </member>
         <member name="T:Emgu.CV.NativeMatFileIO">
@@ -31034,7 +31034,7 @@
             </summary>
             <param name="threshold">Threshold on difference between intensity of center pixel and pixels on circle around
             this pixel. Use 10 for default.</param>
-            <param name="nonmaxSupression">Specify if non-maximum supression should be used.</param>
+            <param name="nonmaxSupression">Specifiy if non-maximum supression should be used.</param>
             <param name="maxNKeypoints">The maximum number of keypoints to be extracted.</param>
             <param name="type">The detector type</param>
         </member>
@@ -31244,41 +31244,6 @@
         <member name="M:Emgu.CV.Cuda.CudaCascadeClassifier.DisposeObject">
             <summary>
             Release all unmanaged resources associated with this object
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.ScaleFactor">
-            <summary>
-            Parameter specifying how much the image size is reduced at each image scale
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.MinNeighbors">
-            <summary>
-            Parameter specifying how many neighbors each candidate rectangle should have to retain it
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.MaxNumObjects">
-            <summary>
-            The maximum number of objects
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.FindLargestObject">
-            <summary>
-            If true, only return the largest object
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.MaxObjectSize">
-            <summary>
-            The maximum object size
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.MinObjectSize">
-            <summary>
-            The minimum object size
-            </summary>
-        </member>
-        <member name="P:Emgu.CV.Cuda.CudaCascadeClassifier.ClassifierSize">
-            <summary>
-            The classifier size
             </summary>
         </member>
         <member name="T:Emgu.CV.Cuda.CudaHOG">
@@ -37338,11 +37303,6 @@
         <member name="F:Emgu.Util.Platform.Clr.Mono">
             <summary>
             Mono runtime
-            </summary>
-        </member>
-        <member name="F:Emgu.Util.Platform.Clr.Unity">
-            <summary>
-            Unity runtime
             </summary>
         </member>
         <member name="T:Emgu.Util.Toolbox">

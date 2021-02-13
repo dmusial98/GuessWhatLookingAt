@@ -1,7 +1,0 @@
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\bin\Debug\ReshapeArrayC.exe.config
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\bin\Debug\ReshapeArrayC.exe
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\bin\Debug\ReshapeArrayC.pdb
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\obj\Debug\ReshapeArrayC.csprojAssemblyReference.cache
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\obj\Debug\ReshapeArrayC.csproj.CoreCompileInputs.cache
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\obj\Debug\ReshapeArrayC.exe
-C:\Users\dmusi\source\repos\GuessWhatLookingAt\zeroMQ\ReshapeArrayC\obj\Debug\ReshapeArrayC.pdb
