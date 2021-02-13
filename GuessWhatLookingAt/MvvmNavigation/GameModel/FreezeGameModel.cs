@@ -111,8 +111,6 @@ namespace GuessWhatLookingAt
 
         List<double> _distanceHistory = new List<double>();
 
-        bool _wasPupilGazePointDisplayed = false;
-
         int _remainingNumberOfAttempts;
 
         bool _wasLastAttempt = false;
@@ -594,5 +592,6 @@ namespace GuessWhatLookingAt
 
         #endregion//Methods
 
+        
     }
 }

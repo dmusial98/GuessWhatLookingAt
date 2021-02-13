@@ -46,7 +46,7 @@
 
             <Label Grid.Row="0" Grid.Column="0" Margin="15" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Name for saving result in ranking:" />
             <TextBox Grid.Row="0" Grid.Column="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=NameToRanking, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Label Grid.Row="1" Grid.Column="0" Margin="15" Content="Pupil Capture IP adress:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Label Grid.Row="1" Grid.Column="0" Margin="15" Content="Pupil Capture IP address:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             <TextBox Grid.Row="1" Grid.Column="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=PupilAdressString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Eye tribe port number:" />
             <TextBox Grid.Row="2" Grid.Column="1" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=EyeTribePortString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

@@ -42,7 +42,7 @@ namespace GuessWhatLookingAt
                 TextReader reader = new StreamReader(fs);
                 rankingRecords = (ListOfRankingRecords)xml.Deserialize(reader);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 rankingRecords = new ListOfRankingRecords();
             }

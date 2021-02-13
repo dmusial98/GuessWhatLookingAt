@@ -26,7 +26,7 @@ namespace GuessWhatLookingAt
                     frameWidth * 3);
                 OutMat = OriginalMat.Clone();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -49,7 +49,7 @@ namespace GuessWhatLookingAt
                         40);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -74,7 +74,7 @@ namespace GuessWhatLookingAt
                         40);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -92,7 +92,7 @@ namespace GuessWhatLookingAt
                     new Emgu.CV.Structure.MCvScalar(128, 0, 0),
                     40);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -105,7 +105,7 @@ namespace GuessWhatLookingAt
                 if (OriginalMat != null)
                     OutMat = OriginalMat.Clone();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -126,7 +126,7 @@ namespace GuessWhatLookingAt
                     new MCvScalar(128, 128, 0),
                     2);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
@@ -144,7 +144,7 @@ namespace GuessWhatLookingAt
                     return BitmapSource.Create(OutMat.Width, OutMat.Height, 96, 96, PixelFormats.Bgr24, null, byteArray, OutMat.Width * 3);
                 }
             }
-            catch (System.NullReferenceException ex)
+            catch (System.NullReferenceException)
             {
 
             }

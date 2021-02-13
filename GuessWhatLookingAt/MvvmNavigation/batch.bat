@@ -1,1 +1,0 @@
-start %~dp0bin\Debug\MvvmNavigation.exe

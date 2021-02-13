@@ -156,41 +156,41 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="BaseViewModel.cs" />
-    <Compile Include="EyeTribe.cs" />
-    <Compile Include="FreezeGameModel.cs" />
-    <Compile Include="FreezeGamePunctation.cs" />
-    <Compile Include="FreezeGameSettings.cs" />
-    <Compile Include="GazePoint.cs" />
-    <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="EventArgs.cs" />
-    <Compile Include="EventRaiser.cs" />
-    <Compile Include="IPageViewModel.cs" />
-    <Compile Include="Mediator.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="EyeTrackers\EyeTribe.cs" />
+    <Compile Include="GameModel\FreezeGameModel.cs" />
+    <Compile Include="GameModel\FreezeGamePunctation.cs" />
+    <Compile Include="GameModel\FreezeGameSettings.cs" />
+    <Compile Include="EyeTrackers\GazePoint.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="NavigateBetweenViews\EventArgs.cs" />
+    <Compile Include="NavigateBetweenViews\EventRaiser.cs" />
+    <Compile Include="ViewModels\IPageViewModel.cs" />
+    <Compile Include="NavigateBetweenViews\Mediator.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Pupil.cs" />
-    <Compile Include="EmguCVImage.cs" />
-    <Compile Include="RankingRecord.cs" />
-    <Compile Include="RankingUserControl.xaml.cs">
+    <Compile Include="EyeTrackers\Pupil.cs" />
+    <Compile Include="EmguCVImage\EmguCVImage.cs" />
+    <Compile Include="GameModel\RankingRecord.cs" />
+    <Compile Include="Views\RankingUserControl.xaml.cs">
       <DependentUpon>RankingUserControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RankingViewModel.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="FreezeGameUserControl.xaml.cs">
+    <Compile Include="ViewModels\RankingViewModel.cs" />
+    <Compile Include="NavigateBetweenViews\RelayCommand.cs" />
+    <Compile Include="Views\FreezeGameUserControl.xaml.cs">
       <DependentUpon>FreezeGameUserControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FreezeGameViewModel.cs" />
-    <Compile Include="SettingsUserControl.xaml.cs">
+    <Compile Include="ViewModels\FreezeGameViewModel.cs" />
+    <Compile Include="Views\SettingsUserControl.xaml.cs">
       <DependentUpon>SettingsUserControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SettingsViewModel.cs" />
-    <Compile Include="WindowViewParameters.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\WindowViewParameters.cs" />
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -198,19 +198,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="FreezeGameUserControl.xaml">
+    <Page Include="Views\FreezeGameUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RankingUserControl.xaml">
+    <Page Include="Views\RankingUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SettingsUserControl.xaml">
+    <Page Include="Views\SettingsUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -228,7 +228,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
@@ -251,6 +250,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Emgu.CV.runtime.windows.4.4.0.4099\build\Emgu.CV.runtime.windows.targets" Condition="Exists('..\packages\Emgu.CV.runtime.windows.4.4.0.4099\build\Emgu.CV.runtime.windows.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

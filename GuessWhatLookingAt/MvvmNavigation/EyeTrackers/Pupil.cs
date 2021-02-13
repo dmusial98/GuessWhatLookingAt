@@ -31,13 +31,13 @@ namespace GuessWhatLookingAt
 
         public event EventHandler<PupilReceivedDataEventArgs> PupilDataReceivedEvent;
 
-        public void Connect(object addres)
+        public void Connect(object address)
         {
-            var _addres = (string)addres;
+            var _address = (string)address;
 
             requestClient = new RequestSocket();
 
-            requestClient.Connect(_addres);
+            requestClient.Connect(_address);
 
             //getting subscriber and publisher port
             requestClient.SendFrame("SUB_PORT");
@@ -60,10 +60,10 @@ namespace GuessWhatLookingAt
             gazeSubscriber.Subscribe("gaze.");
 
             //preparing information about desired format video data
-            var msgpackPackNotify = new MsgPack();
-            msgpackPackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
-            msgpackPackNotify.ForcePathObject("format").AsString = "bgr";
-            var byteArrayNotify = msgpackPackNotify.Encode2Bytes();
+            var msgpackNotify = new MsgPack();
+            msgpackNotify.ForcePathObject("subject").AsString = "frame_publishing.set_format";
+            msgpackNotify.ForcePathObject("format").AsString = "bgr";
+            var byteArrayNotify = msgpackNotify.Encode2Bytes();
 
             //sending information
             requestClient.SendMoreFrame("topic.frame_publishing.set_format")
@@ -87,11 +87,11 @@ namespace GuessWhatLookingAt
                 frameTopic = frameSubscriber.ReceiveFrameString(); //camera name
                 framePayload = frameSubscriber.ReceiveFrameBytes();  //json with data describe
 
-                MsgPack msgpackFrameDecode = new MsgPack();
-                msgpackFrameDecode.DecodeFromBytes(framePayload);
+                MsgPack msgpackFrame = new MsgPack();
+                msgpackFrame.DecodeFromBytes(framePayload);
 
-                frameWidth = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("width").AsInteger);
-                frameHeight = Convert.ToInt32(msgpackFrameDecode.ForcePathObject("height").AsInteger);
+                frameWidth = Convert.ToInt32(msgpackFrame.ForcePathObject("width").AsInteger);
+                frameHeight = Convert.ToInt32(msgpackFrame.ForcePathObject("height").AsInteger);
 
                 var imageArgs = new PupilReceivedDataEventArgs();
                 imageArgs.GazePoints = new List<GazePoint>();
@@ -109,24 +109,24 @@ namespace GuessWhatLookingAt
 
                     if (gazeData != null)
                     {
-                        var msgpackGazeDecode = new MsgPack();
-                        msgpackGazeDecode.DecodeFromBytes(gazeData);
+                        var msgpackGaze = new MsgPack();
+                        msgpackGaze.DecodeFromBytes(gazeData);
 
                         //new event for inform about video data
-                        if (msgpackGazeDecode.ForcePathObject("norm_pos").AsArray.Length >= 2 &&
-                            msgpackGazeDecode.ForcePathObject("confidence").AsFloat > 0.5)
+                        if (msgpackGaze.ForcePathObject("norm_pos").AsArray.Length >= 2 &&
+                            msgpackGaze.ForcePathObject("confidence").AsFloat > 0.5)
                         {
                             imageArgs.GazePoints.Add(new GazePoint(
                                 new Point(
-                                    msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[0].AsFloat,
-                                    (1.0 - msgpackGazeDecode.ForcePathObject("norm_pos").AsArray[1].AsFloat)),
-                                msgpackGazeDecode.ForcePathObject("confidence").AsFloat));
+                                    msgpackGaze.ForcePathObject("norm_pos").AsArray[0].AsFloat,
+                                    (1.0 - msgpackGaze.ForcePathObject("norm_pos").AsArray[1].AsFloat)),
+                                msgpackGaze.ForcePathObject("confidence").AsFloat));
                         }
                     }
                 }
 
                 imageArgs.RawImageData = frameData;
-                imageArgs.ImageTimestamp = msgpackFrameDecode.ForcePathObject("timestamp").AsFloat;
+                imageArgs.ImageTimestamp = msgpackFrame.ForcePathObject("timestamp").AsFloat;
                 imageArgs.ImageSize = new Size(frameWidth, frameHeight);
 
                 OnPupilReceivedData(imageArgs);
