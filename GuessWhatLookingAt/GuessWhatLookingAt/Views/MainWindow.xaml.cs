@@ -4,17 +4,11 @@ using System.Windows;
 
 namespace GuessWhatLookingAt
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public event EventHandler<WindowViewParametersEventArgs> WindowViewParametersChangedEvent;
         public event EventHandler<GameClosedEventArgs> GameClosedEvent;
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        public MainWindow() => InitializeComponent();
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -71,9 +65,7 @@ namespace GuessWhatLookingAt
         }
 
         public class GameClosedEventArgs : EventArgs
-        {
-
-        }
+        {}
         
     }
 }

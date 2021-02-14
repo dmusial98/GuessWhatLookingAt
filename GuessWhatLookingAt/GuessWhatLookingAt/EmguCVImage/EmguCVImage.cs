@@ -136,8 +136,6 @@ namespace GuessWhatLookingAt
         {
             try
             {
-                //byte[] byteArray  = new byte[1];
-
                 if (OutMat != null)
                 {
                     var byteArray = OutMat.GetRawData(new int[] { });

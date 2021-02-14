@@ -125,15 +125,13 @@ namespace GuessWhatLookingAt
 
         int _gameRoundIndex;
 
-        public int NumberOfGameRound { get; private set; } = 1;
-
-        
+        public int NumberOfGameRound { get; private set; } = 1;     
 
         #endregion //Logic variables
 
         #endregion //Variables
 
-        #region Constructors
+        #region Constructor
         public FreezeGameModel(WindowViewParameters windowViewParameters, FreezeGameSettings gameSettings, ListOfRankingRecords rankingRecords)
         {
             _WindowViewParameters = windowViewParameters;
@@ -157,10 +155,6 @@ namespace GuessWhatLookingAt
 
         public void TakePhoto()
         {
-            //TODO: zadecydowac co z tym sprawdzaniem polaczenia z pupilem
-
-            //if (pupil.isConnected)
-            //{
                 photoTimer = new System.Threading.Timer(
                     OnTakePhotoTimerEvent,
                     this,
@@ -168,7 +162,6 @@ namespace GuessWhatLookingAt
                     1000);
 
                 OnPhotoTimeEvent();
-            //}
         }
 
         private void OnTakePhotoTimerEvent(object state)
@@ -221,7 +214,7 @@ namespace GuessWhatLookingAt
         {
             _wasLastAttempt = true;
 
-            image.DrawCircleForPupil(_PupilGazePoint, true);
+            image.DrawCircleForPupil(point: _PupilGazePoint, cleanImage: true);
 
             foreach (Point point in _AttemptPoints)
             {
@@ -229,8 +222,7 @@ namespace GuessWhatLookingAt
                 image.DrawLineBetweenPoints(_PupilGazePoint.point, point);
             }
 
-            var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
-            OnImageSourceReached(imageSourceArgs);
+            OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
         }
 
         #endregion//Image methods
@@ -280,10 +272,7 @@ namespace GuessWhatLookingAt
                 image.DrawCircleForEyeTribe(_EyeTribeGazePoint.GetValueOrDefault());
 
             if (image.OutMat != null)
-            {
-                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
-                OnImageSourceReached(imageSourceArgs);
-            }
+                OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
         }
 
         #endregion//Pupil methods
@@ -321,58 +310,69 @@ namespace GuessWhatLookingAt
             var eyeTribePoint = new Point(gazeX, gazeY);
 
             if ((_WindowViewParameters.WindowState == WindowState.Maximized && _WindowViewParameters.WindowMaximizedRect.Contains(eyeTribePoint)) ||
-              (_WindowViewParameters.WindowState == WindowState.Normal && _WindowViewParameters.WindowRect.Contains(eyeTribePoint)))
-                _EyeTribeGazePoint = NormalizePointCoordinatesToImage(
-                    point: eyeTribePoint,
-                    saveToAttemptPoints: false,
-                    relativeToWindow: false);
+                (_WindowViewParameters.WindowState == WindowState.Normal && _WindowViewParameters.WindowRect.Contains(eyeTribePoint)))
+                    _EyeTribeGazePoint = NormalizePointCoordinatesToImage(
+                        point: eyeTribePoint,
+                        saveToAttemptPoints: false,
+                        relativeToWindow: false);
             else
                 _EyeTribeGazePoint = null;
 
             var args = new EyeTribeGazePositionEventArgs(gazeX, gazeY);
             OnEyeTribeGazePositionReached(args);
 
-
             if (HasPhoto && !IsPupilConnected) //during "has photo" time
-            {
-                if (GameSettings.DisplayPupilGazePoint)
-                    image.DrawCircleForPupil(
-                        point: _PupilGazePoint,
-                        cleanImage: true);
-                else
-                    image.CleanImage();
-
-                if (GameSettings.DisplayEyeTribeGazePoint)
-                {
-                    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
-                }
-
-                foreach (Point point in _AttemptPoints)
-                    image.DrawCircleForAttemptPoint(point);
-
-                if (_wasLastAttempt) //last attempt
-                {
-                    image.DrawCircleForPupil(_PupilGazePoint);
-                    foreach (Point point in _AttemptPoints)
-                        image.DrawLineBetweenPoints(point, _PupilGazePoint.point);
-                }
-
-                var imageSourceArgs = new BitmapSourceEventArgs(image.GetBitmapSourceFromMat());
-                OnImageSourceReached(imageSourceArgs);
-            }
+                DisplayImageDuringHasPhotoETGazePointReached();
             else if(!IsPupilConnected)
-            {
+                DisplayImageWhenPupilDisconnectETGazePointReached();
+        }
+
+        void DisplayImageDuringHasPhotoETGazePointReached()
+        {
+            if (GameSettings.DisplayPupilGazePoint)
+                image.DrawCircleForPupil(point: _PupilGazePoint, cleanImage: true);
+            else
                 image.CleanImage();
 
-                if (GameSettings.DisplayPupilGazePoint)
-                    image.DrawCircleForPupil(_PupilGazePoint);
+            if (GameSettings.DisplayEyeTribeGazePoint)
+                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
 
-                if (GameSettings.DisplayEyeTribeGazePoint)
-                    image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value);
+            DrawAllAttemptPoints();
 
-                OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
+            if (_wasLastAttempt)
+            {
+                image.DrawCircleForPupil(_PupilGazePoint);
+                DrawLinesBetweenPoints();
             }
+
+            OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
         }
+
+        void DisplayImageWhenPupilDisconnectETGazePointReached()
+        {
+            image.CleanImage();
+
+            if (GameSettings.DisplayPupilGazePoint)
+                image.DrawCircleForPupil(_PupilGazePoint, cleanImage: false);
+
+            if (GameSettings.DisplayEyeTribeGazePoint)
+                image.DrawCircleForEyeTribe(_EyeTribeGazePoint.Value, cleanImage: false);
+
+            OnImageSourceReached(new BitmapSourceEventArgs(image.GetBitmapSourceFromMat()));
+        }
+
+        void DrawLinesBetweenPoints()
+        {
+            foreach (Point point in _AttemptPoints)
+                image.DrawLineBetweenPoints(point, _PupilGazePoint.point);
+        }
+
+        void DrawAllAttemptPoints()
+        {
+            foreach (Point point in _AttemptPoints)
+                image.DrawCircleForAttemptPoint(point);
+        }
+
 
         public void OnEyeTribeGazePositionReached(EyeTribeGazePositionEventArgs args)
         {
@@ -389,7 +389,7 @@ namespace GuessWhatLookingAt
                     dueTime: 1000,
                     period: 1000);
 
-                OnEyeTribeTimeEvent();
+                OnEyeTribeTimerEvent();
             }
         }
 
@@ -398,18 +398,17 @@ namespace GuessWhatLookingAt
             if (EyeTribeTimerRemainingTime != 0)
             {
                 EyeTribeTimerRemainingTime--;
-
-                OnEyeTribeTimeEvent();
+                OnEyeTribeTimerEvent();
             }
-            else //Time == 0
+            else
             {
-                OnEyeTribeTimeEvent();
+                OnEyeTribeTimerEvent();
                 EyeTribeTimerRemainingTime = GameSettings.EyeTribeTime;
                 _eyeTribeTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
-        private void OnEyeTribeTimeEvent()
+        private void OnEyeTribeTimerEvent()
         {
             EyeTribeTimerEventArgs args = new EyeTribeTimerEventArgs(
                 time: EyeTribeTimerRemainingTime,
@@ -435,7 +434,6 @@ namespace GuessWhatLookingAt
 
                 _tempRankRecord.AttemptsAmountInRound = GameSettings.AttemptsAmount;
                 _tempRankRecord.RoundsAmount = GameSettings.RoundsAmount;
-
             }
             else
                 ActualiseRoundNumber();
@@ -444,6 +442,7 @@ namespace GuessWhatLookingAt
             _AttemptPoints.Clear();
         }
 
+        //When points variable is null, it isn't last attempt
         public bool MouseAttemptStarted(Point mousePosition, out double? distance, out int? points)
         {
             distance = CountPointsDifferenceMouse(mousePosition);
@@ -499,9 +498,7 @@ namespace GuessWhatLookingAt
                 rect = _WindowViewParameters.WindowRect;
 
             if (!relativeToWindow)
-            {
                 point.Offset(-rect.X, -rect.Y);
-            }
 
             var normalizedPoint = new Point(
                 point.X / (rect.Width * 0.9),
@@ -540,28 +537,8 @@ namespace GuessWhatLookingAt
                 ResetMinAttemptDistance();
                 AttemptNumber = 1;
 
-                //code for ranking actualise after last round
                 if (_gameRoundIndex == 0)
-                {
-                    _tempRankRecord.Name = GameSettings.NameToRanking;
-                    _tempRankRecord.Date = DateTime.Now;
-                    _tempRankRecord.PointsGenerally = ((11.0m - Convert.ToDecimal(_tempRankRecord.AttemptsAmountInRound)) * Convert.ToDecimal(points.Value)) / (Convert.ToDecimal(_tempRankRecord.RoundsAmount * 100.0m));
-                    _tempRankRecord.PointsInGame = points.Value;
-                    _tempRankRecord.AverageDistance = Math.Round(_distanceHistory.Sum() / (_tempRankRecord.AttemptsAmountInRound * _tempRankRecord.RoundsAmount), 4);
-                    RankingRecords.list.Add(_tempRankRecord);
-                    //RankingRecords.list.Sort((RankingRecord r1, RankingRecord r2) =>
-                    //{
-                    //    if (r1.PointsGenerally < r2.PointsGenerally)
-                    //        return 1;
-                    //    else if (r1.PointsGenerally > r2.PointsGenerally)
-                    //        return -1;
-                    //    else
-                    //        return 0;
-                    //}); //zobaczymy czy ten kod jest tu potrzebny
-                    _tempRankRecord = new RankingRecord();
-
-                    RankingRecords.NewElement();
-                }
+                    ActualiseRanking(points);
 
                 if (!IsEyeTribeConnected)
                     _AttemptPoints.Clear();
@@ -574,6 +551,19 @@ namespace GuessWhatLookingAt
                 points = null;
                 return false;
             }
+        }
+
+        void ActualiseRanking(int? points)
+        {
+            _tempRankRecord.Name = GameSettings.NameToRanking;
+            _tempRankRecord.Date = DateTime.Now;
+            _tempRankRecord.PointsGenerally = ((11.0m - Convert.ToDecimal(_tempRankRecord.AttemptsAmountInRound)) * Convert.ToDecimal(points.Value)) / (Convert.ToDecimal(_tempRankRecord.RoundsAmount * 100.0m));
+            _tempRankRecord.PointsInGame = points.Value;
+            _tempRankRecord.AverageDistance = Math.Round(_distanceHistory.Sum() / (_tempRankRecord.AttemptsAmountInRound * _tempRankRecord.RoundsAmount), 4);
+            RankingRecords.list.Add(_tempRankRecord);
+            _tempRankRecord = new RankingRecord();
+
+            RankingRecords.NewElement();
         }
 
         private void ResetMinAttemptDistance()
@@ -591,7 +581,5 @@ namespace GuessWhatLookingAt
         #endregion//logic methods
 
         #endregion//Methods
-
-        
     }
 }

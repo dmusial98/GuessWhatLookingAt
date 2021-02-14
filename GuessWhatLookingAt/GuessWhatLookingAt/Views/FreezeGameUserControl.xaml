@@ -91,7 +91,6 @@
             </Label>
             <Button Grid.Row="12" Margin="8" Content="Display Pupil point" Command="{Binding DisplayPupilGazePoint}"/>
             <Button Grid.Row="13" Margin="8" Content="Display ET point" Command="{Binding DisplayEyeTribeGazePoint}"/>
-
         </Grid>
     </Grid>
 
