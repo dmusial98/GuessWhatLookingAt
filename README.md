@@ -2,6 +2,13 @@
 
 Simple game used [Pupil Labs Core](https://pupil-labs.com/products/core/) and [The Eye Tribe](https://theeyetribe.com/theeyetribe.com/about/index.html) eye trackers. Game made for Engineering Thesis with .NET Framework 4.8 and WPF.
 
+## Table of contents
+* [Screenshots from game](#screenshots-from-game)
+* [Rules](#rules)
+* [Used libraries](#used-libraries)
+* [Launch and preapring for game](#launch-and-preapring-for-game)
+* [License](#license)
+
 ## Screenshots from game
 <p align="center">
 <table cellspacing="0" cellpadding="0">
