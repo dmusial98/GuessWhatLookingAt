@@ -2,7 +2,25 @@
 
 Simple game used [Pupil Labs Core](https://pupil-labs.com/products/core/) and [The Eye Tribe](https://theeyetribe.com/theeyetribe.com/about/index.html) eye trackers. Game made for Engineering Thesis with .NET Framework 4.8 and WPF.
 
+## Screenshots from game
+<p align="center">
+<table cellspacing="0" cellpadding="0">
+  <tr>  
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image1.png">
+  </tr>
+  <tr>
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image2.png">
+  </tr>
+  <tr>  
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image3.png">
+  </tr>
+  <tr>
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image4.png">
+  </tr>
+</table>
+</p>
 
+You can also see an video of example game [here](https://1drv.ms/u/s!AoCDBbbUtWLph419cpl7viQwTJBT6A?e=sGeVAu)
 
 ## Rules
 
@@ -10,13 +28,13 @@ The first player shares video from Pupil Labs Core main camera and indicates one
 
 ## Used libraries
 
-- [NetMQ](https://netmq.readthedocs.io/en/latest/) - [ZeroMQ](https://zeromq.org/) for C# (communicating with Pupil Labs IPC Backbone API)
+- [NetMQ](https://netmq.readthedocs.io/en/latest/) - [ZeroMQ](https://zeromq.org/) for C# (communicating with Pupil Labs [IPC Backbone API](https://docs.pupil-labs.com/developer/core/network-api/#ipc-backbone))
 - [SimpleMessagePack](https://github.com/ymofen/SimpleMsgPack.Net) - [MessagePack](https://msgpack.org/) for C# (packing and unpacking text message data send/received to/from IPC Backbone)
 - [EmguCV](https://www.emgu.com/wiki/index.php/Main_Page) - [OpenCV](https://opencv.org/) for C# (display video from Pupil Labs main camera and drawing gaze points on it in real time)
 - [JSON.NET Newtonsoft](https://www.newtonsoft.com/json) - reading JSON messages
 - [MaterialDesignThemes](https://www.nuget.org/packages/MaterialDesignThemes/) - GUI library
 
-## Launch
+## Launch and preapring for game
 
 For launch game you have to install:
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
