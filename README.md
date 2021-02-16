@@ -13,16 +13,16 @@ Simple game used [Pupil Labs Core](https://pupil-labs.com/products/core/) and [T
 <p align="center">
 <table cellspacing="0" cellpadding="0">
   <tr>  
-    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image1.png">
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/master/ReadmeFiles/image1.png">
   </tr>
   <tr>
-    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image2.png">
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/master/ReadmeFiles/image2.png">
   </tr>
   <tr>  
-    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image3.png">
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/master/ReadmeFiles/image3.png">
   </tr>
   <tr>
-    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/code-review/ReadmeFiles/image4.png">
+    <img src="https://github.com/dmusial98/GuessWhatLookingAt/blob/master/ReadmeFiles/image4.png">
   </tr>
 </table>
 </p>
